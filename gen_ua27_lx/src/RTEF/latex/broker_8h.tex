@@ -1,0 +1,402 @@
+\doxysection{include/broker.h File Reference}
+\hypertarget{broker_8h}{}\label{broker_8h}\index{include/broker.h@{include/broker.h}}
+
+
+Message Broker for Pub-\/\+Sub Communication.  
+
+
+{\ttfamily \#include "{}Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}task.\+h"{}}\newline
+{\ttfamily \#include "{}queue.\+h"{}}\newline
+{\ttfamily \#include "{}semphr.\+h"{}}\newline
+{\ttfamily \#include "{}message.\+h"{}}\newline
+{\ttfamily \#include "{}active\+\_\+object.\+h"{}}\newline
+{\ttfamily \#include "{}ao\+\_\+can.\+h"{}}\newline
+\doxysubsubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structtopic__config__t}{topic\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Configuration structure for topic-\/based messaging. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structtopic__entry__t}{topic\+\_\+entry\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Represents a topic and its list of subscribers. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{struct_broker___queue__t}{Broker\+\_\+\+Queue\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Message queue used by the broker. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structbroker}{broker}}
+\begin{DoxyCompactList}\small\item\em The core broker structure managing message distribution. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{broker_8h_a623ec78b7909090dbedac4af1d52abb4}{MAX\+\_\+\+QUEUE\+\_\+\+SIZE}}~64
+\begin{DoxyCompactList}\small\item\em Maximum number of messages in a queue. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{broker_8h_a91bc2cac3c4615c062e7524ba2ea2278}{MAX\+\_\+\+TOPICS}}~16
+\begin{DoxyCompactList}\small\item\em Maximum number of topics managed by the broker. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{broker_8h_ae039b6dcd703089e83fa3e1b3fc896c8}{MAX\+\_\+\+SUBSCRIBERS\+\_\+\+PER\+\_\+\+TOPIC}}~8
+\begin{DoxyCompactList}\small\item\em Maximum subscribers per topic. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{broker_8h_a25b9f6533efd7b3caf52d7f873352234}{TOPIC\+\_\+\+MASK}}~0x3\+FFEFFF
+\begin{DoxyCompactList}\small\item\em Mask applied to topic filtering. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659}{Queue\+Selection}} \{ \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659a04d5eb44be06ceb1a5a098f896f48034}{SECONDARY\+\_\+\+QUEUE}}
+, \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659a5cec4c839a504acfee482fbfe2977574}{PRIMARY\+\_\+\+QUEUE}}
+ \}
+\begin{DoxyCompactList}\small\item\em Specifies whether to post a message to the primary or secondary queue. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7a}{entry\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\+\_\+\+MATCH}}
+, \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aabf45d730958ea4212a090650e58b3dd8}{MASK}}
+, \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aa36ccd76c516f51bf87c02b44305284ca}{RANGE}}
+ \}
+\begin{DoxyCompactList}\small\item\em Defines the type of filtering used for topic subscriptions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{broker_8h_ae84ea3f0fc46a3a0c35b9b673f35b966}{broker\+\_\+ctor}} (void)
+\begin{DoxyCompactList}\small\item\em Initializes a Broker instance. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{broker_8h_ae7913925f99c2b3d7e48ea141543d6a4}{broker\+\_\+subscribe}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, \mbox{\hyperlink{structtopic__config__t}{topic\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}configs, uint16\+\_\+t length, \mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}subscriber)
+\begin{DoxyCompactList}\small\item\em Subscribes an Active\+Object to one or more topics. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{broker_8h_aca5a06178a10e0080861f092e9cc5cb7}{broker\+\_\+publish}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, uint32\+\_\+t topic, const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} frame)
+\begin{DoxyCompactList}\small\item\em Publishes a message to a topic. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{broker_8h_ac6c5918a794e9c28bda12384d078869b}{broker\+\_\+unsubscribe}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, \mbox{\hyperlink{structtopic__config__t}{topic\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}configs, uint16\+\_\+t length, \mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}subscriber)
+\begin{DoxyCompactList}\small\item\em Unsubscribes an Active\+Object from multiple topics. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{broker_8h_a66cb0d857015d19942dd14dffa533965}{broker\+\_\+post}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} frame, int primary)
+\begin{DoxyCompactList}\small\item\em Posts a message to the broker queue. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{broker_8h_aedfa6e518ee5f8e36d1e32769541f3d3}{broker\+\_\+post\+\_\+simulink}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}data, uint8\+\_\+t length)
+\begin{DoxyCompactList}\small\item\em Posts a message from Simulink to the broker queue. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{broker_8h_afa68ba3545281783006a71f7aa37e513}{broker\+\_\+post\+\_\+\+ISR}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} frame, int primary)
+\begin{DoxyCompactList}\small\item\em Posts a message from an ISR (Interrupt Service Routine). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{broker_8h_a9f2434a3fb69252dd7b3eaf8ee7484dc}{broker\+\_\+set\+\_\+filter}} (uint32\+\_\+t msg\+Id, uint32\+\_\+t mask, uint8\+\_\+t filter\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Configures a message filter for incoming CAN messages. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Message Broker for Pub-\/\+Sub Communication. 
+
+Provides functions for Active\+Objects to subscribe, publish, and unsubscribe from topics. Supports multi-\/threaded operation using mutex protection.
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+February 10, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{broker_8h_a623ec78b7909090dbedac4af1d52abb4}\index{broker.h@{broker.h}!MAX\_QUEUE\_SIZE@{MAX\_QUEUE\_SIZE}}
+\index{MAX\_QUEUE\_SIZE@{MAX\_QUEUE\_SIZE}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_QUEUE\_SIZE}{MAX\_QUEUE\_SIZE}}
+{\footnotesize\ttfamily \label{broker_8h_a623ec78b7909090dbedac4af1d52abb4} 
+\#define MAX\+\_\+\+QUEUE\+\_\+\+SIZE~64}
+
+
+
+Maximum number of messages in a queue. 
+
+
+
+Definition at line \mbox{\hyperlink{broker_8h_source_l00047}{47}} of file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+\Hypertarget{broker_8h_ae039b6dcd703089e83fa3e1b3fc896c8}\index{broker.h@{broker.h}!MAX\_SUBSCRIBERS\_PER\_TOPIC@{MAX\_SUBSCRIBERS\_PER\_TOPIC}}
+\index{MAX\_SUBSCRIBERS\_PER\_TOPIC@{MAX\_SUBSCRIBERS\_PER\_TOPIC}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_SUBSCRIBERS\_PER\_TOPIC}{MAX\_SUBSCRIBERS\_PER\_TOPIC}}
+{\footnotesize\ttfamily \label{broker_8h_ae039b6dcd703089e83fa3e1b3fc896c8} 
+\#define MAX\+\_\+\+SUBSCRIBERS\+\_\+\+PER\+\_\+\+TOPIC~8}
+
+
+
+Maximum subscribers per topic. 
+
+
+
+Definition at line \mbox{\hyperlink{broker_8h_source_l00053}{53}} of file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+\Hypertarget{broker_8h_a91bc2cac3c4615c062e7524ba2ea2278}\index{broker.h@{broker.h}!MAX\_TOPICS@{MAX\_TOPICS}}
+\index{MAX\_TOPICS@{MAX\_TOPICS}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_TOPICS}{MAX\_TOPICS}}
+{\footnotesize\ttfamily \label{broker_8h_a91bc2cac3c4615c062e7524ba2ea2278} 
+\#define MAX\+\_\+\+TOPICS~16}
+
+
+
+Maximum number of topics managed by the broker. 
+
+
+
+Definition at line \mbox{\hyperlink{broker_8h_source_l00050}{50}} of file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+\Hypertarget{broker_8h_a25b9f6533efd7b3caf52d7f873352234}\index{broker.h@{broker.h}!TOPIC\_MASK@{TOPIC\_MASK}}
+\index{TOPIC\_MASK@{TOPIC\_MASK}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{TOPIC\_MASK}{TOPIC\_MASK}}
+{\footnotesize\ttfamily \label{broker_8h_a25b9f6533efd7b3caf52d7f873352234} 
+\#define TOPIC\+\_\+\+MASK~0x3\+FFEFFF}
+
+
+
+Mask applied to topic filtering. 
+
+
+
+Definition at line \mbox{\hyperlink{broker_8h_source_l00056}{56}} of file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{broker_8h_a7e00527da87fefde59d447ebc4aedd7a}\index{broker.h@{broker.h}!entry\_type\_t@{entry\_type\_t}}
+\index{entry\_type\_t@{entry\_type\_t}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{entry\_type\_t}{entry\_type\_t}}
+{\footnotesize\ttfamily \label{broker_8h_a7e00527da87fefde59d447ebc4aedd7a} 
+enum \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7a}{entry\+\_\+type\+\_\+t}}}
+
+
+
+Defines the type of filtering used for topic subscriptions. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{EXACT\_MATCH@{EXACT\_MATCH}!broker.h@{broker.h}}\index{broker.h@{broker.h}!EXACT\_MATCH@{EXACT\_MATCH}}}\Hypertarget{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}\label{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79} 
+EXACT\+\_\+\+MATCH&Matches exact topic ID \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MASK@{MASK}!broker.h@{broker.h}}\index{broker.h@{broker.h}!MASK@{MASK}}}\Hypertarget{broker_8h_a7e00527da87fefde59d447ebc4aedd7aabf45d730958ea4212a090650e58b3dd8}\label{broker_8h_a7e00527da87fefde59d447ebc4aedd7aabf45d730958ea4212a090650e58b3dd8} 
+MASK&Uses a bitmask for topic filtering \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RANGE@{RANGE}!broker.h@{broker.h}}\index{broker.h@{broker.h}!RANGE@{RANGE}}}\Hypertarget{broker_8h_a7e00527da87fefde59d447ebc4aedd7aa36ccd76c516f51bf87c02b44305284ca}\label{broker_8h_a7e00527da87fefde59d447ebc4aedd7aa36ccd76c516f51bf87c02b44305284ca} 
+RANGE&Allows a range of topic values \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{broker_8h_source_l00071}{71}} of file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+\Hypertarget{broker_8h_a9af747320c5f5550ceda71171c087659}\index{broker.h@{broker.h}!QueueSelection@{QueueSelection}}
+\index{QueueSelection@{QueueSelection}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{QueueSelection}{QueueSelection}}
+{\footnotesize\ttfamily \label{broker_8h_a9af747320c5f5550ceda71171c087659} 
+enum \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659}{Queue\+Selection}}}
+
+
+
+Specifies whether to post a message to the primary or secondary queue. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SECONDARY\_QUEUE@{SECONDARY\_QUEUE}!broker.h@{broker.h}}\index{broker.h@{broker.h}!SECONDARY\_QUEUE@{SECONDARY\_QUEUE}}}\Hypertarget{broker_8h_a9af747320c5f5550ceda71171c087659a04d5eb44be06ceb1a5a098f896f48034}\label{broker_8h_a9af747320c5f5550ceda71171c087659a04d5eb44be06ceb1a5a098f896f48034} 
+SECONDARY\+\_\+\+QUEUE&Secondary message queue \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PRIMARY\_QUEUE@{PRIMARY\_QUEUE}!broker.h@{broker.h}}\index{broker.h@{broker.h}!PRIMARY\_QUEUE@{PRIMARY\_QUEUE}}}\Hypertarget{broker_8h_a9af747320c5f5550ceda71171c087659a5cec4c839a504acfee482fbfe2977574}\label{broker_8h_a9af747320c5f5550ceda71171c087659a5cec4c839a504acfee482fbfe2977574} 
+PRIMARY\+\_\+\+QUEUE&Primary message queue \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{broker_8h_source_l00062}{62}} of file \mbox{\hyperlink{broker_8h_source}{broker.\+h}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{broker_8h_ae84ea3f0fc46a3a0c35b9b673f35b966}\index{broker.h@{broker.h}!broker\_ctor@{broker\_ctor}}
+\index{broker\_ctor@{broker\_ctor}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_ctor()}{broker\_ctor()}}
+{\footnotesize\ttfamily \label{broker_8h_ae84ea3f0fc46a3a0c35b9b673f35b966} 
+\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*} broker\+\_\+ctor (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initializes a Broker instance. 
+
+Allocates memory and initializes the message queues and subscription lists.
+
+\begin{DoxyReturn}{Returns}
+Pointer to the initialized broker instance. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00188}{188}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_a66cb0d857015d19942dd14dffa533965}\index{broker.h@{broker.h}!broker\_post@{broker\_post}}
+\index{broker\_post@{broker\_post}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_post()}{broker\_post()}}
+{\footnotesize\ttfamily \label{broker_8h_a66cb0d857015d19942dd14dffa533965} 
+void broker\+\_\+post (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{\mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}}}]{frame}{, }\item[{int}]{primary}{}\end{DoxyParamCaption})}
+
+
+
+Posts a message to the broker queue. 
+
+The message is placed in either the {\bfseries{primary or secondary queue}}, based on the {\ttfamily primary} parameter.
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the broker instance. \\
+\hline
+{\em frame} & Message frame to be queued. \\
+\hline
+{\em primary} & Specifies the queue to use (PRIMARY\+\_\+\+QUEUE or SECONDARY\+\_\+\+QUEUE). \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00359}{359}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_afa68ba3545281783006a71f7aa37e513}\index{broker.h@{broker.h}!broker\_post\_ISR@{broker\_post\_ISR}}
+\index{broker\_post\_ISR@{broker\_post\_ISR}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_post\_ISR()}{broker\_post\_ISR()}}
+{\footnotesize\ttfamily \label{broker_8h_afa68ba3545281783006a71f7aa37e513} 
+void broker\+\_\+post\+\_\+\+ISR (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{\mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}}}]{frame}{, }\item[{int}]{primary}{}\end{DoxyParamCaption})}
+
+
+
+Posts a message from an ISR (Interrupt Service Routine). 
+
+Ensures real-\/time event dispatching without blocking execution.
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the broker instance. \\
+\hline
+{\em frame} & Message frame to be queued. \\
+\hline
+{\em primary} & Determines which queue to use (PRIMARY\+\_\+\+QUEUE or SECONDARY\+\_\+\+QUEUE). \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00378}{378}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_aedfa6e518ee5f8e36d1e32769541f3d3}\index{broker.h@{broker.h}!broker\_post\_simulink@{broker\_post\_simulink}}
+\index{broker\_post\_simulink@{broker\_post\_simulink}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_post\_simulink()}{broker\_post\_simulink()}}
+{\footnotesize\ttfamily \label{broker_8h_aedfa6e518ee5f8e36d1e32769541f3d3} 
+void broker\+\_\+post\+\_\+simulink (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{uint8\+\_\+t}]{length}{}\end{DoxyParamCaption})}
+
+
+
+Posts a message from Simulink to the broker queue. 
+
+Used for interfacing with Simulink-\/generated models.
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Pointer to the message data. \\
+\hline
+{\em length} & Length of the message data. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00367}{367}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_aca5a06178a10e0080861f092e9cc5cb7}\index{broker.h@{broker.h}!broker\_publish@{broker\_publish}}
+\index{broker\_publish@{broker\_publish}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_publish()}{broker\_publish()}}
+{\footnotesize\ttfamily \label{broker_8h_aca5a06178a10e0080861f092e9cc5cb7} 
+int broker\+\_\+publish (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{uint32\+\_\+t}]{topic}{, }\item[{const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}}}]{frame}{}\end{DoxyParamCaption})}
+
+
+
+Publishes a message to a topic. 
+
+The message is delivered to all subscribers of the specified topic.
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the broker instance. \\
+\hline
+{\em topic} & Topic ID to publish to. \\
+\hline
+{\em frame} & Message frame containing the data. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if successful, 0 otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00304}{304}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_a9f2434a3fb69252dd7b3eaf8ee7484dc}\index{broker.h@{broker.h}!broker\_set\_filter@{broker\_set\_filter}}
+\index{broker\_set\_filter@{broker\_set\_filter}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_set\_filter()}{broker\_set\_filter()}}
+{\footnotesize\ttfamily \label{broker_8h_a9f2434a3fb69252dd7b3eaf8ee7484dc} 
+void broker\+\_\+set\+\_\+filter (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{msg\+Id}{, }\item[{uint32\+\_\+t}]{mask}{, }\item[{uint8\+\_\+t}]{filter\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Configures a message filter for incoming CAN messages. 
+
+Used to limit which messages are processed based on ID and mask.
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg\+Id} & The message ID to filter. \\
+\hline
+{\em mask} & Bitmask for filtering. \\
+\hline
+{\em filter\+\_\+type} & Type of filtering (MASK, RANGE, etc.). \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00386}{386}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_ae7913925f99c2b3d7e48ea141543d6a4}\index{broker.h@{broker.h}!broker\_subscribe@{broker\_subscribe}}
+\index{broker\_subscribe@{broker\_subscribe}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_subscribe()}{broker\_subscribe()}}
+{\footnotesize\ttfamily \label{broker_8h_ae7913925f99c2b3d7e48ea141543d6a4} 
+int broker\+\_\+subscribe (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{\mbox{\hyperlink{structtopic__config__t}{topic\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{configs}{, }\item[{uint16\+\_\+t}]{length}{, }\item[{\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{subscriber}{}\end{DoxyParamCaption})}
+
+
+
+Subscribes an Active\+Object to one or more topics. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the broker instance. \\
+\hline
+{\em configs} & Pointer to topic configurations. \\
+\hline
+{\em length} & Number of topics in {\ttfamily configs}. \\
+\hline
+{\em subscriber} & The Active\+Object subscribing to topics. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if subscription was successful, 0 otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00214}{214}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+
+\Hypertarget{broker_8h_ac6c5918a794e9c28bda12384d078869b}\index{broker.h@{broker.h}!broker\_unsubscribe@{broker\_unsubscribe}}
+\index{broker\_unsubscribe@{broker\_unsubscribe}!broker.h@{broker.h}}
+\doxysubsubsection{\texorpdfstring{broker\_unsubscribe()}{broker\_unsubscribe()}}
+{\footnotesize\ttfamily \label{broker_8h_ac6c5918a794e9c28bda12384d078869b} 
+int broker\+\_\+unsubscribe (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{\mbox{\hyperlink{structtopic__config__t}{topic\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{configs}{, }\item[{uint16\+\_\+t}]{length}{, }\item[{\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{subscriber}{}\end{DoxyParamCaption})}
+
+
+
+Unsubscribes an Active\+Object from multiple topics. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the Broker instance. \\
+\hline
+{\em configs} & Pointer to an array of topic configurations. \\
+\hline
+{\em length} & Number of topics in {\ttfamily configs}. \\
+\hline
+{\em subscriber} & The Active\+Object that wants to unsubscribe. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of successfully unsubscribed topics. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{broker_8c_source_l00266}{266}} of file \mbox{\hyperlink{broker_8c_source}{broker.\+c}}.
+

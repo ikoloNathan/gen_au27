@@ -1,0 +1,65 @@
+\doxysection{fsm.\+c}
+\hypertarget{fsm_8c_source}{}\label{fsm_8c_source}\index{src/fsm.c@{src/fsm.c}}
+\mbox{\hyperlink{fsm_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00015}00015\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00016}00016\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00017}00017\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00019}00019\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{fsm_8h}{fsm.h}}>}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00031}\mbox{\hyperlink{fsm_8h_ab8e7b0b29808e166841510b1b92759d7}{00031}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{fsm_8c_ab8e7b0b29808e166841510b1b92759d7}{fsm\_init}}(\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\_t}}\ *\mbox{\hyperlink{structfsm}{fsm}},\ \mbox{\hyperlink{fsm_8h_a6d795d70c71822ed110b77cffa499f13}{state\_t}}\ *initial)\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00032}00032\ \ \ \ \ \textcolor{keywordflow}{if}\ (initial\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00033}00033\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}\ =\ initial;}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00035}00035\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ Call\ entry\ action\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00036}00036\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a627a76c5fb4d04a584ca7013a0319007}{on\_entry}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00037}00037\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a627a76c5fb4d04a584ca7013a0319007}{on\_entry}}(\mbox{\hyperlink{structfsm}{fsm}});}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00038}00038\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00039}00039\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00040}00040\ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00055}\mbox{\hyperlink{fsm_8h_a71c79510d10e7635f67adc447f32092f}{00055}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{fsm_8c_a71c79510d10e7635f67adc447f32092f}{fsm\_handler}}(\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\_t}}\ *\mbox{\hyperlink{structfsm}{fsm}},\ \textcolor{keyword}{const}\ \mbox{\hyperlink{fsm_8h_ad0c066ffb009d3286186a124d37a0c2d}{event\_t}}\ *\mbox{\hyperlink{structevent}{event}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00056}00056\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}})}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00057}00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00059}00059\ \ \ \ \ \textcolor{comment}{/*\ Search\ jump\ table\ for\ matching\ signal\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00060}00060\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a9a01340665a6866a0fa5cd21546233fc}{transition\_count}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\_t}}\ *t\ =\ \&\mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a04e609ad1eb89ee1bb5fed0e29c468e5}{transitions}}[i];}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (t-\/>\mbox{\hyperlink{structtransition_a07600146a4c46e9ba4f756d78e282194}{signal}}\ ==\ \mbox{\hyperlink{structevent}{event}}-\/>\mbox{\hyperlink{structevent_a07600146a4c46e9ba4f756d78e282194}{signal}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ Call\ exit\ action\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a0008a6a64a1b12c161f45ea6292ba9ae}{on\_exit}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a0008a6a64a1b12c161f45ea6292ba9ae}{on\_exit}}(\mbox{\hyperlink{structfsm}{fsm}});}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ Call\ transition\ action\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (t-\/>\mbox{\hyperlink{structtransition_a54d96042d0f1a2aa4ae2964ffc054850}{action}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ t-\/>\mbox{\hyperlink{structtransition_a54d96042d0f1a2aa4ae2964ffc054850}{action}}(\mbox{\hyperlink{structfsm}{fsm}});}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ Change\ state\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}\ =\ t-\/>\mbox{\hyperlink{structtransition_a79114d7128e7a564724e8c9af9fc7899}{next\_state}};}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ Call\ entry\ action\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a627a76c5fb4d04a584ca7013a0319007}{on\_entry}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a627a76c5fb4d04a584ca7013a0319007}{on\_entry}}(\mbox{\hyperlink{structfsm}{fsm}});}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00083}00083\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00085}00085\ \ \ \ \ \textcolor{comment}{/*\ If\ no\ transition\ found,\ call\ handler\ */}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00086}00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a6c87afd6f59e4bd84bfae6ea3d3069bb}{handler}})\ \{}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structfsm}{fsm}}-\/>\mbox{\hyperlink{structfsm_aa9b756ba70abd5dd9f02102aea4a95f3}{current\_state}}-\/>\mbox{\hyperlink{structstate_a6c87afd6f59e4bd84bfae6ea3d3069bb}{handler}}(\mbox{\hyperlink{structfsm}{fsm}},\ \mbox{\hyperlink{structevent}{event}});}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00088}00088\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00089}00089\ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00090}00090\ }
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00091}00091\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00092}00092\ \}}
+\DoxyCodeLine{\Hypertarget{fsm_8c_source_l00093}00093\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

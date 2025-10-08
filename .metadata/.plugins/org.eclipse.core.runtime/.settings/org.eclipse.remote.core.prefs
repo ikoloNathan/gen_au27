@@ -1,0 +1,17 @@
+connections/com.st.stm32cube.ide.mpu.remote.serial.connectionType/MPU+Serial/__internal_serial_connection_for_mpu=__internal_serial_connection_for_mpu
+connections/com.st.stm32cube.ide.mpu.remote.serial.connectionType/MPU+Serial/serial.baudRate=11
+connections/com.st.stm32cube.ide.mpu.remote.serial.connectionType/MPU+Serial/serial.byteSize=3
+connections/com.st.stm32cube.ide.mpu.remote.serial.connectionType/MPU+Serial/serial.parity=0
+connections/com.st.stm32cube.ide.mpu.remote.serial.connectionType/MPU+Serial/serial.portName=/dev/ttyACM0
+connections/com.st.stm32cube.ide.mpu.remote.serial.connectionType/MPU+Serial/serial.stopBits=0
+connections/org.eclipse.remote.JSch/MPU+SSH/JSCH_ADDRESS_ATTR=192.168.0.50
+connections/org.eclipse.remote.JSch/MPU+SSH/JSCH_IS_PASSWORD_ATTR=false
+connections/org.eclipse.remote.JSch/MPU+SSH/JSCH_USERNAME_ATTR=root
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_ADDRESS_ATTR=192.168.0.50
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_IS_PASSWORD_ATTR=false
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_LOGIN_SHELL_COMMAND_ATTR=/bin/bash -l -c '{0}'
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_PORT_ATTR=22
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_TIMEOUT_ATTR=0
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_USERNAME_ATTR=root
+connections/org.eclipse.remote.JSch/Remote+Host/JSCH_USE_LOGIN_SHELL_ATTR=true
+eclipse.preferences.version=1

@@ -1,0 +1,89 @@
+\doxysection{state Struct Reference}
+\hypertarget{structstate}{}\label{structstate}\index{state@{state}}
+
+
+Represents a state in the FSM with optional event handling.  
+
+
+
+
+{\ttfamily \#include $<$fsm.\+h$>$}
+
+\doxysubsubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{fsm_8h_adca066b7b7d91619bf6638349e749e46}{state\+\_\+handler}} \mbox{\hyperlink{structstate_a6c87afd6f59e4bd84bfae6ea3d3069bb}{handler}}
+\item 
+\mbox{\hyperlink{fsm_8h_a5d18ff4a2c2bcabbd294d91e483f54e8}{action\+\_\+function}} \mbox{\hyperlink{structstate_a627a76c5fb4d04a584ca7013a0319007}{on\+\_\+entry}}
+\item 
+\mbox{\hyperlink{fsm_8h_a5d18ff4a2c2bcabbd294d91e483f54e8}{action\+\_\+function}} \mbox{\hyperlink{structstate_a0008a6a64a1b12c161f45ea6292ba9ae}{on\+\_\+exit}}
+\item 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structstate_a04e609ad1eb89ee1bb5fed0e29c468e5}{transitions}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structstate_a9a01340665a6866a0fa5cd21546233fc}{transition\+\_\+count}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents a state in the FSM with optional event handling. 
+
+Definition at line \mbox{\hyperlink{fsm_8h_source_l00095}{95}} of file \mbox{\hyperlink{fsm_8h_source}{fsm.\+h}}.
+
+
+
+\doxysubsection{Field Documentation}
+\Hypertarget{structstate_a6c87afd6f59e4bd84bfae6ea3d3069bb}\index{state@{state}!handler@{handler}}
+\index{handler@{handler}!state@{state}}
+\doxysubsubsection{\texorpdfstring{handler}{handler}}
+{\footnotesize\ttfamily \label{structstate_a6c87afd6f59e4bd84bfae6ea3d3069bb} 
+\mbox{\hyperlink{fsm_8h_adca066b7b7d91619bf6638349e749e46}{state\+\_\+handler}} handler}
+
+Optional function to handle state-\/specific events. 
+
+Definition at line \mbox{\hyperlink{fsm_8h_source_l00096}{96}} of file \mbox{\hyperlink{fsm_8h_source}{fsm.\+h}}.
+
+\Hypertarget{structstate_a627a76c5fb4d04a584ca7013a0319007}\index{state@{state}!on\_entry@{on\_entry}}
+\index{on\_entry@{on\_entry}!state@{state}}
+\doxysubsubsection{\texorpdfstring{on\_entry}{on\_entry}}
+{\footnotesize\ttfamily \label{structstate_a627a76c5fb4d04a584ca7013a0319007} 
+\mbox{\hyperlink{fsm_8h_a5d18ff4a2c2bcabbd294d91e483f54e8}{action\+\_\+function}} on\+\_\+entry}
+
+Function executed upon entering the state. 
+
+Definition at line \mbox{\hyperlink{fsm_8h_source_l00097}{97}} of file \mbox{\hyperlink{fsm_8h_source}{fsm.\+h}}.
+
+\Hypertarget{structstate_a0008a6a64a1b12c161f45ea6292ba9ae}\index{state@{state}!on\_exit@{on\_exit}}
+\index{on\_exit@{on\_exit}!state@{state}}
+\doxysubsubsection{\texorpdfstring{on\_exit}{on\_exit}}
+{\footnotesize\ttfamily \label{structstate_a0008a6a64a1b12c161f45ea6292ba9ae} 
+\mbox{\hyperlink{fsm_8h_a5d18ff4a2c2bcabbd294d91e483f54e8}{action\+\_\+function}} on\+\_\+exit}
+
+Function executed upon exiting the state. 
+
+Definition at line \mbox{\hyperlink{fsm_8h_source_l00098}{98}} of file \mbox{\hyperlink{fsm_8h_source}{fsm.\+h}}.
+
+\Hypertarget{structstate_a9a01340665a6866a0fa5cd21546233fc}\index{state@{state}!transition\_count@{transition\_count}}
+\index{transition\_count@{transition\_count}!state@{state}}
+\doxysubsubsection{\texorpdfstring{transition\_count}{transition\_count}}
+{\footnotesize\ttfamily \label{structstate_a9a01340665a6866a0fa5cd21546233fc} 
+uint8\+\_\+t transition\+\_\+count}
+
+Number of available transitions. 
+
+Definition at line \mbox{\hyperlink{fsm_8h_source_l00100}{100}} of file \mbox{\hyperlink{fsm_8h_source}{fsm.\+h}}.
+
+\Hypertarget{structstate_a04e609ad1eb89ee1bb5fed0e29c468e5}\index{state@{state}!transitions@{transitions}}
+\index{transitions@{transitions}!state@{state}}
+\doxysubsubsection{\texorpdfstring{transitions}{transitions}}
+{\footnotesize\ttfamily \label{structstate_a04e609ad1eb89ee1bb5fed0e29c468e5} 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}}\texorpdfstring{$\ast$}{*} transitions}
+
+Pointer to an array of valid transitions. 
+
+Definition at line \mbox{\hyperlink{fsm_8h_source_l00099}{99}} of file \mbox{\hyperlink{fsm_8h_source}{fsm.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{fsm_8h}{fsm.\+h}}\end{DoxyCompactItemize}

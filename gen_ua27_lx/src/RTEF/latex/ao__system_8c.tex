@@ -1,0 +1,704 @@
+\doxysection{src/ao\+\_\+system.c File Reference}
+\hypertarget{ao__system_8c}{}\label{ao__system_8c}\index{src/ao\_system.c@{src/ao\_system.c}}
+
+
+Implements the System Active Object with FSM-\/based state transitions.  
+
+
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include "{}ao\+\_\+system.\+h"{}}\newline
+{\ttfamily \#include $<$broker.\+h$>$}\newline
+{\ttfamily \#include "{}sysdefns.\+h"{}}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ao__system_8c_ac7545ea72c567d161b88e5d4789c4de8}{SYSTEM\+\_\+\+CONFIGS\+\_\+\+MAX}}~3
+\begin{DoxyCompactList}\small\item\em Maximum number of system configuration topics to subscribe to. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(signal,  \mbox{\hyperlink{structstate}{state}},  action)
+\begin{DoxyCompactList}\small\item\em Macro to define a state transition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{ao__system_8c_a408b346c2bbfcf1ad98bf5cbaca04daa}{on\+\_\+enter\+\_\+initialisation}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles entry into Initialization State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_a38c2b43256bca3041343406652dbd713}{on\+\_\+exit\+\_\+initialisation}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles exit from Initialization State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_a29bbdf5782cdbd8eb3e34e7b53b0c986}{on\+\_\+enter\+\_\+operational}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles entry into Operational State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_a1103cc379f924a7c6820a1624d413525}{on\+\_\+exit\+\_\+operational}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles exit from Operational State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_abee5ae8781c1150332989d2b7a930ba5}{on\+\_\+enter\+\_\+error}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles entry into Error State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_affc94226b61d74597bda099b382b4aa3}{on\+\_\+exit\+\_\+error}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles exit from Error State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_a86b96a0d2b9e217b550f76eff8504eb5}{on\+\_\+enter\+\_\+loader}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles entry into Loader State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_ac845320113a5a1edc920e9c44a8d6596}{on\+\_\+exit\+\_\+loader}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles exit from Loader State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_aea16ad3c8aea0c8f3195ec44ff7c657b}{on\+\_\+enter\+\_\+maintenance}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles entry into Maintenance State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_af7bc2a34c5c723139536690bf8136e60}{on\+\_\+exit\+\_\+maintenance}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Handles exit from Maintenance State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_a1bbde794c4852320878e671dc7ca2588}{transition\+\_\+operational}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Transition action from Initialization to Operational State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_a7763e5cf82a0bbe7dbfe4d8591791fe6}{transition\+\_\+error}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Transition action from Initialization to Error State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_acb76ffc48a18e217b9be7c98e35757fe}{transition\+\_\+loader}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Transition action to Loader State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_aeffe9dc776bb54500d42c6e5c9c6c637}{transition\+\_\+maintenance}} (\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structfsm}{fsm}})
+\begin{DoxyCompactList}\small\item\em Transition action to Maintenance State. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__system_8c_adf3b365c450105d73f44ba1cb70bca1d}{system\+\_\+ctor}} (\mbox{\hyperlink{structsystem__obj__t}{system\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, \mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, char \texorpdfstring{$\ast$}{*}name)
+\begin{DoxyCompactList}\small\item\em Constructs and initializes the system active object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structsys__info__t}{sys\+\_\+info\+\_\+t}} \mbox{\hyperlink{ao__system_8c_a738569af77297d7dcf165e1e20053878}{sys\+\_\+info}}
+\begin{DoxyCompactList}\small\item\em System-\/wide information structure. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structhw__info__t}{hw\+\_\+info\+\_\+t}} \mbox{\hyperlink{ao__system_8c_ae372aa63fdb3bf2db568d59dd5ffd045}{hw}}
+\begin{DoxyCompactList}\small\item\em Hardware version information structure. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structsw__info__t}{sw\+\_\+info\+\_\+t}} \mbox{\hyperlink{ao__system_8c_aa04c119d91b74639c759ae1101710b13}{sw}}
+\begin{DoxyCompactList}\small\item\em Software version information structure. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} \mbox{\hyperlink{ao__system_8c_a43787161ff5e04ee616548c8b4706bbb}{initialisation\+\_\+transitions}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Transition table for Initialization State. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} \mbox{\hyperlink{ao__system_8c_a040857d10102e24fcbf6068c500bc945}{operational\+\_\+transitions}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Transition table for Operational State. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} \mbox{\hyperlink{ao__system_8c_a999f6806f7e6f987c7bf5b0bff368472}{error\+\_\+transitions}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Transition table for Error State. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} \mbox{\hyperlink{ao__system_8c_a5a6e46c34ebc2919f54cf439e81491b3}{loader\+\_\+transitions}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Transition table for Loader State. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} \mbox{\hyperlink{ao__system_8c_a4d1739f549823cd2fb86a5427ef8108a}{maintenance\+\_\+transitions}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Transition table for Maintenance State. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstate}{state}} \mbox{\hyperlink{ao__system_8c_ae8ec9dbe46f10facae102a68376f009a}{initialisation\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em State variable representing the initialization state. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstate}{state}} \mbox{\hyperlink{ao__system_8c_abc17b19fc483075095e1d29351b3ee0b}{operational\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em State variable representing the operational state. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstate}{state}} \mbox{\hyperlink{ao__system_8c_a1c9a6198bfa95c56b695b211ada63d82}{error\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em State variable representing the error state. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstate}{state}} \mbox{\hyperlink{ao__system_8c_a18c2253f25b127fdb958a4eed0553ecf}{loader\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em State variable representing the loader state. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstate}{state}} \mbox{\hyperlink{ao__system_8c_afb09338b17da2b329134bddaa93e2e4f}{maintenance\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em State variable representing the maintenance state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements the System Active Object with FSM-\/based state transitions. 
+
+This file defines the states, transitions, and dispatch mechanism for managing the system\textquotesingle{}s operation, including Initialization, Operational, Error, Loader, and Maintenance modes.
+
+The system Active Object integrates with a finite state machine (FSM) to manage transitions between different states based on incoming events.
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+February 21, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{ao__system_8c_ac7545ea72c567d161b88e5d4789c4de8}\index{ao\_system.c@{ao\_system.c}!SYSTEM\_CONFIGS\_MAX@{SYSTEM\_CONFIGS\_MAX}}
+\index{SYSTEM\_CONFIGS\_MAX@{SYSTEM\_CONFIGS\_MAX}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{SYSTEM\_CONFIGS\_MAX}{SYSTEM\_CONFIGS\_MAX}}
+{\footnotesize\ttfamily \label{ao__system_8c_ac7545ea72c567d161b88e5d4789c4de8} 
+\#define SYSTEM\+\_\+\+CONFIGS\+\_\+\+MAX~3}
+
+
+
+Maximum number of system configuration topics to subscribe to. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00030}{30}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}\index{ao\_system.c@{ao\_system.c}!TRANSIT@{TRANSIT}}
+\index{TRANSIT@{TRANSIT}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{TRANSIT}{TRANSIT}}
+{\footnotesize\ttfamily \label{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68} 
+\#define TRANSIT(\begin{DoxyParamCaption}\item[{}]{signal}{, }\item[{}]{\mbox{\hyperlink{structstate}{state}}}{, }\item[{}]{action}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\{\ signal,\ \&\mbox{\hyperlink{structstate}{state}},\ action\ \}}
+
+\end{DoxyCode}
+
+
+Macro to define a state transition. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00033}{33}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{ao__system_8c_abee5ae8781c1150332989d2b7a930ba5}\index{ao\_system.c@{ao\_system.c}!on\_enter\_error@{on\_enter\_error}}
+\index{on\_enter\_error@{on\_enter\_error}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_enter\_error()}{on\_enter\_error()}}
+{\footnotesize\ttfamily \label{ao__system_8c_abee5ae8781c1150332989d2b7a930ba5} 
+void on\+\_\+enter\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles entry into Error State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00104}{104}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a408b346c2bbfcf1ad98bf5cbaca04daa}\index{ao\_system.c@{ao\_system.c}!on\_enter\_initialisation@{on\_enter\_initialisation}}
+\index{on\_enter\_initialisation@{on\_enter\_initialisation}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_enter\_initialisation()}{on\_enter\_initialisation()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a408b346c2bbfcf1ad98bf5cbaca04daa} 
+void on\+\_\+enter\+\_\+initialisation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles entry into Initialization State. 
+
+Subscribes to system topics and posts a status message.
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00053}{53}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a86b96a0d2b9e217b550f76eff8504eb5}\index{ao\_system.c@{ao\_system.c}!on\_enter\_loader@{on\_enter\_loader}}
+\index{on\_enter\_loader@{on\_enter\_loader}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_enter\_loader()}{on\_enter\_loader()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a86b96a0d2b9e217b550f76eff8504eb5} 
+void on\+\_\+enter\+\_\+loader (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles entry into Loader State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00126}{126}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_aea16ad3c8aea0c8f3195ec44ff7c657b}\index{ao\_system.c@{ao\_system.c}!on\_enter\_maintenance@{on\_enter\_maintenance}}
+\index{on\_enter\_maintenance@{on\_enter\_maintenance}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_enter\_maintenance()}{on\_enter\_maintenance()}}
+{\footnotesize\ttfamily \label{ao__system_8c_aea16ad3c8aea0c8f3195ec44ff7c657b} 
+void on\+\_\+enter\+\_\+maintenance (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles entry into Maintenance State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00148}{148}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a29bbdf5782cdbd8eb3e34e7b53b0c986}\index{ao\_system.c@{ao\_system.c}!on\_enter\_operational@{on\_enter\_operational}}
+\index{on\_enter\_operational@{on\_enter\_operational}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_enter\_operational()}{on\_enter\_operational()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a29bbdf5782cdbd8eb3e34e7b53b0c986} 
+void on\+\_\+enter\+\_\+operational (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles entry into Operational State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00082}{82}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_affc94226b61d74597bda099b382b4aa3}\index{ao\_system.c@{ao\_system.c}!on\_exit\_error@{on\_exit\_error}}
+\index{on\_exit\_error@{on\_exit\_error}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_exit\_error()}{on\_exit\_error()}}
+{\footnotesize\ttfamily \label{ao__system_8c_affc94226b61d74597bda099b382b4aa3} 
+void on\+\_\+exit\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles exit from Error State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00115}{115}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a38c2b43256bca3041343406652dbd713}\index{ao\_system.c@{ao\_system.c}!on\_exit\_initialisation@{on\_exit\_initialisation}}
+\index{on\_exit\_initialisation@{on\_exit\_initialisation}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_exit\_initialisation()}{on\_exit\_initialisation()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a38c2b43256bca3041343406652dbd713} 
+void on\+\_\+exit\+\_\+initialisation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles exit from Initialization State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00071}{71}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_ac845320113a5a1edc920e9c44a8d6596}\index{ao\_system.c@{ao\_system.c}!on\_exit\_loader@{on\_exit\_loader}}
+\index{on\_exit\_loader@{on\_exit\_loader}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_exit\_loader()}{on\_exit\_loader()}}
+{\footnotesize\ttfamily \label{ao__system_8c_ac845320113a5a1edc920e9c44a8d6596} 
+void on\+\_\+exit\+\_\+loader (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles exit from Loader State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00137}{137}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_af7bc2a34c5c723139536690bf8136e60}\index{ao\_system.c@{ao\_system.c}!on\_exit\_maintenance@{on\_exit\_maintenance}}
+\index{on\_exit\_maintenance@{on\_exit\_maintenance}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_exit\_maintenance()}{on\_exit\_maintenance()}}
+{\footnotesize\ttfamily \label{ao__system_8c_af7bc2a34c5c723139536690bf8136e60} 
+void on\+\_\+exit\+\_\+maintenance (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles exit from Maintenance State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00159}{159}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a1103cc379f924a7c6820a1624d413525}\index{ao\_system.c@{ao\_system.c}!on\_exit\_operational@{on\_exit\_operational}}
+\index{on\_exit\_operational@{on\_exit\_operational}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{on\_exit\_operational()}{on\_exit\_operational()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a1103cc379f924a7c6820a1624d413525} 
+void on\+\_\+exit\+\_\+operational (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Handles exit from Operational State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00093}{93}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_adf3b365c450105d73f44ba1cb70bca1d}\index{ao\_system.c@{ao\_system.c}!system\_ctor@{system\_ctor}}
+\index{system\_ctor@{system\_ctor}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{system\_ctor()}{system\_ctor()}}
+{\footnotesize\ttfamily \label{ao__system_8c_adf3b365c450105d73f44ba1cb70bca1d} 
+void system\+\_\+ctor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structsystem__obj__t}{system\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const}]{me}{, }\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Constructs and initializes the system active object. 
+
+This function initializes the system active object, linking it to a broker for event-\/based communication.
+
+
+\begin{DoxyParams}{Parameters}
+{\em me} & Pointer to the system active object instance. \\
+\hline
+{\em broker} & Pointer to the event broker managing communication. \\
+\hline
+{\em name} & Name of the system active object. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00329}{329}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a7763e5cf82a0bbe7dbfe4d8591791fe6}\index{ao\_system.c@{ao\_system.c}!transition\_error@{transition\_error}}
+\index{transition\_error@{transition\_error}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{transition\_error()}{transition\_error()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a7763e5cf82a0bbe7dbfe4d8591791fe6} 
+void transition\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Transition action from Initialization to Error State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00183}{183}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_acb76ffc48a18e217b9be7c98e35757fe}\index{ao\_system.c@{ao\_system.c}!transition\_loader@{transition\_loader}}
+\index{transition\_loader@{transition\_loader}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{transition\_loader()}{transition\_loader()}}
+{\footnotesize\ttfamily \label{ao__system_8c_acb76ffc48a18e217b9be7c98e35757fe} 
+void transition\+\_\+loader (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Transition action to Loader State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00194}{194}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_aeffe9dc776bb54500d42c6e5c9c6c637}\index{ao\_system.c@{ao\_system.c}!transition\_maintenance@{transition\_maintenance}}
+\index{transition\_maintenance@{transition\_maintenance}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{transition\_maintenance()}{transition\_maintenance()}}
+{\footnotesize\ttfamily \label{ao__system_8c_aeffe9dc776bb54500d42c6e5c9c6c637} 
+void transition\+\_\+maintenance (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Transition action to Maintenance State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00205}{205}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a1bbde794c4852320878e671dc7ca2588}\index{ao\_system.c@{ao\_system.c}!transition\_operational@{transition\_operational}}
+\index{transition\_operational@{transition\_operational}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{transition\_operational()}{transition\_operational()}}
+{\footnotesize\ttfamily \label{ao__system_8c_a1bbde794c4852320878e671dc7ca2588} 
+void transition\+\_\+operational (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{fsm}{}\end{DoxyParamCaption})}
+
+
+
+Transition action from Initialization to Operational State. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fsm} & Pointer to the FSM instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00172}{172}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{ao__system_8c_a1c9a6198bfa95c56b695b211ada63d82}\index{ao\_system.c@{ao\_system.c}!error\_state@{error\_state}}
+\index{error\_state@{error\_state}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{error\_state}{error\_state}}
+{\footnotesize\ttfamily \label{ao__system_8c_a1c9a6198bfa95c56b695b211ada63d82} 
+struct \mbox{\hyperlink{structstate}{state}} error\+\_\+state}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\ .handler\ =\ NULL,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_entry\ =\ \mbox{\hyperlink{ao__system_8c_abee5ae8781c1150332989d2b7a930ba5}{on\_enter\_error}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_exit\ =\ \mbox{\hyperlink{ao__system_8c_affc94226b61d74597bda099b382b4aa3}{on\_exit\_error}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transitions\ =\ \mbox{\hyperlink{ao__system_8c_a999f6806f7e6f987c7bf5b0bff368472}{error\_transitions}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transition\_count\ =\ 3\ \}}
+
+\end{DoxyCode}
+
+
+State variable representing the error state. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00278}{278}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a999f6806f7e6f987c7bf5b0bff368472}\index{ao\_system.c@{ao\_system.c}!error\_transitions@{error\_transitions}}
+\index{error\_transitions@{error\_transitions}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{error\_transitions}{error\_transitions}}
+{\footnotesize\ttfamily \label{ao__system_8c_a999f6806f7e6f987c7bf5b0bff368472} 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} error\+\_\+transitions\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a4418ba64828f7a1eaa53c34b6a93d2b2}{SIGNAL\_ENTER\_LOADER}},\ \mbox{\hyperlink{ao__system_8h_a18c2253f25b127fdb958a4eed0553ecf}{loader\_state}},\ \mbox{\hyperlink{ao__system_8c_acb76ffc48a18e217b9be7c98e35757fe}{transition\_loader}}),}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84ac4bbd0a4cf88b06063434c41058b9031}{SIGNAL\_ENTER\_MAINTENANCE}},\ \mbox{\hyperlink{ao__system_8h_afb09338b17da2b329134bddaa93e2e4f}{maintenance\_state}},\ \mbox{\hyperlink{ao__system_8c_aeffe9dc776bb54500d42c6e5c9c6c637}{transition\_maintenance}}),}
+\DoxyCodeLine{}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Transition table for Error State. 
+
+Defines possible transitions from Error to other states. 
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00237}{237}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_ae372aa63fdb3bf2db568d59dd5ffd045}\index{ao\_system.c@{ao\_system.c}!hw@{hw}}
+\index{hw@{hw}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{hw}{hw}}
+{\footnotesize\ttfamily \label{ao__system_8c_ae372aa63fdb3bf2db568d59dd5ffd045} 
+\mbox{\hyperlink{structhw__info__t}{hw\+\_\+info\+\_\+t}} hw}
+
+
+
+Hardware version information structure. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00039}{39}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_ae8ec9dbe46f10facae102a68376f009a}\index{ao\_system.c@{ao\_system.c}!initialisation\_state@{initialisation\_state}}
+\index{initialisation\_state@{initialisation\_state}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{initialisation\_state}{initialisation\_state}}
+{\footnotesize\ttfamily \label{ao__system_8c_ae8ec9dbe46f10facae102a68376f009a} 
+struct \mbox{\hyperlink{structstate}{state}} initialisation\+\_\+state}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\ .handler\ =\ NULL,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_entry\ =\ \mbox{\hyperlink{ao__system_8c_a408b346c2bbfcf1ad98bf5cbaca04daa}{on\_enter\_initialisation}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_exit\ =\ \mbox{\hyperlink{ao__system_8c_a38c2b43256bca3041343406652dbd713}{on\_exit\_initialisation}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transitions\ =\ \mbox{\hyperlink{ao__system_8c_a43787161ff5e04ee616548c8b4706bbb}{initialisation\_transitions}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transition\_count\ =\ 2\ \}}
+
+\end{DoxyCode}
+
+
+State variable representing the initialization state. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00266}{266}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a43787161ff5e04ee616548c8b4706bbb}\index{ao\_system.c@{ao\_system.c}!initialisation\_transitions@{initialisation\_transitions}}
+\index{initialisation\_transitions@{initialisation\_transitions}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{initialisation\_transitions}{initialisation\_transitions}}
+{\footnotesize\ttfamily \label{ao__system_8c_a43787161ff5e04ee616548c8b4706bbb} 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} initialisation\+\_\+transitions\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a6e4838339a19b8cf431392272b931af3}{SIGNAL\_POST\_PASS}},\ \mbox{\hyperlink{ao__system_8h_abc17b19fc483075095e1d29351b3ee0b}{operational\_state}},\ \mbox{\hyperlink{ao__system_8c_a1bbde794c4852320878e671dc7ca2588}{transition\_operational}}),}
+\DoxyCodeLine{}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Transition table for Initialization State. 
+
+Defines possible transitions from Initialization to other states. 
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00217}{217}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a18c2253f25b127fdb958a4eed0553ecf}\index{ao\_system.c@{ao\_system.c}!loader\_state@{loader\_state}}
+\index{loader\_state@{loader\_state}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{loader\_state}{loader\_state}}
+{\footnotesize\ttfamily \label{ao__system_8c_a18c2253f25b127fdb958a4eed0553ecf} 
+struct \mbox{\hyperlink{structstate}{state}} loader\+\_\+state}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\ .handler\ =\ NULL,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_entry\ =\ \mbox{\hyperlink{ao__system_8c_a86b96a0d2b9e217b550f76eff8504eb5}{on\_enter\_loader}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_exit\ =\ \mbox{\hyperlink{ao__system_8c_ac845320113a5a1edc920e9c44a8d6596}{on\_exit\_loader}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transitions\ =\ \mbox{\hyperlink{ao__system_8c_a5a6e46c34ebc2919f54cf439e81491b3}{loader\_transitions}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transition\_count\ =\ 2\ \}}
+
+\end{DoxyCode}
+
+
+State variable representing the loader state. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00284}{284}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a5a6e46c34ebc2919f54cf439e81491b3}\index{ao\_system.c@{ao\_system.c}!loader\_transitions@{loader\_transitions}}
+\index{loader\_transitions@{loader\_transitions}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{loader\_transitions}{loader\_transitions}}
+{\footnotesize\ttfamily \label{ao__system_8c_a5a6e46c34ebc2919f54cf439e81491b3} 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} loader\+\_\+transitions\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84ae4e02a01c2cca36235d99f5eb9bac31b}{SIGNAL\_RECOVER}},\ \mbox{\hyperlink{ao__system_8h_abc17b19fc483075095e1d29351b3ee0b}{operational\_state}},\ NULL),}
+\DoxyCodeLine{}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Transition table for Loader State. 
+
+Defines possible transitions from Loader to other states. 
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00248}{248}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_afb09338b17da2b329134bddaa93e2e4f}\index{ao\_system.c@{ao\_system.c}!maintenance\_state@{maintenance\_state}}
+\index{maintenance\_state@{maintenance\_state}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{maintenance\_state}{maintenance\_state}}
+{\footnotesize\ttfamily \label{ao__system_8c_afb09338b17da2b329134bddaa93e2e4f} 
+struct \mbox{\hyperlink{structstate}{state}} maintenance\+\_\+state}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\ .handler\ =\ NULL,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_entry\ =\ \mbox{\hyperlink{ao__system_8c_aea16ad3c8aea0c8f3195ec44ff7c657b}{on\_enter\_maintenance}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_exit\ =\ \mbox{\hyperlink{ao__system_8c_af7bc2a34c5c723139536690bf8136e60}{on\_exit\_maintenance}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transitions\ =\ \mbox{\hyperlink{ao__system_8c_a4d1739f549823cd2fb86a5427ef8108a}{maintenance\_transitions}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transition\_count\ =\ 4\ \}}
+
+\end{DoxyCode}
+
+
+State variable representing the maintenance state. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00290}{290}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a4d1739f549823cd2fb86a5427ef8108a}\index{ao\_system.c@{ao\_system.c}!maintenance\_transitions@{maintenance\_transitions}}
+\index{maintenance\_transitions@{maintenance\_transitions}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{maintenance\_transitions}{maintenance\_transitions}}
+{\footnotesize\ttfamily \label{ao__system_8c_a4d1739f549823cd2fb86a5427ef8108a} 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} maintenance\+\_\+transitions\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a6e4838339a19b8cf431392272b931af3}{SIGNAL\_POST\_PASS}},\ \mbox{\hyperlink{ao__system_8h_abc17b19fc483075095e1d29351b3ee0b}{operational\_state}},\ NULL),}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84aad1a5a36f7a4565f56afba1942688d6e}{SIGNAL\_POST\_FAIL}},\ \mbox{\hyperlink{ao__system_8h_a1c9a6198bfa95c56b695b211ada63d82}{error\_state}},\ NULL),}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a4418ba64828f7a1eaa53c34b6a93d2b2}{SIGNAL\_ENTER\_LOADER}},\ \mbox{\hyperlink{ao__system_8h_a18c2253f25b127fdb958a4eed0553ecf}{loader\_state}},\ NULL),}
+\DoxyCodeLine{}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Transition table for Maintenance State. 
+
+Defines possible transitions from Maintenance to other states. 
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00258}{258}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_abc17b19fc483075095e1d29351b3ee0b}\index{ao\_system.c@{ao\_system.c}!operational\_state@{operational\_state}}
+\index{operational\_state@{operational\_state}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{operational\_state}{operational\_state}}
+{\footnotesize\ttfamily \label{ao__system_8c_abc17b19fc483075095e1d29351b3ee0b} 
+struct \mbox{\hyperlink{structstate}{state}} operational\+\_\+state}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\ .handler\ =\ NULL,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_entry\ =\ \mbox{\hyperlink{ao__system_8c_a29bbdf5782cdbd8eb3e34e7b53b0c986}{on\_enter\_operational}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .on\_exit\ =\ \mbox{\hyperlink{ao__system_8c_a1103cc379f924a7c6820a1624d413525}{on\_exit\_operational}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transitions\ =\ \mbox{\hyperlink{ao__system_8c_a040857d10102e24fcbf6068c500bc945}{operational\_transitions}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transition\_count\ =\ 2\ \}}
+
+\end{DoxyCode}
+
+
+State variable representing the operational state. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00272}{272}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a040857d10102e24fcbf6068c500bc945}\index{ao\_system.c@{ao\_system.c}!operational\_transitions@{operational\_transitions}}
+\index{operational\_transitions@{operational\_transitions}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{operational\_transitions}{operational\_transitions}}
+{\footnotesize\ttfamily \label{ao__system_8c_a040857d10102e24fcbf6068c500bc945} 
+\mbox{\hyperlink{fsm_8h_a36f9ee8953be0c86b704781e372e1da6}{transition\+\_\+t}} operational\+\_\+transitions\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{ao__system_8c_a0e80349d9ace4d57ca82b9e5fce5ce68}{TRANSIT}}(\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a4418ba64828f7a1eaa53c34b6a93d2b2}{SIGNAL\_ENTER\_LOADER}},\ \mbox{\hyperlink{ao__system_8h_a18c2253f25b127fdb958a4eed0553ecf}{loader\_state}},\ \mbox{\hyperlink{ao__system_8c_acb76ffc48a18e217b9be7c98e35757fe}{transition\_loader}}),}
+\DoxyCodeLine{}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Transition table for Operational State. 
+
+Defines possible transitions from Operational to other states. 
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00227}{227}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_aa04c119d91b74639c759ae1101710b13}\index{ao\_system.c@{ao\_system.c}!sw@{sw}}
+\index{sw@{sw}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{sw}{sw}}
+{\footnotesize\ttfamily \label{ao__system_8c_aa04c119d91b74639c759ae1101710b13} 
+\mbox{\hyperlink{structsw__info__t}{sw\+\_\+info\+\_\+t}} sw}
+
+
+
+Software version information structure. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00042}{42}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+
+\Hypertarget{ao__system_8c_a738569af77297d7dcf165e1e20053878}\index{ao\_system.c@{ao\_system.c}!sys\_info@{sys\_info}}
+\index{sys\_info@{sys\_info}!ao\_system.c@{ao\_system.c}}
+\doxysubsubsection{\texorpdfstring{sys\_info}{sys\_info}}
+{\footnotesize\ttfamily \label{ao__system_8c_a738569af77297d7dcf165e1e20053878} 
+\mbox{\hyperlink{structsys__info__t}{sys\+\_\+info\+\_\+t}} sys\+\_\+info}
+
+
+
+System-\/wide information structure. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__system_8c_source_l00036}{36}} of file \mbox{\hyperlink{ao__system_8c_source}{ao\+\_\+system.\+c}}.
+

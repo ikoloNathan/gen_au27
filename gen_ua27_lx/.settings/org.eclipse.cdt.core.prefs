@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/com.st.stm32cube.ide.mpu.gnu.managedbuild.config.exe.debug.1336773158/SDKPATH/delimiter=\:
+environment/project/com.st.stm32cube.ide.mpu.gnu.managedbuild.config.exe.debug.1336773158/SDKPATH/operation=replace
+environment/project/com.st.stm32cube.ide.mpu.gnu.managedbuild.config.exe.debug.1336773158/SDKPATH/value=/home/nathan/Documents/openstlinux-sdk
+environment/project/com.st.stm32cube.ide.mpu.gnu.managedbuild.config.exe.debug.1336773158/append=true
+environment/project/com.st.stm32cube.ide.mpu.gnu.managedbuild.config.exe.debug.1336773158/appendContributed=true

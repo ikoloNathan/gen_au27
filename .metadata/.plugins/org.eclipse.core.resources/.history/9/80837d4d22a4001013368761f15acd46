@@ -1,0 +1,932 @@
+// ao_ws.c — epoll-based HTTP (static files) + WebSocket AO (multi-client)
+// Fixes: proper PING/PONG handling, no close on zero-length/control frames.
+//
+// Link: -lssl -lcrypto -lpthread
+// Requires your framework headers: active_object.h, fsm.h, broker.h, message.h
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <arpa/inet.h>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/eventfd.h>
+
+#include <openssl/sha.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+
+#include <cjson/cJSON.h>
+
+#include "ao_ws.h"
+
+/* ------------------ small helpers ------------------ */
+static int set_nonblock(int fd) {
+	int f = fcntl(fd, F_GETFL, 0);
+	return fcntl(fd, F_SETFL, f | O_NONBLOCK);
+}
+static void ep_add(int ep, int fd, uint32_t ev) {
+	struct epoll_event e = { .events = ev, .data.fd = fd };
+	epoll_ctl(ep, EPOLL_CTL_ADD, fd, &e);
+}
+static void ep_mod(int ep, int fd, uint32_t ev) {
+	struct epoll_event e = { .events = ev, .data.fd = fd };
+	epoll_ctl(ep, EPOLL_CTL_MOD, fd, &e);
+}
+static void ep_del(int ep, int fd) {
+	epoll_ctl(ep, EPOLL_CTL_DEL, fd, NULL);
+}
+
+/* ========================= FSM wiring ========================= */
+static void dispatch(base_obj_t *const me, const message_frame_t *frame);
+static void ws_on_entry_initialisation(fsm_t *fsm);
+static void ws_on_entry_operational(fsm_t *fsm);
+static void ws_on_entry_error(fsm_t *fsm);
+static void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev);
+static void ws_parse_json(const char *json_str, message_frame_t *msg);
+
+static transition_t ws_initialisation_transitions[] = { { WS_CHANGE_STATE_OP,
+		&ws_operational_state, NULL }, { WS_CHANGE_STATE_ERR, &ws_error_state,
+NULL }, };
+static transition_t ws_operational_transitions[] = { { WS_CHANGE_STATE_ERR,
+		&ws_error_state, NULL }, };
+static transition_t ws_error_transitions[] = { { WS_CHANGE_STATE_INIT,
+		&ws_initialisation_state, NULL }, };
+
+state_t ws_initialisation_state = { .handler = NULL, .on_entry =
+		ws_on_entry_initialisation, .on_exit = NULL, .transitions =
+		ws_initialisation_transitions, .transition_count =
+		sizeof(ws_initialisation_transitions)
+				/ sizeof(ws_initialisation_transitions[0]) };
+state_t ws_operational_state = { .handler = ws_operational_handler, .on_entry =
+		ws_on_entry_operational, .on_exit = NULL, .transitions =
+		ws_operational_transitions, .transition_count =
+		sizeof(ws_operational_transitions)
+				/ sizeof(ws_operational_transitions[0]) };
+state_t ws_error_state = { .handler = NULL, .on_entry = ws_on_entry_error,
+		.on_exit = NULL, .transitions = ws_error_transitions,
+		.transition_count = sizeof(ws_error_transitions)
+				/ sizeof(ws_error_transitions[0]) };
+
+/* ======================= HTTP helpers ======================= */
+static int http_is_upgrade(const char *req) {
+	return strstr(req, "Upgrade: websocket") != NULL;
+}
+static int http_get_header(const char *req, const char *key, char *out,
+		size_t outsz) {
+	const char *p = strstr(req, key);
+	if (!p)
+		return 0;
+	p += strlen(key);
+	while (*p == ' ' || *p == '\t')
+		p++;
+	size_t i = 0;
+	while (*p && *p != '\r' && *p != '\n' && i + 1 < outsz)
+		out[i++] = *p++;
+	out[i] = '\0';
+	return 1;
+}
+static int http_get_path(const char *req, char *out, size_t outsz) {
+	const char *p = strstr(req, "GET ");
+	if (!p)
+		return 0;
+	p += 4;
+	const char *sp = strchr(p, ' ');
+	if (!sp)
+		return 0;
+	size_t n = (size_t) (sp - p);
+	if (n >= outsz)
+		n = outsz - 1;
+	memcpy(out, p, n);
+	out[n] = '\0';
+	return 1;
+}
+static void sanitize_path(char *path) {
+	char *q = strchr(path, '?');
+	if (q)
+		*q = '\0';
+	while (path[0] == '/' && path[1] == '/')
+		memmove(path, path + 1, strlen(path));
+	while (strstr(path, "..")) {
+		char *dotdot = strstr(path, "..");
+		memmove(dotdot, dotdot + 2, strlen(dotdot + 2) + 1);
+	}
+	if (path[0] == '\0')
+		strcpy(path, "/");
+}
+static const char* mime_from_ext(const char *p) {
+	const char *dot = strrchr(p, '.');
+	if (!dot)
+		return "application/octet-stream";
+	++dot;
+	if (!strcasecmp(dot, "html") || !strcasecmp(dot, "htm"))
+		return "text/html; charset=utf-8";
+	if (!strcasecmp(dot, "css"))
+		return "text/css";
+	if (!strcasecmp(dot, "js"))
+		return "application/javascript";
+	if (!strcasecmp(dot, "json"))
+		return "application/json";
+	if (!strcasecmp(dot, "svg"))
+		return "image/svg+xml";
+	if (!strcasecmp(dot, "png"))
+		return "image/png";
+	if (!strcasecmp(dot, "jpg") || !strcasecmp(dot, "jpeg"))
+		return "image/jpeg";
+	if (!strcasecmp(dot, "gif"))
+		return "image/gif";
+	if (!strcasecmp(dot, "ico"))
+		return "image/x-icon";
+	if (!strcasecmp(dot, "txt") || !strcasecmp(dot, "log"))
+		return "text/plain; charset=utf-8";
+	if (!strcasecmp(dot, "wasm"))
+		return "application/wasm";
+	return "application/octet-stream";
+}
+
+/* ======================= WebSocket helpers ======================= */
+static char* ws_accept_from_key(const char *client_key) {
+	char combo[256];
+	snprintf(combo, sizeof(combo), "%s258EAFA5-E914-47DA-95CA-C5AB0DC85B11",
+			client_key);
+	unsigned char sha[SHA_DIGEST_LENGTH];
+	SHA1((const unsigned char*) combo, strlen(combo), sha);
+	BIO *b64 = BIO_new(BIO_f_base64());
+	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+	BIO *mem = BIO_new(BIO_s_mem());
+	b64 = BIO_push(b64, mem);
+	BIO_write(b64, sha, SHA_DIGEST_LENGTH);
+	BIO_flush(b64);
+	long len;
+	char *ptr;
+	len = BIO_get_mem_data(mem, &ptr);
+	char *out = malloc((size_t) len + 1);
+	memcpy(out, ptr, (size_t) len);
+	out[len] = '\0';
+	BIO_free_all(b64);
+	return out;
+}
+
+/* server->client text frame (unmasked) */
+static int ws_send_text(int fd, const char *msg) {
+	size_t len = strlen(msg);
+	unsigned char h[2 + 8];
+	size_t hlen = 0;
+	h[hlen++] = 0x81; /* FIN=1, text */
+	if (len <= 125) {
+		h[hlen++] = (unsigned char) len;
+	} else if (len <= 0xFFFF) {
+		h[hlen++] = 126;
+		h[hlen++] = (unsigned char) (len >> 8);
+		h[hlen++] = (unsigned char) len;
+	} else {
+		h[hlen++] = 127;
+		for (int i = 7; i >= 0; i--)
+			h[hlen++] = (unsigned char) ((len >> (i * 8)) & 0xFF);
+	}
+	if (write(fd, h, (int) hlen) < 0)
+		return -1;
+	if (len && write(fd, msg, len) < 0)
+		return -1;
+	return 0;
+}
+
+/* server->client pong frame (unmasked) */
+static int ws_send_pong(int fd, const unsigned char *p, size_t n) {
+	if (n > 125)
+		n = 125; /* control payload <= 125 */
+	unsigned char h[2] = { 0x8A, (unsigned char) n }; /* FIN=1, opcode=PONG(0xA) */
+	if (write(fd, h, 2) < 0)
+		return -1;
+	if (n && write(fd, p, n) < 0)
+		return -1;
+	return 0;
+}
+
+/* Read a single incoming client frame; handle control frames.
+ * Returns:
+ *   >0  : length of text copied into 'out' (NUL-terminated)
+ *    0  : control frame handled (ping/pong/close) — keep connection
+ *   -2  : EAGAIN / would block (no data right now)
+ *   -1  : error / peer closed / protocol error — close socket
+ */
+static int ws_read_text(int fd, char *out, size_t outsz) {
+	unsigned char h[2];
+	ssize_t n = read(fd, h, 2);
+	if (n == 0)
+		return -1; /* peer closed */
+	if (n < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return -2;
+		return -1;
+	}
+	if (n != 2)
+		return -1;
+
+	int fin = (h[0] & 0x80) != 0;
+	int opcode = h[0] & 0x0F;
+	int masked = (h[1] & 0x80) != 0;
+	uint64_t len = (uint64_t) (h[1] & 0x7F);
+
+	if (!masked)
+		return -1; /* clients must mask */
+	if ((h[0] & 0x70) != 0)
+		return -1; /* RSV not supported */
+
+	if (len == 126) {
+		unsigned char e[2];
+		if (read(fd, e, 2) != 2)
+			return -1;
+		len = ((uint64_t) e[0] << 8) | e[1];
+	} else if (len == 127) {
+		unsigned char e[8];
+		if (read(fd, e, 8) != 8)
+			return -1;
+		uint64_t L = 0;
+		for (int i = 0; i < 8; i++)
+			L = (L << 8) | e[i];
+		if (L >> 63)
+			return -1; /* reject absurdly large */
+		len = L;
+	}
+
+	unsigned char mask[4];
+	if (read(fd, mask, 4) != 4)
+		return -1;
+
+	/* Control frames: opcode 0x8(close), 0x9(ping), 0xA(pong) */
+	if (opcode & 0x08) {
+		if (!fin || len > 125)
+			return -1; /* control must be FIN=1 and <=125 */
+		unsigned char tmp[125];
+		size_t got = 0;
+		while (got < len) {
+			ssize_t r = read(fd, tmp + got, (size_t) len - got);
+			if (r <= 0)
+				return -1;
+			got += (size_t) r;
+		}
+		for (size_t i = 0; i < len; i++)
+			tmp[i] ^= mask[i & 3]; /* unmask */
+
+		if (opcode == 0x9) { /* ping -> pong same payload */
+			(void) ws_send_pong(fd, tmp, (size_t) len);
+			return 0;
+		} else if (opcode == 0xA) {
+			return 0; /* ignore pong */
+		} else if (opcode == 0x8) {
+			return -1; /* close: caller should drop TCP */
+		}
+		return 0;
+	}
+
+	/* Data frames: accept text(0x1) and continuation(0x0) only (simplified) */
+	if (opcode != 0x1 && opcode != 0x0)
+		return -1;
+	if (len >= outsz)
+		len = outsz - 1;
+
+	size_t got = 0;
+	while (got < len) {
+		ssize_t r = read(fd, (unsigned char*) out + got, (size_t) len - got);
+		if (r <= 0)
+			return -1;
+		got += (size_t) r;
+	}
+	for (size_t i = 0; i < len; i++)
+		out[i] = out[i] ^ mask[i & 3];
+	out[len] = '\0';
+
+	/* We don’t reassemble multi-frame messages here; typical browsers send small complete frames */
+	(void) fin;
+	return (int) len;
+}
+
+/* ===================== Pump-side helpers ===================== */
+static int alloc_client(ws_client_t *cs) {
+	for (int i = 0; i < WS_MAX_CLIENTS; i++)
+		if (cs[i].st == WS_CL_FREE) {
+			cs[i].fd = -1;
+			cs[i].st = WS_CL_HTTP;
+			cs[i].out_head = cs[i].out_tail = 0;
+			cs[i].conn_id = 0;
+			cs[i].http_tx = NULL;
+			cs[i].http_len = cs[i].http_off = 0;
+			return i;
+		}
+	return -1;
+}
+static void free_http_buf(ws_client_t *c) {
+	if (c->http_tx) {
+		free(c->http_tx);
+		c->http_tx = NULL;
+		c->http_len = c->http_off = 0;
+	}
+}
+static void free_client(ao_ws_t *me, int idx) {
+	if (idx < 0)
+		return;
+	free_http_buf(&me->clients[idx]);
+	if (me->clients[idx].fd >= 0) {
+		ep_del(me->epfd, me->clients[idx].fd);
+		close(me->clients[idx].fd);
+	}
+	me->clients[idx].fd = -1;
+	me->clients[idx].st = WS_CL_FREE;
+}
+static int outq_push(ws_client_t *c, const char *msg) {
+	int n = (c->out_tail + 1) % WS_OUTQ_LEN;
+	if (n == c->out_head)
+		return -1;
+	strncpy(c->out_q[c->out_tail], msg, WS_TX_BUFSZ - 1);
+	c->out_q[c->out_tail][WS_TX_BUFSZ - 1] = '\0';
+	c->out_tail = n;
+	return 0;
+}
+static int outq_pop(ws_client_t *c, char *out) {
+	if (c->out_head == c->out_tail)
+		return 0;
+	strcpy(out, c->out_q[c->out_head]);
+	c->out_head = (c->out_head + 1) % WS_OUTQ_LEN;
+	return 1;
+}
+
+/* Build an HTTP response for a static file into client->http_tx */
+static int http_prepare_file_response(const ao_ws_t *me, ws_client_t *c,
+		const char *req) {
+	char path[512];
+	if (!http_get_path(req, path, sizeof(path)))
+		return -1;
+	sanitize_path(path);
+
+	char full[WS_DOCROOT_MAX + 512];
+	if (strcmp(path, "/") == 0) {
+		snprintf(full, sizeof(full), "%s/index.html", me->docroot);
+	} else {
+		const char *p = (path[0] == '/') ? path + 1 : path;
+		snprintf(full, sizeof(full), "%s/%s", me->docroot, p);
+	}
+
+	int fd = open(full, O_RDONLY);
+	if (fd < 0) {
+		const char *body = "<h1>404 Not Found</h1>";
+		const char *ctype = "text/html; charset=utf-8";
+		char hdr[256];
+		int blen = (int) strlen(body);
+		int hlen = snprintf(hdr, sizeof(hdr), "HTTP/1.1 404 Not Found\r\n"
+				"Content-Type: %s\r\n"
+				"Content-Length: %d\r\n"
+				"Connection: close\r\n"
+				"\r\n", ctype, blen);
+		c->http_tx = malloc((size_t) hlen + blen);
+		if (!c->http_tx)
+			return -1;
+		memcpy(c->http_tx, hdr, (size_t) hlen);
+		memcpy(c->http_tx + hlen, body, (size_t) blen);
+		c->http_len = (size_t) hlen + blen;
+		c->http_off = 0;
+		return 0;
+	}
+
+	struct stat st;
+	if (fstat(fd, &st) < 0) {
+		close(fd);
+		return -1;
+	}
+	size_t fsz = (size_t) st.st_size;
+	const char *ctype = mime_from_ext(full);
+
+	char hdr[256];
+	int hlen = snprintf(hdr, sizeof(hdr), "HTTP/1.1 200 OK\r\n"
+			"Content-Type: %s\r\n"
+			"Content-Length: %zu\r\n"
+			"Connection: close\r\n"
+			"\r\n", ctype, fsz);
+
+	c->http_tx = malloc((size_t) hlen + fsz);
+	if (!c->http_tx) {
+		close(fd);
+		return -1;
+	}
+	memcpy(c->http_tx, hdr, (size_t) hlen);
+
+	size_t off = (size_t) hlen;
+	while (off < (size_t) hlen + fsz) {
+		ssize_t r = read(fd, c->http_tx + off, (size_t) hlen + fsz - off);
+		if (r < 0) {
+			if (errno == EINTR)
+				continue;
+			free_http_buf(c);
+			close(fd);
+			return -1;
+		}
+		if (r == 0)
+			break;
+		off += (size_t) r;
+	}
+	close(fd);
+
+	c->http_len = off;
+	c->http_off = 0;
+	return 0;
+}
+
+/* ========================= Pump thread ========================= */
+static void pump_handle_notify(ao_ws_t *me) {
+	uint64_t n;
+	while (read(me->notifyfd, &n, sizeof(n)) > 0) {
+	}
+	for (;;) {
+		int ok = 0, target = -2;
+		char msg[WS_TX_BUFSZ];
+		pthread_mutex_lock(&me->cmd.mx);
+		if (me->cmd.head != me->cmd.tail) {
+			target = me->cmd.q[me->cmd.head].target_idx;
+			strcpy(msg, me->cmd.q[me->cmd.head].msg);
+			me->cmd.head = (me->cmd.head + 1)
+					% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
+			ok = 1;
+		}
+		pthread_mutex_unlock(&me->cmd.mx);
+		if (!ok)
+			break;
+
+		if (target < 0) {
+			for (int i = 0; i < WS_MAX_CLIENTS; i++)
+				if (me->clients[i].st == WS_CL_WS) {
+					if (outq_push(&me->clients[i], msg) == 0)
+						ep_mod(me->epfd, me->clients[i].fd,
+						EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLOUT);
+				}
+		} else {
+			if (target < WS_MAX_CLIENTS && me->clients[target].st == WS_CL_WS) {
+				if (outq_push(&me->clients[target], msg) == 0)
+					ep_mod(me->epfd, me->clients[target].fd,
+					EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLOUT);
+			}
+		}
+	}
+}
+
+static void* ws_pump(void *arg) {
+	ao_ws_t *me = (ao_ws_t*) arg;
+
+	me->epfd = epoll_create1(0);
+	if (me->epfd < 0) {
+		message_frame_t e = { 0 };
+		e.signal = WS_CHANGE_STATE_ERR;
+		post((base_obj_t*) me, e);
+		return NULL;
+	}
+
+	me->listenfd = socket(AF_INET, SOCK_STREAM, 0);
+	int opt = 1;
+	setsockopt(me->listenfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	set_nonblock(me->listenfd);
+	struct sockaddr_in a = { 0 };
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = INADDR_ANY;
+	a.sin_port = htons(me->port);
+	if (bind(me->listenfd, (struct sockaddr*) &a, sizeof(a)) < 0
+			|| listen(me->listenfd, 128) < 0) {
+		message_frame_t e = { 0 };
+		e.signal = WS_CHANGE_STATE_ERR;
+		post((base_obj_t*) me, e);
+		return NULL;
+	}
+
+	me->notifyfd = eventfd(0, EFD_NONBLOCK | EFD_SEMAPHORE);
+
+	ep_add(me->epfd, me->listenfd, EPOLLIN);
+	ep_add(me->epfd, me->notifyfd, EPOLLIN);
+
+	struct epoll_event ev[64];
+
+	while (me->pump_running) {
+		int n = epoll_wait(me->epfd, ev, 64, -1);
+		if (n < 0) {
+			if (errno == EINTR)
+				continue;
+			break;
+		}
+
+		for (int i = 0; i < n; i++) {
+			int fd = ev[i].data.fd;
+			uint32_t ee = ev[i].events;
+
+			if (fd == me->notifyfd && (ee & EPOLLIN)) {
+				pump_handle_notify(me);
+				continue;
+			}
+
+			if (fd == me->listenfd && (ee & EPOLLIN)) {
+				for (;;) {
+					int cfd = accept(me->listenfd, NULL, NULL);
+					if (cfd < 0) {
+						if (errno == EAGAIN || errno == EWOULDBLOCK)
+							break;
+						else
+							break;
+					}
+					set_nonblock(cfd);
+					int idx = alloc_client(me->clients);
+					if (idx < 0) {
+						close(cfd);
+						continue;
+					}
+					me->clients[idx].fd = cfd;
+					me->clients[idx].st = WS_CL_HTTP;
+					me->clients[idx].conn_id = ++me->id_seq;
+					ep_add(me->epfd, cfd, EPOLLIN | EPOLLRDHUP | EPOLLERR);
+					message_frame_t e = { 0 };
+					e.signal = WS_EVT_NEW_CONN;
+					e.length = sizeof(int);
+					memcpy(e.payload, &idx, sizeof(int));
+					post((base_obj_t*) me, e);
+				}
+				continue;
+			}
+
+			/* find client */
+			int idx = -1;
+			for (int k = 0; k < WS_MAX_CLIENTS; k++)
+				if (me->clients[k].st != WS_CL_FREE
+						&& me->clients[k].fd == fd) {
+					idx = k;
+					break;
+				}
+			if (idx < 0)
+				continue;
+			ws_client_t *c = &me->clients[idx];
+
+			if (ee & (EPOLLERR | EPOLLRDHUP | EPOLLHUP)) {
+				free_client(me, idx);
+				message_frame_t e = { 0 };
+				e.signal = WS_EVT_CLIENT_CLOSED;
+				e.length = sizeof(int);
+				memcpy(e.payload, &idx, sizeof(int));
+				post((base_obj_t*) me, e);
+				continue;
+			}
+
+			/* HTTP receive / upgrade */
+			if ((ee & EPOLLIN) && c->st == WS_CL_HTTP) {
+				int r = read(fd, c->rx, sizeof(c->rx) - 1);
+				if (r <= 0) {
+					free_client(me, idx);
+					continue;
+				}
+				c->rx[r] = '\0';
+
+				if (http_is_upgrade(c->rx)) {
+					char key[128];
+					if (!http_get_header(c->rx, "Sec-WebSocket-Key:", key,
+							sizeof(key))) {
+						free_client(me, idx);
+						continue;
+					}
+					char *accept = ws_accept_from_key(key);
+					char resp[512];
+					int n2 = snprintf(resp, sizeof(resp),
+							"HTTP/1.1 101 Switching Protocols\r\n"
+									"Upgrade: websocket\r\n"
+									"Connection: Upgrade\r\n"
+									"Sec-WebSocket-Accept: %s\r\n\r\n", accept);
+					free(accept);
+					if (write(fd, resp, n2) < 0) {
+						free_client(me, idx);
+						continue;
+					}
+					c->st = WS_CL_WS;
+					message_frame_t e = { 0 };
+					e.signal = WS_EVT_WS_OPEN;
+					e.length = sizeof(int);
+					memcpy(e.payload, &idx, sizeof(int));
+					post((base_obj_t*) me, e);
+				} else {
+					free_http_buf(c);
+					if (http_prepare_file_response(me, c, c->rx) < 0) {
+						free_client(me, idx);
+						continue;
+					}
+					while (c->http_off < c->http_len) {
+						ssize_t w = write(fd, c->http_tx + c->http_off,
+								c->http_len - c->http_off);
+						if (w > 0) {
+							c->http_off += (size_t) w;
+							continue;
+						}
+						if (w < 0
+								&& (errno == EAGAIN || errno == EWOULDBLOCK)) {
+							ep_mod(me->epfd, fd,
+							EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLOUT);
+							break;
+						}
+						break;
+					}
+					if (c->http_off >= c->http_len) {
+						free_client(me, idx);
+					}
+				}
+			}
+
+			/* HTTP EPOLLOUT (finish sending file) */
+			if ((ee & EPOLLOUT) && c->st == WS_CL_HTTP && c->http_tx) {
+				while (c->http_off < c->http_len) {
+					ssize_t w = write(fd, c->http_tx + c->http_off,
+							c->http_len - c->http_off);
+					if (w > 0) {
+						c->http_off += (size_t) w;
+						continue;
+					}
+					if (w < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+						break;
+					break;
+				}
+				if (c->http_off >= c->http_len) {
+					free_client(me, idx);
+				} else {
+					ep_mod(me->epfd, fd,
+					EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLOUT);
+				}
+			}
+
+			/* WebSocket receive */
+			if ((ee & EPOLLIN) && c->st == WS_CL_WS) {
+				char text[WS_TX_BUFSZ] = { 0 };
+				int t = ws_read_text(fd, text, sizeof(text));
+				if (t == -2) {
+					/* would block (shouldn't happen since EPOLLIN), ignore */
+					continue;
+				} else if (t < 0) {
+					free_client(me, idx);
+					message_frame_t e = { 0 };
+					e.signal = WS_EVT_CLIENT_CLOSED;
+					e.length = sizeof(int);
+					memcpy(e.payload, &idx, sizeof(int));
+					post((base_obj_t*) me, e);
+					continue;
+				} else if (t == 0) {
+					/* control frame handled (ping/pong), nothing to deliver */
+					continue;
+				}
+				/* t > 0: deliver text to AO layer */
+				message_frame_t e = { 0 };
+				e.signal = WS_EVT_WS_MSG_RX;
+				e.length = (uint16_t) (sizeof(int) + t + 1);
+				memcpy(e.payload, &idx, sizeof(int));
+				memcpy(e.payload + sizeof(int), text, (size_t) t + 1);
+				post((base_obj_t*) me, e);
+			}
+
+			/* WebSocket send */
+			if ((ee & EPOLLOUT) && c->st == WS_CL_WS) {
+				char out[WS_TX_BUFSZ];
+				while (outq_pop(c, out)) {
+					if (ws_send_text(fd, out) < 0) {
+						free_client(me, idx);
+						break;
+					}
+				}
+				if (c->st == WS_CL_WS && c->out_head == c->out_tail) {
+					ep_mod(me->epfd, fd, EPOLLIN | EPOLLRDHUP | EPOLLERR);
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+/* ==================== FSM entry/handler ==================== */
+static void ws_on_entry_initialisation(fsm_t *fsm) {
+	topic_config_t config[] = { { .topic = WS_QUERY_RX_CMD(0, 0), .start =
+			WS_QUERY_RX_CMD(0, 0), .type = MASK }, {
+			.topic = WS_CHANGE_STATE_OP, .type = EXACT_MATCH }, { .topic =
+	WS_CHANGE_STATE_ERR, .type = EXACT_MATCH } };
+	ao_ws_t *me = (ao_ws_t*) fsm->super;
+	if (!me->pump_running) {
+		me->pump_running = 1;
+		if (pthread_create(&me->pump_tid, NULL, ws_pump, me) != 0) {
+			me->pump_running = 0;
+			message_frame_t e = { 0 };
+			e.signal = WS_CHANGE_STATE_ERR;
+			post((base_obj_t*) me, e);
+			return;
+		}
+		pthread_detach(me->pump_tid);
+	}
+	broker_subscribe(((base_obj_t*) fsm->super)->broker, config,
+			sizeof(config) / sizeof(config[0]), (base_obj_t*) fsm->super);
+	message_frame_t evt = { 0 };
+	evt.signal = WS_CHANGE_STATE_OP;
+	post((base_obj_t*) me, evt);
+}
+static void ws_on_entry_operational(fsm_t *fsm) {
+	(void) fsm;
+}
+static void ws_on_entry_error(fsm_t *fsm) {
+	ao_ws_t *me = (ao_ws_t*) fsm->super;
+	if (me->epfd > 0) {
+		close(me->epfd);
+		me->epfd = -1;
+	}
+	if (me->listenfd > 0) {
+		close(me->listenfd);
+		me->listenfd = -1;
+	}
+	if (me->notifyfd > 0) {
+		close(me->notifyfd);
+		me->notifyfd = -1;
+	}
+	for (int i = 0; i < WS_MAX_CLIENTS; i++)
+		if (me->clients[i].st != WS_CL_FREE) {
+			free_http_buf(&me->clients[i]);
+			close(me->clients[i].fd);
+			me->clients[i].st = WS_CL_FREE;
+		}
+}
+
+void ws_parse_json(const char *json_str, message_frame_t *msg) {
+	cJSON *root = cJSON_Parse(json_str);
+	if (!root || !cJSON_IsArray(root)) {
+		fprintf(stderr, "invalid JSON\n");
+		return;
+	}
+	cJSON *signal = cJSON_GetObjectItem(root, "signal");
+	cJSON *payload = cJSON_GetObjectItem(root, "payload");
+	if (!cJSON_IsNumber(signal) || cJSON_IsString(payload)) {
+		return;
+	}
+	msg->signal = signal->valueint;
+	msg->length = strlen(payload->valuestring);
+	memcpy(msg->payload, payload->valuestring, msg->length);
+
+	cJSON_Delete(root);
+	cJSON_Delete(signal);
+	cJSON_Delete(payload);
+}
+
+char* ws_json_str(message_frame_t msg) {
+	cJSON *root = cJSON_CreateObject();
+
+	if (cJSON_IsNull(root))
+		return NULL;
+	cJSON_AddNumberToObject(root, "signal", msg.signal);
+	cJSON_AddStringToObject(root, "payload", (const char * const)msg.payload);
+	char *outstr = cJSON_Print(root);
+	cJSON_Delete(root);
+	return outstr;
+}
+
+/* AO-side logic (business rules): who / say: / echo */
+void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
+	ao_ws_t *me = (ao_ws_t*) fsm->super;
+	message_frame_t msg = { 0 };
+	switch (ev->signal) {
+	case WS_EVT_WS_OPEN : {
+		int idx = 0;
+		memcpy(&idx, ev->payload, sizeof(int));
+		char m[WS_TX_BUFSZ];
+		snprintf(m, sizeof(m), "{\"type\":\"hello\",\"id\":%llu}",
+				me->clients[idx].conn_id);
+		ws_send_to(me, idx, m);
+	}
+		break;
+
+	case WS_EVT_WS_MSG_RX : {
+		int idx = 0;
+		memcpy(&idx, ev->payload, sizeof(int));
+		const char *text = (const char*) (ev->payload + sizeof(int));
+		ws_parse_json(text, &msg);
+		broker_post(me, msg, PRIMARY_QUEUE);
+//		if (!strcmp(text, "who")) {
+//			char m[WS_TX_BUFSZ];
+//			int p = snprintf(m, sizeof(m), "{\"type\":\"who\",\"clients\":[");
+//			int first = 1;
+//			for (int j = 0; j < WS_MAX_CLIENTS; j++)
+//				if (me->clients[j].st == WS_CL_WS) {
+//					p += snprintf(m + p, sizeof(m) - p, first ? "%d" : ",%d",
+//							j);
+//					first = 0;
+//				}
+//			if (p < (int) sizeof(m) - 2) {
+//				m[p++] = ']';
+//				m[p++] = '}';
+//				m[p] = '\0';
+//			}
+//			ws_send_to(me, idx, m);
+//		} else if (!strncmp(text, "say:", 4)) {
+//			char m[WS_TX_BUFSZ];
+//			snprintf(m, sizeof(m),
+//					"{\"type\":\"chat\",\"from\":%d,\"text\":\"%s\"}", idx,
+//					text + 4);
+//			ws_broadcast(me, m);
+//		} else {
+//			char m[WS_TX_BUFSZ];
+//			snprintf(m, sizeof(m), "{\"type\":\"echo\",\"text\":\"%s\"}", text);
+//			ws_send_to(me, idx, m);
+//		}
+	}
+		break;
+	case WS_QUERY_RX_CMD(0,0) ... WS_QUERY_RX_CMD(0xFF, 0xFF): {
+		int idx = (ev->signal >> 16) & 0x03F;
+		char *text = ws_json_str(*ev);
+//		printf("%s\n",text);
+		ws_send_to(me, idx, text);
+		free(text);
+	}
+		break;
+//	case WS_CMD_BROADCAST : {
+//		const char *txt = (const char*) ev->payload;
+//		pthread_mutex_lock(&me->cmd.mx);
+//		int next = (me->cmd.tail + 1)
+//				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
+//		if (next != me->cmd.head) {
+//			me->cmd.q[me->cmd.tail].target_idx = -1;
+//			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
+//			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
+//			me->cmd.tail = next;
+//		}
+//		pthread_mutex_unlock(&me->cmd.mx);
+//		uint64_t one = 1;
+//		write(me->notifyfd, &one, sizeof(one));
+//	}
+//		break;
+
+	case WS_CMD_SEND_TO_ONE : {
+		int idx = 0;
+		memcpy(&idx, ev->payload, sizeof(int));
+		const char *txt = (const char*) (ev->payload + sizeof(int));
+		pthread_mutex_lock(&me->cmd.mx);
+		int next = (me->cmd.tail + 1)
+				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
+		if (next != me->cmd.head) {
+			me->cmd.q[me->cmd.tail].target_idx = idx;
+			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
+			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
+			me->cmd.tail = next;
+		}
+		pthread_mutex_unlock(&me->cmd.mx);
+		uint64_t one = 1;
+		write(me->notifyfd, &one, sizeof(one));
+	}
+		break;
+
+	default:
+		break;
+	}
+}
+
+/* ==================== vtable dispatch hook ==================== */
+static void dispatch(base_obj_t *const me, const message_frame_t *frame) {
+	fsm_handler(&((base_obj_t*) me)->fsm, frame);
+}
+
+/* ========================= Constructor ========================= */
+void ws_ctor(ao_ws_t *me, broker_t *broker, char *name, uint16_t port) {
+	memset(me, 0, sizeof(*me));
+	INIT_BASE(me, broker, name, system_id, NULL);
+	MsgQueue_Init(&me->super.msgQueue);
+
+	me->super.initialisation_state = &ws_initialisation_state;
+
+	me->port = port ? port : 8080;
+	strncpy(me->docroot, "/var/www/html/", sizeof(me->docroot) - 1);
+
+	me->epfd = me->listenfd = me->notifyfd = -1;
+	me->pump_running = 0;
+	me->id_seq = 0;
+	for (int i = 0; i < WS_MAX_CLIENTS; i++)
+		me->clients[i].st = WS_CL_FREE;
+
+	me->cmd.head = me->cmd.tail = 0;
+	pthread_mutex_init(&me->cmd.mx, NULL);
+
+}
+
+/* =========================== AO API =========================== */
+void ws_send_to(ao_ws_t *me, int client_idx, const char *text) {
+	if (!me || !text)
+		return;
+	message_frame_t e = { 0 };
+	e.signal = WS_CMD_SEND_TO_ONE;
+	e.length = (uint16_t) (sizeof(int) + strlen(text) + 1);
+	memcpy(e.payload, &client_idx, sizeof(int));
+	strncpy((char*) e.payload + sizeof(int), text,
+			sizeof(e.payload) - sizeof(int) - 1);
+	post((base_obj_t*) me, e);
+}
+void ws_broadcast(ao_ws_t *me, const char *text) {
+	if (!me || !text)
+		return;
+	message_frame_t e = { 0 };
+	e.signal = WS_CMD_BROADCAST;
+	strncpy((char*) e.payload, text, sizeof(e.payload) - 1);
+	e.length = (uint16_t) (strlen((char*) e.payload) + 1);
+	post((base_obj_t*) me, e);
+}

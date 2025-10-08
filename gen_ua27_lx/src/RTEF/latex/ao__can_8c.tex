@@ -1,0 +1,111 @@
+\doxysection{src/ao\+\_\+can.c File Reference}
+\hypertarget{ao__can_8c}{}\label{ao__can_8c}\index{src/ao\_can.c@{src/ao\_can.c}}
+
+
+Implements the Active Object for CAN communication with timeout tracking.  
+
+
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$broker.\+h$>$}\newline
+{\ttfamily \#include "{}ao\+\_\+can.\+h"{}}\newline
+{\ttfamily \#include $<$sys\+\_\+timer.\+h$>$}\newline
+\doxysubsubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structcan__timeout__entry__t}{can\+\_\+timeout\+\_\+entry\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Represents a CAN frame with an associated timeout. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ao__can_8c_a033ac3f8369398321b823eb680e6405b}{MAX\+\_\+\+PENDING\+\_\+\+FRAMES}}~128
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structcan__obj__t}{can\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{ao__can_8c_aa2bd999510119e6264db90b0f26ebeac}{can\+\_\+ctor}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, char \texorpdfstring{$\ast$}{*}name)
+\begin{DoxyCompactList}\small\item\em Constructs and initializes a CAN active object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ao__can_8c_abcca05a6cf4bd6deeb8a4ce478b1b5d8}{Can\+If\+\_\+\+Rx\+Indication}} (const Can\+\_\+\+Hw\+Type \texorpdfstring{$\ast$}{*}Mailbox, const Pdu\+Info\+Type \texorpdfstring{$\ast$}{*}Pdu\+Info\+Ptr)
+\begin{DoxyCompactList}\small\item\em Handles received CAN messages. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements the Active Object for CAN communication with timeout tracking. 
+
+This file defines the CAN active object, which integrates with the event-\/driven architecture. It manages message transmission, reception, filtering, and timeouts. The system tracks pending messages and ensures reliable communication via a circular buffer for timeout management.
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+February 12, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{ao__can_8c_source}{ao\+\_\+can.\+c}}.
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{ao__can_8c_a033ac3f8369398321b823eb680e6405b}\index{ao\_can.c@{ao\_can.c}!MAX\_PENDING\_FRAMES@{MAX\_PENDING\_FRAMES}}
+\index{MAX\_PENDING\_FRAMES@{MAX\_PENDING\_FRAMES}!ao\_can.c@{ao\_can.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_PENDING\_FRAMES}{MAX\_PENDING\_FRAMES}}
+{\footnotesize\ttfamily \label{ao__can_8c_a033ac3f8369398321b823eb680e6405b} 
+\#define MAX\+\_\+\+PENDING\+\_\+\+FRAMES~128}
+
+Maximum number of pending CAN frames tracked 
+
+Definition at line \mbox{\hyperlink{ao__can_8c_source_l00024}{24}} of file \mbox{\hyperlink{ao__can_8c_source}{ao\+\_\+can.\+c}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{ao__can_8c_aa2bd999510119e6264db90b0f26ebeac}\index{ao\_can.c@{ao\_can.c}!can\_ctor@{can\_ctor}}
+\index{can\_ctor@{can\_ctor}!ao\_can.c@{ao\_can.c}}
+\doxysubsubsection{\texorpdfstring{can\_ctor()}{can\_ctor()}}
+{\footnotesize\ttfamily \label{ao__can_8c_aa2bd999510119e6264db90b0f26ebeac} 
+\mbox{\hyperlink{structcan__obj__t}{can\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*} can\+\_\+ctor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Constructs and initializes a CAN active object. 
+
+This function initializes a CAN active object ({\ttfamily \doxylink{structcan__obj__t}{can\+\_\+obj\+\_\+t}}) and registers it with the provided broker.
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the message broker responsible for event routing. \\
+\hline
+{\em name} & Name of the CAN active object. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pointer to the singleton CAN active object. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{ao__can_8c_source_l00121}{121}} of file \mbox{\hyperlink{ao__can_8c_source}{ao\+\_\+can.\+c}}.
+
+\Hypertarget{ao__can_8c_abcca05a6cf4bd6deeb8a4ce478b1b5d8}\index{ao\_can.c@{ao\_can.c}!CanIf\_RxIndication@{CanIf\_RxIndication}}
+\index{CanIf\_RxIndication@{CanIf\_RxIndication}!ao\_can.c@{ao\_can.c}}
+\doxysubsubsection{\texorpdfstring{CanIf\_RxIndication()}{CanIf\_RxIndication()}}
+{\footnotesize\ttfamily \label{ao__can_8c_abcca05a6cf4bd6deeb8a4ce478b1b5d8} 
+void Can\+If\+\_\+\+Rx\+Indication (\begin{DoxyParamCaption}\item[{const Can\+\_\+\+Hw\+Type \texorpdfstring{$\ast$}{*}}]{Mailbox}{, }\item[{const Pdu\+Info\+Type \texorpdfstring{$\ast$}{*}}]{Pdu\+Info\+Ptr}{}\end{DoxyParamCaption})}
+
+
+
+Handles received CAN messages. 
+
+This function is invoked when a CAN message is received. It processes the message and passes it to the appropriate handler.
+
+
+\begin{DoxyParams}{Parameters}
+{\em Mailbox} & Pointer to the hardware CAN mailbox structure. \\
+\hline
+{\em Pdu\+Info\+Ptr} & Pointer to the CAN Protocol Data Unit (PDU) containing the received message payload. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{ao__can_8c_source_l00144}{144}} of file \mbox{\hyperlink{ao__can_8c_source}{ao\+\_\+can.\+c}}.
+

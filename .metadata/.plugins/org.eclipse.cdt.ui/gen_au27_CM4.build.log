@@ -1,0 +1,10 @@
+09:32:01 **** Build of configuration Debug for project gen_au27_CM4 ****
+make -j12 all 
+arm-none-eabi-size  gen_au27_CM4.elf 
+   text	   data	    bss	    dec	    hex	filename
+  33396	    288	   2172	  35856	   8c10	gen_au27_CM4.elf
+Finished building: default.size.stdout
+ 
+
+09:32:01 Build Finished. 0 errors, 0 warnings. (took 278ms)
+

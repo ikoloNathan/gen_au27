@@ -1,0 +1,156 @@
+\doxysection{base\+\_\+vtable Struct Reference}
+\hypertarget{structbase__vtable}{}\label{structbase__vtable}\index{base\_vtable@{base\_vtable}}
+
+
+Virtual table structure for Active Object.  
+
+
+
+
+{\ttfamily \#include $<$active\+\_\+object.\+h$>$}
+
+\doxysubsubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__vtable_adb801ed963b3d9b5a1a3f9b5f1fea438}{start}} )(\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me)
+\begin{DoxyCompactList}\small\item\em Starts the Active Object. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__vtable_abd04702bad9334bb9eaf2408117df299}{stop}} )(\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me)
+\begin{DoxyCompactList}\small\item\em Stops the Active Object. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__vtable_a0bf3d76ec6ee19ed624ed75649f9c7e2}{post}} )(\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} frame)
+\begin{DoxyCompactList}\small\item\em Posts a message to the queue. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__vtable_af88e40437eb1451ea7aa7a8ae17d6d13}{dispatch}} )(\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}frame)
+\begin{DoxyCompactList}\small\item\em Dispatches an event. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__vtable_aa3ebd5d2169a91522a0692689b8bacf7}{log}} )(\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}data, uint16\+\_\+t length)
+\begin{DoxyCompactList}\small\item\em Logs a message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Virtual table structure for Active Object. 
+
+Provides function pointers for polymorphic behavior. 
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00275}{275}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+
+
+\doxysubsection{Field Documentation}
+\Hypertarget{structbase__vtable_af88e40437eb1451ea7aa7a8ae17d6d13}\index{base\_vtable@{base\_vtable}!dispatch@{dispatch}}
+\index{dispatch@{dispatch}!base\_vtable@{base\_vtable}}
+\doxysubsubsection{\texorpdfstring{dispatch}{dispatch}}
+{\footnotesize\ttfamily \label{structbase__vtable_af88e40437eb1451ea7aa7a8ae17d6d13} 
+void(\texorpdfstring{$\ast$}{*} dispatch) (\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}frame)}
+
+
+
+Dispatches an event. 
+
+Handles messages dequeued from the message queue.
+
+
+\begin{DoxyParams}{Parameters}
+{\em me} & Pointer to the Active Object instance. \\
+\hline
+{\em frame} & Pointer to the message frame containing event data. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00312}{312}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__vtable_aa3ebd5d2169a91522a0692689b8bacf7}\index{base\_vtable@{base\_vtable}!log@{log}}
+\index{log@{log}!base\_vtable@{base\_vtable}}
+\doxysubsubsection{\texorpdfstring{log}{log}}
+{\footnotesize\ttfamily \label{structbase__vtable_aa3ebd5d2169a91522a0692689b8bacf7} 
+void(\texorpdfstring{$\ast$}{*} log) (\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}data, uint16\+\_\+t length)}
+
+
+
+Logs a message. 
+
+Logs messages in a hex format. On Windows, logs to a file. On Free\+RTOS, a placeholder exists for logging via e\+MMC.
+
+Example log\+: {\ttfamily "{}\+System\+AO \+: \mbox{[}0x7,0x3,0x32,0x\+AD\mbox{]}"{}}
+
+
+\begin{DoxyParams}{Parameters}
+{\em me} & Pointer to the Active Object instance. \\
+\hline
+{\em data} & Pointer to byte array message. \\
+\hline
+{\em length} & Number of bytes in {\ttfamily data}. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00327}{327}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__vtable_a0bf3d76ec6ee19ed624ed75649f9c7e2}\index{base\_vtable@{base\_vtable}!post@{post}}
+\index{post@{post}!base\_vtable@{base\_vtable}}
+\doxysubsubsection{\texorpdfstring{post}{post}}
+{\footnotesize\ttfamily \label{structbase__vtable_a0bf3d76ec6ee19ed624ed75649f9c7e2} 
+void(\texorpdfstring{$\ast$}{*} post) (\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me, const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} frame)}
+
+
+
+Posts a message to the queue. 
+
+Queues a message for processing by the Active Object.
+
+
+\begin{DoxyParams}{Parameters}
+{\em me} & Pointer to the Active Object instance. \\
+\hline
+{\em frame} & The message frame to enqueue. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00302}{302}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__vtable_adb801ed963b3d9b5a1a3f9b5f1fea438}\index{base\_vtable@{base\_vtable}!start@{start}}
+\index{start@{start}!base\_vtable@{base\_vtable}}
+\doxysubsubsection{\texorpdfstring{start}{start}}
+{\footnotesize\ttfamily \label{structbase__vtable_adb801ed963b3d9b5a1a3f9b5f1fea438} 
+void(\texorpdfstring{$\ast$}{*} start) (\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me)}
+
+
+
+Starts the Active Object. 
+
+Initializes resources and starts the event loop.
+
+
+\begin{DoxyParams}{Parameters}
+{\em me} & Pointer to the Active Object instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00283}{283}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__vtable_abd04702bad9334bb9eaf2408117df299}\index{base\_vtable@{base\_vtable}!stop@{stop}}
+\index{stop@{stop}!base\_vtable@{base\_vtable}}
+\doxysubsubsection{\texorpdfstring{stop}{stop}}
+{\footnotesize\ttfamily \label{structbase__vtable_abd04702bad9334bb9eaf2408117df299} 
+void(\texorpdfstring{$\ast$}{*} stop) (\mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*}const me)}
+
+
+
+Stops the Active Object. 
+
+Cleans up resources and stops the event loop.
+
+
+\begin{DoxyParams}{Parameters}
+{\em me} & Pointer to the Active Object instance. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00292}{292}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{active__object_8h}{active\+\_\+object.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,759 @@
+\doxysection{include/message.h File Reference}
+\hypertarget{message_8h}{}\label{message_8h}\index{include/message.h@{include/message.h}}
+
+
+Defines the message structure, encoding/decoding functions, and system communication macros.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+\doxysubsubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_metadata__t}{Metadata\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Represents metadata associated with a message payload. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Represents a complete message frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{message_8h_afcd5983d76771718283214a43370830a}{CAN\+\_\+\+ID\+\_\+\+PRIORITY}}(priority)
+\begin{DoxyCompactList}\small\item\em Constructs the priority field in the 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a4e5c02864e9aff8585647f41358b2324}{CAN\+\_\+\+ID\+\_\+\+DEST\+\_\+\+ADDR}}(dest)
+\begin{DoxyCompactList}\small\item\em Constructs the destination address field in the 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_af4592ece871adc7b08f2b72025b6ccda}{CAN\+\_\+\+ID\+\_\+\+SRC\+\_\+\+ADDR}}(src)
+\begin{DoxyCompactList}\small\item\em Constructs the source address field in the 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a5f7df5ff8046807a0979d2a1c22f5483}{CAN\+\_\+\+ID\+\_\+\+MODE}}(mode)
+\begin{DoxyCompactList}\small\item\em Constructs the mode field in the 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_abc8b6e8bb51fd4e8f14086c0d3006892}{CAN\+\_\+\+ID\+\_\+\+TOPIC\+\_\+\+SERVICE\+\_\+\+ID}}(tsid)
+\begin{DoxyCompactList}\small\item\em Constructs the topic/service ID field in the 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_aecb83be96ab3432f8a27ab052288a27b}{CAN\+\_\+\+ID\+\_\+\+MSG\+\_\+\+TYPE}}(msg\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Constructs the message type field in the 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}{BUILD\+\_\+\+CAN\+\_\+\+ID}}(priority,  dest,  src,  mode,  tsid,  msg\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Constructs a full 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a3d327fe29e268e8f7147626173e47077}{SYSTEM\+\_\+\+STATE\+\_\+\+STATUS}}(\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}})
+\begin{DoxyCompactList}\small\item\em Defines system state status topic for broker subscription. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a8da4fec83eff3c092a58ae6e4b814a18}{SYSTEM\+\_\+\+STATE\+\_\+\+REQUEST}}(\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}})
+\begin{DoxyCompactList}\small\item\em Defines system state request topic for broker subscription. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a7612f4968c4eb08e3ccd11df79a1ca2b}{SYSTEM\+\_\+\+CONFIG\+\_\+\+REQUEST}}(\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}})
+\begin{DoxyCompactList}\small\item\em Defines system configuration request topic for broker subscription. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a97c5f174e70159ce332607be21b290c5}{SYSTEM\+\_\+\+CONFIG\+\_\+\+COMMAND}}(\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}})
+\begin{DoxyCompactList}\small\item\em Defines system configuration command topic for broker subscription. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a6042eaca8ee1fb642166d5f6d34f15a6}{SYSTEM\+\_\+\+TIME\+\_\+\+EVENT}}(\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}})
+\begin{DoxyCompactList}\small\item\em Defines system time event topic for broker subscription. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{message_8h_a6303f7392a2d06be5a121c54278d561b}{MAX\+\_\+\+PAYLOAD\+\_\+\+SIZE}}~120
+\begin{DoxyCompactList}\small\item\em Maximum payload size in a message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604f}{message\+\_\+mode\+\_\+t}} \{ \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}{MESSAGE\+\_\+\+MODE\+\_\+\+INTERNAL}} = 0x00
+, \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fad0c77dca28703e818a3515236d051682}{MESSAGE\+\_\+\+MODE\+\_\+\+EXTERNAL\+\_\+\+OUT}} = 0x01
+ \}
+\begin{DoxyCompactList}\small\item\em Defines communication modes for messages. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656eb}{system\+\_\+state\+\_\+t}} \{ \newline
+\mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656eba2fb826cc8950db8ec76c7decdf1f6e7f}{INITIALISATION}}
+, \mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656ebacc76bc55effa2c816bb32b63c005a231}{MAINTENACE}}
+, \mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656ebae6c7d41b255eff353251fbec6fe839e4}{OPERATION}}
+, \mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656ebabc0b416b352629ffc286f792a7b53116}{LOADER}}
+, \newline
+\mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656eba0593585da9181e972974c1274d8f2b4f}{DEBUG}}
+ \}
+\begin{DoxyCompactList}\small\item\em Defines possible system states. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84}{hardware\+\_\+state\+\_\+signals\+\_\+t}} \{ \newline
+\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a6e4838339a19b8cf431392272b931af3}{SIGNAL\+\_\+\+POST\+\_\+\+PASS}} = 0x01
+, \mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84aad1a5a36f7a4565f56afba1942688d6e}{SIGNAL\+\_\+\+POST\+\_\+\+FAIL}}
+, \mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84a4418ba64828f7a1eaa53c34b6a93d2b2}{SIGNAL\+\_\+\+ENTER\+\_\+\+LOADER}}
+, \mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84ac4bbd0a4cf88b06063434c41058b9031}{SIGNAL\+\_\+\+ENTER\+\_\+\+MAINTENANCE}}
+, \newline
+\mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84ae4e02a01c2cca36235d99f5eb9bac31b}{SIGNAL\+\_\+\+RECOVER}}
+, \mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84aaeb6f234dc315ce34db43fcde222fe51}{SIGNAL\+\_\+\+RESTART}}
+ \}
+\begin{DoxyCompactList}\small\item\em Defines hardware state transition signals. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843}{common\+\_\+topic\+\_\+t}} \{ \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843ac471dd342a6f384aabf0c412453293bc}{INTERNAL\+\_\+\+SYSTEM\+\_\+\+STATE}} = (0x01)
+, \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843a91094bad4316909251795dddac097294}{INTERNAL\+\_\+\+SYSTEM\+\_\+\+TIME}}
+, \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843ac4e31336457238492b8b40b7be865a92}{INTERNAL\+\_\+\+SYSTEM\+\_\+\+CONFIG}}
+, \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843a31655a15932a18a1242f77fcf0d072fb}{INTERNAL\+\_\+\+SYSTEM\+\_\+\+LOG}}
+ \}
+\begin{DoxyCompactList}\small\item\em Defines internal system topic IDs. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557c}{message\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca64cf1b17bc98339566733c6986e7365b}{MESSAGE\+\_\+\+TYPE\+\_\+\+COMMAND}} = 0x1
+, \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca6cf26ada7aea42e6b4b720b6d74d65d9}{MESSAGE\+\_\+\+TYPE\+\_\+\+REQUEST}}
+, \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca70eb7acb3eab3dc616a82a98d4601675}{MESSAGE\+\_\+\+TYPE\+\_\+\+RESPONSE}}
+, \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca36983daf728ef055d46ec0eeaf44c4b9}{MESSAGE\+\_\+\+TYPE\+\_\+\+EVENT}}
+, \newline
+\mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca3b3ec2b174fbe192bc9c9ee3c6542006}{MESSAGE\+\_\+\+TYPE\+\_\+\+STATUS}}
+, \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca23acdbfb2ec5a1b7a2c89d5cd468768f}{MESSAGE\+\_\+\+TYPE\+\_\+\+CONFIGURATION}}
+, \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca5ca03bb7747c885930dff17022e7b587}{MESSAGE\+\_\+\+TYPE\+\_\+\+TIMEOUT}}
+ \}
+\begin{DoxyCompactList}\small\item\em Defines different message types. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067ac}{Response\+\_\+\+Code}} \{ \newline
+\mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067aca7072946507cceb8dcc95d8395d597711}{RESPONSE\+\_\+\+SUCCESS}} = 0x00
+, \mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067aca59d85dc90bf55f638b778bff7ff02a26}{RESPONSE\+\_\+\+FAILURE}} = 0x01
+, \mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067aca0c9a411050a353e964655d21cd8815e5}{RESPONSE\+\_\+\+TIMEOUT}} = 0x02
+, \mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067acacdd66c902b2512dbb3690ff88a26c2ad}{RESPONSE\+\_\+\+NOT\+\_\+\+FOUND}} = 0x03
+, \newline
+\mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067acab3792366a9bddf28c811934a25a7b395}{RESPONSE\+\_\+\+INVALID\+\_\+\+REQUEST}} = 0x04
+ \}
+\begin{DoxyCompactList}\small\item\em Defines response codes for requests. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{message_8h_a52fc8532bc7516189314f3df105ef056}{message\+\_\+encode\+\_\+can\+\_\+id}} (const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}frame)
+\begin{DoxyCompactList}\small\item\em Encodes a message frame into a 29-\/bit CAN ID. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{message_8h_aa11419f7bcfe097cf3f14e4fb4b708da}{message\+\_\+decode\+\_\+can\+\_\+id}} (uint32\+\_\+t can\+Id, \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}frame)
+\begin{DoxyCompactList}\small\item\em Decodes a 29-\/bit CAN ID into a message frame structure. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{message_8h_a2ee1650d7fa0eb6af3b0aa596b27a72d}{message\+\_\+serialise\+\_\+payload}} (const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}frame, uint8\+\_\+t \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Serializes a message frame into a raw buffer. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{message_8h_a024ea87d32238f9e5e22ce9e17c0ea13}{message\+\_\+deserialise\+\_\+payload}} (const uint8\+\_\+t \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size, \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}frame)
+\begin{DoxyCompactList}\small\item\em Deserializes a raw buffer into a message frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Defines the message structure, encoding/decoding functions, and system communication macros. 
+
+This file provides structures, macros, and functions to facilitate message encoding, decoding, serialization, and deserialization for a 29-\/bit CAN ID based communication system. It also defines inline functions for constructing specific system state, time, and command messages.
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+February 6, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}\index{message.h@{message.h}!BUILD\_CAN\_ID@{BUILD\_CAN\_ID}}
+\index{BUILD\_CAN\_ID@{BUILD\_CAN\_ID}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{BUILD\_CAN\_ID}{BUILD\_CAN\_ID}}
+{\footnotesize\ttfamily \label{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99} 
+\#define BUILD\+\_\+\+CAN\+\_\+\+ID(\begin{DoxyParamCaption}\item[{}]{priority}{, }\item[{}]{dest}{, }\item[{}]{src}{, }\item[{}]{mode}{, }\item[{}]{tsid}{, }\item[{}]{msg\+\_\+type}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ (\mbox{\hyperlink{message_8h_afcd5983d76771718283214a43370830a}{CAN\_ID\_PRIORITY}}(priority)\ |\ \mbox{\hyperlink{message_8h_a4e5c02864e9aff8585647f41358b2324}{CAN\_ID\_DEST\_ADDR}}(dest)\ |\ \mbox{\hyperlink{message_8h_af4592ece871adc7b08f2b72025b6ccda}{CAN\_ID\_SRC\_ADDR}}(src)\ |\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ CAN\_ID\_MODE(mode)\ |\ \mbox{\hyperlink{message_8h_abc8b6e8bb51fd4e8f14086c0d3006892}{CAN\_ID\_TOPIC\_SERVICE\_ID}}(tsid)\ |\ \mbox{\hyperlink{message_8h_aecb83be96ab3432f8a27ab052288a27b}{CAN\_ID\_MSG\_TYPE}}(msg\_type))}
+
+\end{DoxyCode}
+
+
+Constructs a full 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em priority} & Message priority (3-\/bit). \\
+\hline
+{\em dest} & Destination address (8-\/bit). \\
+\hline
+{\em src} & Source address (8-\/bit). \\
+\hline
+{\em mode} & Message mode (1-\/bit). \\
+\hline
+{\em tsid} & Topic/service ID (5-\/bit). \\
+\hline
+{\em msg\+\_\+type} & Message type (4-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Full 29-\/bit CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00076}{76}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a4e5c02864e9aff8585647f41358b2324}\index{message.h@{message.h}!CAN\_ID\_DEST\_ADDR@{CAN\_ID\_DEST\_ADDR}}
+\index{CAN\_ID\_DEST\_ADDR@{CAN\_ID\_DEST\_ADDR}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{CAN\_ID\_DEST\_ADDR}{CAN\_ID\_DEST\_ADDR}}
+{\footnotesize\ttfamily \label{message_8h_a4e5c02864e9aff8585647f41358b2324} 
+\#define CAN\+\_\+\+ID\+\_\+\+DEST\+\_\+\+ADDR(\begin{DoxyParamCaption}\item[{}]{dest}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((dest)\ \&\ 0xFF)\ \ <<\ 18)}
+
+\end{DoxyCode}
+
+
+Constructs the destination address field in the 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dest} & Destination address (8-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded destination address in CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00036}{36}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a5f7df5ff8046807a0979d2a1c22f5483}\index{message.h@{message.h}!CAN\_ID\_MODE@{CAN\_ID\_MODE}}
+\index{CAN\_ID\_MODE@{CAN\_ID\_MODE}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{CAN\_ID\_MODE}{CAN\_ID\_MODE}}
+{\footnotesize\ttfamily \label{message_8h_a5f7df5ff8046807a0979d2a1c22f5483} 
+\#define CAN\+\_\+\+ID\+\_\+\+MODE(\begin{DoxyParamCaption}\item[{}]{mode}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((mode)\ \&\ 0x1)\ \ <<\ 9)}
+
+\end{DoxyCode}
+
+
+Constructs the mode field in the 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mode} & Message mode (1-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded mode in CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00050}{50}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_aecb83be96ab3432f8a27ab052288a27b}\index{message.h@{message.h}!CAN\_ID\_MSG\_TYPE@{CAN\_ID\_MSG\_TYPE}}
+\index{CAN\_ID\_MSG\_TYPE@{CAN\_ID\_MSG\_TYPE}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{CAN\_ID\_MSG\_TYPE}{CAN\_ID\_MSG\_TYPE}}
+{\footnotesize\ttfamily \label{message_8h_aecb83be96ab3432f8a27ab052288a27b} 
+\#define CAN\+\_\+\+ID\+\_\+\+MSG\+\_\+\+TYPE(\begin{DoxyParamCaption}\item[{}]{msg\+\_\+type}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((msg\_type)\ \&\ 0xF)\ <<\ 0)}
+
+\end{DoxyCode}
+
+
+Constructs the message type field in the 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg\+\_\+type} & Message type (4-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded message type in CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00064}{64}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_afcd5983d76771718283214a43370830a}\index{message.h@{message.h}!CAN\_ID\_PRIORITY@{CAN\_ID\_PRIORITY}}
+\index{CAN\_ID\_PRIORITY@{CAN\_ID\_PRIORITY}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{CAN\_ID\_PRIORITY}{CAN\_ID\_PRIORITY}}
+{\footnotesize\ttfamily \label{message_8h_afcd5983d76771718283214a43370830a} 
+\#define CAN\+\_\+\+ID\+\_\+\+PRIORITY(\begin{DoxyParamCaption}\item[{}]{priority}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((priority)\ \&\ 0x7)\ \ <<\ 26)}
+
+\end{DoxyCode}
+
+
+Constructs the priority field in the 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em priority} & Priority value (3-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded priority in CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00029}{29}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_af4592ece871adc7b08f2b72025b6ccda}\index{message.h@{message.h}!CAN\_ID\_SRC\_ADDR@{CAN\_ID\_SRC\_ADDR}}
+\index{CAN\_ID\_SRC\_ADDR@{CAN\_ID\_SRC\_ADDR}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{CAN\_ID\_SRC\_ADDR}{CAN\_ID\_SRC\_ADDR}}
+{\footnotesize\ttfamily \label{message_8h_af4592ece871adc7b08f2b72025b6ccda} 
+\#define CAN\+\_\+\+ID\+\_\+\+SRC\+\_\+\+ADDR(\begin{DoxyParamCaption}\item[{}]{src}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((src)\ \&\ 0xFF)\ \ <<\ 10)}
+
+\end{DoxyCode}
+
+
+Constructs the source address field in the 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & Source address (8-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded source address in CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00043}{43}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_abc8b6e8bb51fd4e8f14086c0d3006892}\index{message.h@{message.h}!CAN\_ID\_TOPIC\_SERVICE\_ID@{CAN\_ID\_TOPIC\_SERVICE\_ID}}
+\index{CAN\_ID\_TOPIC\_SERVICE\_ID@{CAN\_ID\_TOPIC\_SERVICE\_ID}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{CAN\_ID\_TOPIC\_SERVICE\_ID}{CAN\_ID\_TOPIC\_SERVICE\_ID}}
+{\footnotesize\ttfamily \label{message_8h_abc8b6e8bb51fd4e8f14086c0d3006892} 
+\#define CAN\+\_\+\+ID\+\_\+\+TOPIC\+\_\+\+SERVICE\+\_\+\+ID(\begin{DoxyParamCaption}\item[{}]{tsid}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((tsid)\ \&\ 0x1F)\ <<\ 4)}
+
+\end{DoxyCode}
+
+
+Constructs the topic/service ID field in the 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tsid} & Topic or service ID (5-\/bit). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded topic/service ID in CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00057}{57}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a6303f7392a2d06be5a121c54278d561b}\index{message.h@{message.h}!MAX\_PAYLOAD\_SIZE@{MAX\_PAYLOAD\_SIZE}}
+\index{MAX\_PAYLOAD\_SIZE@{MAX\_PAYLOAD\_SIZE}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_PAYLOAD\_SIZE}{MAX\_PAYLOAD\_SIZE}}
+{\footnotesize\ttfamily \label{message_8h_a6303f7392a2d06be5a121c54278d561b} 
+\#define MAX\+\_\+\+PAYLOAD\+\_\+\+SIZE~120}
+
+
+
+Maximum payload size in a message. 
+
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00116}{116}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a97c5f174e70159ce332607be21b290c5}\index{message.h@{message.h}!SYSTEM\_CONFIG\_COMMAND@{SYSTEM\_CONFIG\_COMMAND}}
+\index{SYSTEM\_CONFIG\_COMMAND@{SYSTEM\_CONFIG\_COMMAND}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{SYSTEM\_CONFIG\_COMMAND}{SYSTEM\_CONFIG\_COMMAND}}
+{\footnotesize\ttfamily \label{message_8h_a97c5f174e70159ce332607be21b290c5} 
+\#define SYSTEM\+\_\+\+CONFIG\+\_\+\+COMMAND(\begin{DoxyParamCaption}\item[{}]{\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}}}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .type\ =\ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\_MATCH}},\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .topic\ =\ \mbox{\hyperlink{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}{BUILD\_CAN\_ID}}(0x00,\ 0x00,\ (\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\_id}})\ \&\ 0xFF,\ \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}{MESSAGE\_MODE\_INTERNAL}},\ \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843ac4e31336457238492b8b40b7be865a92}{INTERNAL\_SYSTEM\_CONFIG}},\ \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca64cf1b17bc98339566733c6986e7365b}{MESSAGE\_TYPE\_COMMAND}})\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Defines system configuration command topic for broker subscription. 
+
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00102}{102}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a7612f4968c4eb08e3ccd11df79a1ca2b}\index{message.h@{message.h}!SYSTEM\_CONFIG\_REQUEST@{SYSTEM\_CONFIG\_REQUEST}}
+\index{SYSTEM\_CONFIG\_REQUEST@{SYSTEM\_CONFIG\_REQUEST}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{SYSTEM\_CONFIG\_REQUEST}{SYSTEM\_CONFIG\_REQUEST}}
+{\footnotesize\ttfamily \label{message_8h_a7612f4968c4eb08e3ccd11df79a1ca2b} 
+\#define SYSTEM\+\_\+\+CONFIG\+\_\+\+REQUEST(\begin{DoxyParamCaption}\item[{}]{\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}}}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .type\ =\ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\_MATCH}},\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .topic\ =\ \mbox{\hyperlink{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}{BUILD\_CAN\_ID}}(0x00,\ 0x00,\ (\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\_id}})\ \&\ 0xFF,\ \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}{MESSAGE\_MODE\_INTERNAL}},\ \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843ac4e31336457238492b8b40b7be865a92}{INTERNAL\_SYSTEM\_CONFIG}},\ \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca6cf26ada7aea42e6b4b720b6d74d65d9}{MESSAGE\_TYPE\_REQUEST}})\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Defines system configuration request topic for broker subscription. 
+
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00095}{95}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a8da4fec83eff3c092a58ae6e4b814a18}\index{message.h@{message.h}!SYSTEM\_STATE\_REQUEST@{SYSTEM\_STATE\_REQUEST}}
+\index{SYSTEM\_STATE\_REQUEST@{SYSTEM\_STATE\_REQUEST}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{SYSTEM\_STATE\_REQUEST}{SYSTEM\_STATE\_REQUEST}}
+{\footnotesize\ttfamily \label{message_8h_a8da4fec83eff3c092a58ae6e4b814a18} 
+\#define SYSTEM\+\_\+\+STATE\+\_\+\+REQUEST(\begin{DoxyParamCaption}\item[{}]{\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}}}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .type\ =\ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\_MATCH}},\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .topic\ =\ \mbox{\hyperlink{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}{BUILD\_CAN\_ID}}(0x00,\ 0x00,\ (\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\_id}})\ \&\ 0xFF,\ \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}{MESSAGE\_MODE\_INTERNAL}},\ \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843ac471dd342a6f384aabf0c412453293bc}{INTERNAL\_SYSTEM\_STATE}},\ \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca6cf26ada7aea42e6b4b720b6d74d65d9}{MESSAGE\_TYPE\_REQUEST}})\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Defines system state request topic for broker subscription. 
+
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00088}{88}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a3d327fe29e268e8f7147626173e47077}\index{message.h@{message.h}!SYSTEM\_STATE\_STATUS@{SYSTEM\_STATE\_STATUS}}
+\index{SYSTEM\_STATE\_STATUS@{SYSTEM\_STATE\_STATUS}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{SYSTEM\_STATE\_STATUS}{SYSTEM\_STATE\_STATUS}}
+{\footnotesize\ttfamily \label{message_8h_a3d327fe29e268e8f7147626173e47077} 
+\#define SYSTEM\+\_\+\+STATE\+\_\+\+STATUS(\begin{DoxyParamCaption}\item[{}]{\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}}}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .type\ =\ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\_MATCH}},\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .topic\ =\ \mbox{\hyperlink{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}{BUILD\_CAN\_ID}}(0x00,\ 0x00,\ (\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\_id}})\ \&\ 0xFF,\ \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}{MESSAGE\_MODE\_INTERNAL}},\ \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843ac471dd342a6f384aabf0c412453293bc}{INTERNAL\_SYSTEM\_STATE}},\ \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca3b3ec2b174fbe192bc9c9ee3c6542006}{MESSAGE\_TYPE\_STATUS}})\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Defines system state status topic for broker subscription. 
+
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00081}{81}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a6042eaca8ee1fb642166d5f6d34f15a6}\index{message.h@{message.h}!SYSTEM\_TIME\_EVENT@{SYSTEM\_TIME\_EVENT}}
+\index{SYSTEM\_TIME\_EVENT@{SYSTEM\_TIME\_EVENT}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{SYSTEM\_TIME\_EVENT}{SYSTEM\_TIME\_EVENT}}
+{\footnotesize\ttfamily \label{message_8h_a6042eaca8ee1fb642166d5f6d34f15a6} 
+\#define SYSTEM\+\_\+\+TIME\+\_\+\+EVENT(\begin{DoxyParamCaption}\item[{}]{\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\+\_\+id}}}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .type\ =\ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\_MATCH}},\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ .topic\ =\ \mbox{\hyperlink{message_8h_ac13c4bdfeb21e8bf5b4beeadc0f95d99}{BUILD\_CAN\_ID}}(0x00,\ 0x00,\ (\mbox{\hyperlink{active__object_8h_a45cbff3c85781f76fe31df77581a3824}{system\_id}})\ \&\ 0x1F,\ \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}{MESSAGE\_MODE\_INTERNAL}},\ \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843a91094bad4316909251795dddac097294}{INTERNAL\_SYSTEM\_TIME}},\ \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557ca36983daf728ef055d46ec0eeaf44c4b9}{MESSAGE\_TYPE\_EVENT}})\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Defines system time event topic for broker subscription. 
+
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00109}{109}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{message_8h_a739c322b31d6faddf75d975ebc3af843}\index{message.h@{message.h}!common\_topic\_t@{common\_topic\_t}}
+\index{common\_topic\_t@{common\_topic\_t}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{common\_topic\_t}{common\_topic\_t}}
+{\footnotesize\ttfamily \label{message_8h_a739c322b31d6faddf75d975ebc3af843} 
+enum \mbox{\hyperlink{message_8h_a739c322b31d6faddf75d975ebc3af843}{common\+\_\+topic\+\_\+t}}}
+
+
+
+Defines internal system topic IDs. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INTERNAL\_SYSTEM\_STATE@{INTERNAL\_SYSTEM\_STATE}!message.h@{message.h}}\index{message.h@{message.h}!INTERNAL\_SYSTEM\_STATE@{INTERNAL\_SYSTEM\_STATE}}}\Hypertarget{message_8h_a739c322b31d6faddf75d975ebc3af843ac471dd342a6f384aabf0c412453293bc}\label{message_8h_a739c322b31d6faddf75d975ebc3af843ac471dd342a6f384aabf0c412453293bc} 
+INTERNAL\+\_\+\+SYSTEM\+\_\+\+STATE&System state messages. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INTERNAL\_SYSTEM\_TIME@{INTERNAL\_SYSTEM\_TIME}!message.h@{message.h}}\index{message.h@{message.h}!INTERNAL\_SYSTEM\_TIME@{INTERNAL\_SYSTEM\_TIME}}}\Hypertarget{message_8h_a739c322b31d6faddf75d975ebc3af843a91094bad4316909251795dddac097294}\label{message_8h_a739c322b31d6faddf75d975ebc3af843a91094bad4316909251795dddac097294} 
+INTERNAL\+\_\+\+SYSTEM\+\_\+\+TIME&System time messages. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INTERNAL\_SYSTEM\_CONFIG@{INTERNAL\_SYSTEM\_CONFIG}!message.h@{message.h}}\index{message.h@{message.h}!INTERNAL\_SYSTEM\_CONFIG@{INTERNAL\_SYSTEM\_CONFIG}}}\Hypertarget{message_8h_a739c322b31d6faddf75d975ebc3af843ac4e31336457238492b8b40b7be865a92}\label{message_8h_a739c322b31d6faddf75d975ebc3af843ac4e31336457238492b8b40b7be865a92} 
+INTERNAL\+\_\+\+SYSTEM\+\_\+\+CONFIG&System configuration messages. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INTERNAL\_SYSTEM\_LOG@{INTERNAL\_SYSTEM\_LOG}!message.h@{message.h}}\index{message.h@{message.h}!INTERNAL\_SYSTEM\_LOG@{INTERNAL\_SYSTEM\_LOG}}}\Hypertarget{message_8h_a739c322b31d6faddf75d975ebc3af843a31655a15932a18a1242f77fcf0d072fb}\label{message_8h_a739c322b31d6faddf75d975ebc3af843a31655a15932a18a1242f77fcf0d072fb} 
+INTERNAL\+\_\+\+SYSTEM\+\_\+\+LOG&System log messages. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00156}{156}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84}\index{message.h@{message.h}!hardware\_state\_signals\_t@{hardware\_state\_signals\_t}}
+\index{hardware\_state\_signals\_t@{hardware\_state\_signals\_t}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{hardware\_state\_signals\_t}{hardware\_state\_signals\_t}}
+{\footnotesize\ttfamily \label{message_8h_a9067fef46dc20a37b9c570cabf913f84} 
+enum \mbox{\hyperlink{message_8h_a9067fef46dc20a37b9c570cabf913f84}{hardware\+\_\+state\+\_\+signals\+\_\+t}}}
+
+
+
+Defines hardware state transition signals. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SIGNAL\_POST\_PASS@{SIGNAL\_POST\_PASS}!message.h@{message.h}}\index{message.h@{message.h}!SIGNAL\_POST\_PASS@{SIGNAL\_POST\_PASS}}}\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84a6e4838339a19b8cf431392272b931af3}\label{message_8h_a9067fef46dc20a37b9c570cabf913f84a6e4838339a19b8cf431392272b931af3} 
+SIGNAL\+\_\+\+POST\+\_\+\+PASS&Power-\/on self-\/test passed. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SIGNAL\_POST\_FAIL@{SIGNAL\_POST\_FAIL}!message.h@{message.h}}\index{message.h@{message.h}!SIGNAL\_POST\_FAIL@{SIGNAL\_POST\_FAIL}}}\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84aad1a5a36f7a4565f56afba1942688d6e}\label{message_8h_a9067fef46dc20a37b9c570cabf913f84aad1a5a36f7a4565f56afba1942688d6e} 
+SIGNAL\+\_\+\+POST\+\_\+\+FAIL&Power-\/on self-\/test failed. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SIGNAL\_ENTER\_LOADER@{SIGNAL\_ENTER\_LOADER}!message.h@{message.h}}\index{message.h@{message.h}!SIGNAL\_ENTER\_LOADER@{SIGNAL\_ENTER\_LOADER}}}\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84a4418ba64828f7a1eaa53c34b6a93d2b2}\label{message_8h_a9067fef46dc20a37b9c570cabf913f84a4418ba64828f7a1eaa53c34b6a93d2b2} 
+SIGNAL\+\_\+\+ENTER\+\_\+\+LOADER&Enter loader mode. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SIGNAL\_ENTER\_MAINTENANCE@{SIGNAL\_ENTER\_MAINTENANCE}!message.h@{message.h}}\index{message.h@{message.h}!SIGNAL\_ENTER\_MAINTENANCE@{SIGNAL\_ENTER\_MAINTENANCE}}}\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84ac4bbd0a4cf88b06063434c41058b9031}\label{message_8h_a9067fef46dc20a37b9c570cabf913f84ac4bbd0a4cf88b06063434c41058b9031} 
+SIGNAL\+\_\+\+ENTER\+\_\+\+MAINTENANCE&Enter maintenance mode. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SIGNAL\_RECOVER@{SIGNAL\_RECOVER}!message.h@{message.h}}\index{message.h@{message.h}!SIGNAL\_RECOVER@{SIGNAL\_RECOVER}}}\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84ae4e02a01c2cca36235d99f5eb9bac31b}\label{message_8h_a9067fef46dc20a37b9c570cabf913f84ae4e02a01c2cca36235d99f5eb9bac31b} 
+SIGNAL\+\_\+\+RECOVER&Attempt system recovery. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SIGNAL\_RESTART@{SIGNAL\_RESTART}!message.h@{message.h}}\index{message.h@{message.h}!SIGNAL\_RESTART@{SIGNAL\_RESTART}}}\Hypertarget{message_8h_a9067fef46dc20a37b9c570cabf913f84aaeb6f234dc315ce34db43fcde222fe51}\label{message_8h_a9067fef46dc20a37b9c570cabf913f84aaeb6f234dc315ce34db43fcde222fe51} 
+SIGNAL\+\_\+\+RESTART&Restart the system. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00143}{143}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a764b90a6667d70cc8ac65054ade8604f}\index{message.h@{message.h}!message\_mode\_t@{message\_mode\_t}}
+\index{message\_mode\_t@{message\_mode\_t}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{message\_mode\_t}{message\_mode\_t}}
+{\footnotesize\ttfamily \label{message_8h_a764b90a6667d70cc8ac65054ade8604f} 
+enum \mbox{\hyperlink{message_8h_a764b90a6667d70cc8ac65054ade8604f}{message\+\_\+mode\+\_\+t}}}
+
+
+
+Defines communication modes for messages. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_MODE\_INTERNAL@{MESSAGE\_MODE\_INTERNAL}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_MODE\_INTERNAL@{MESSAGE\_MODE\_INTERNAL}}}\Hypertarget{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c}\label{message_8h_a764b90a6667d70cc8ac65054ade8604fa1ce7426ac6c3a0d6dea7227d52b7650c} 
+MESSAGE\+\_\+\+MODE\+\_\+\+INTERNAL&Internal (pub-\/sub) communication. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_MODE\_EXTERNAL\_OUT@{MESSAGE\_MODE\_EXTERNAL\_OUT}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_MODE\_EXTERNAL\_OUT@{MESSAGE\_MODE\_EXTERNAL\_OUT}}}\Hypertarget{message_8h_a764b90a6667d70cc8ac65054ade8604fad0c77dca28703e818a3515236d051682}\label{message_8h_a764b90a6667d70cc8ac65054ade8604fad0c77dca28703e818a3515236d051682} 
+MESSAGE\+\_\+\+MODE\+\_\+\+EXTERNAL\+\_\+\+OUT&External request communication. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00122}{122}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557c}\index{message.h@{message.h}!message\_type\_t@{message\_type\_t}}
+\index{message\_type\_t@{message\_type\_t}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{message\_type\_t}{message\_type\_t}}
+{\footnotesize\ttfamily \label{message_8h_a78b97fef55da786a15a849fd9d7e557c} 
+enum \mbox{\hyperlink{message_8h_a78b97fef55da786a15a849fd9d7e557c}{message\+\_\+type\+\_\+t}}}
+
+
+
+Defines different message types. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_COMMAND@{MESSAGE\_TYPE\_COMMAND}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_COMMAND@{MESSAGE\_TYPE\_COMMAND}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca64cf1b17bc98339566733c6986e7365b}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca64cf1b17bc98339566733c6986e7365b} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+COMMAND&Command message. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_REQUEST@{MESSAGE\_TYPE\_REQUEST}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_REQUEST@{MESSAGE\_TYPE\_REQUEST}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca6cf26ada7aea42e6b4b720b6d74d65d9}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca6cf26ada7aea42e6b4b720b6d74d65d9} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+REQUEST&Request message. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_RESPONSE@{MESSAGE\_TYPE\_RESPONSE}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_RESPONSE@{MESSAGE\_TYPE\_RESPONSE}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca70eb7acb3eab3dc616a82a98d4601675}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca70eb7acb3eab3dc616a82a98d4601675} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+RESPONSE&Response message. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_EVENT@{MESSAGE\_TYPE\_EVENT}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_EVENT@{MESSAGE\_TYPE\_EVENT}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca36983daf728ef055d46ec0eeaf44c4b9}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca36983daf728ef055d46ec0eeaf44c4b9} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+EVENT&Event notification message. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_STATUS@{MESSAGE\_TYPE\_STATUS}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_STATUS@{MESSAGE\_TYPE\_STATUS}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca3b3ec2b174fbe192bc9c9ee3c6542006}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca3b3ec2b174fbe192bc9c9ee3c6542006} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+STATUS&Status update message. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_CONFIGURATION@{MESSAGE\_TYPE\_CONFIGURATION}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_CONFIGURATION@{MESSAGE\_TYPE\_CONFIGURATION}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca23acdbfb2ec5a1b7a2c89d5cd468768f}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca23acdbfb2ec5a1b7a2c89d5cd468768f} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+CONFIGURATION&Configuration message. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MESSAGE\_TYPE\_TIMEOUT@{MESSAGE\_TYPE\_TIMEOUT}!message.h@{message.h}}\index{message.h@{message.h}!MESSAGE\_TYPE\_TIMEOUT@{MESSAGE\_TYPE\_TIMEOUT}}}\Hypertarget{message_8h_a78b97fef55da786a15a849fd9d7e557ca5ca03bb7747c885930dff17022e7b587}\label{message_8h_a78b97fef55da786a15a849fd9d7e557ca5ca03bb7747c885930dff17022e7b587} 
+MESSAGE\+\_\+\+TYPE\+\_\+\+TIMEOUT&Timeout message. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00167}{167}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_a2b0a78662c4c8d9ffed43933215067ac}\index{message.h@{message.h}!Response\_Code@{Response\_Code}}
+\index{Response\_Code@{Response\_Code}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{Response\_Code}{Response\_Code}}
+{\footnotesize\ttfamily \label{message_8h_a2b0a78662c4c8d9ffed43933215067ac} 
+enum \mbox{\hyperlink{message_8h_a2b0a78662c4c8d9ffed43933215067ac}{Response\+\_\+\+Code}}}
+
+
+
+Defines response codes for requests. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESPONSE\_SUCCESS@{RESPONSE\_SUCCESS}!message.h@{message.h}}\index{message.h@{message.h}!RESPONSE\_SUCCESS@{RESPONSE\_SUCCESS}}}\Hypertarget{message_8h_a2b0a78662c4c8d9ffed43933215067aca7072946507cceb8dcc95d8395d597711}\label{message_8h_a2b0a78662c4c8d9ffed43933215067aca7072946507cceb8dcc95d8395d597711} 
+RESPONSE\+\_\+\+SUCCESS&Request was successful. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESPONSE\_FAILURE@{RESPONSE\_FAILURE}!message.h@{message.h}}\index{message.h@{message.h}!RESPONSE\_FAILURE@{RESPONSE\_FAILURE}}}\Hypertarget{message_8h_a2b0a78662c4c8d9ffed43933215067aca59d85dc90bf55f638b778bff7ff02a26}\label{message_8h_a2b0a78662c4c8d9ffed43933215067aca59d85dc90bf55f638b778bff7ff02a26} 
+RESPONSE\+\_\+\+FAILURE&General failure response. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESPONSE\_TIMEOUT@{RESPONSE\_TIMEOUT}!message.h@{message.h}}\index{message.h@{message.h}!RESPONSE\_TIMEOUT@{RESPONSE\_TIMEOUT}}}\Hypertarget{message_8h_a2b0a78662c4c8d9ffed43933215067aca0c9a411050a353e964655d21cd8815e5}\label{message_8h_a2b0a78662c4c8d9ffed43933215067aca0c9a411050a353e964655d21cd8815e5} 
+RESPONSE\+\_\+\+TIMEOUT&Request timeout. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESPONSE\_NOT\_FOUND@{RESPONSE\_NOT\_FOUND}!message.h@{message.h}}\index{message.h@{message.h}!RESPONSE\_NOT\_FOUND@{RESPONSE\_NOT\_FOUND}}}\Hypertarget{message_8h_a2b0a78662c4c8d9ffed43933215067acacdd66c902b2512dbb3690ff88a26c2ad}\label{message_8h_a2b0a78662c4c8d9ffed43933215067acacdd66c902b2512dbb3690ff88a26c2ad} 
+RESPONSE\+\_\+\+NOT\+\_\+\+FOUND&Resource not found. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESPONSE\_INVALID\_REQUEST@{RESPONSE\_INVALID\_REQUEST}!message.h@{message.h}}\index{message.h@{message.h}!RESPONSE\_INVALID\_REQUEST@{RESPONSE\_INVALID\_REQUEST}}}\Hypertarget{message_8h_a2b0a78662c4c8d9ffed43933215067acab3792366a9bddf28c811934a25a7b395}\label{message_8h_a2b0a78662c4c8d9ffed43933215067acab3792366a9bddf28c811934a25a7b395} 
+RESPONSE\+\_\+\+INVALID\+\_\+\+REQUEST&Invalid request format. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00181}{181}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+\Hypertarget{message_8h_aeaac97ef8a153a4e1abc636f535656eb}\index{message.h@{message.h}!system\_state\_t@{system\_state\_t}}
+\index{system\_state\_t@{system\_state\_t}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{system\_state\_t}{system\_state\_t}}
+{\footnotesize\ttfamily \label{message_8h_aeaac97ef8a153a4e1abc636f535656eb} 
+enum \mbox{\hyperlink{message_8h_aeaac97ef8a153a4e1abc636f535656eb}{system\+\_\+state\+\_\+t}}}
+
+
+
+Defines possible system states. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INITIALISATION@{INITIALISATION}!message.h@{message.h}}\index{message.h@{message.h}!INITIALISATION@{INITIALISATION}}}\Hypertarget{message_8h_aeaac97ef8a153a4e1abc636f535656eba2fb826cc8950db8ec76c7decdf1f6e7f}\label{message_8h_aeaac97ef8a153a4e1abc636f535656eba2fb826cc8950db8ec76c7decdf1f6e7f} 
+INITIALISATION&System initialization state. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MAINTENACE@{MAINTENACE}!message.h@{message.h}}\index{message.h@{message.h}!MAINTENACE@{MAINTENACE}}}\Hypertarget{message_8h_aeaac97ef8a153a4e1abc636f535656ebacc76bc55effa2c816bb32b63c005a231}\label{message_8h_aeaac97ef8a153a4e1abc636f535656ebacc76bc55effa2c816bb32b63c005a231} 
+MAINTENACE&System maintenance state. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPERATION@{OPERATION}!message.h@{message.h}}\index{message.h@{message.h}!OPERATION@{OPERATION}}}\Hypertarget{message_8h_aeaac97ef8a153a4e1abc636f535656ebae6c7d41b255eff353251fbec6fe839e4}\label{message_8h_aeaac97ef8a153a4e1abc636f535656ebae6c7d41b255eff353251fbec6fe839e4} 
+OPERATION&Normal operation state. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOADER@{LOADER}!message.h@{message.h}}\index{message.h@{message.h}!LOADER@{LOADER}}}\Hypertarget{message_8h_aeaac97ef8a153a4e1abc636f535656ebabc0b416b352629ffc286f792a7b53116}\label{message_8h_aeaac97ef8a153a4e1abc636f535656ebabc0b416b352629ffc286f792a7b53116} 
+LOADER&Loader mode state. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DEBUG@{DEBUG}!message.h@{message.h}}\index{message.h@{message.h}!DEBUG@{DEBUG}}}\Hypertarget{message_8h_aeaac97ef8a153a4e1abc636f535656eba0593585da9181e972974c1274d8f2b4f}\label{message_8h_aeaac97ef8a153a4e1abc636f535656eba0593585da9181e972974c1274d8f2b4f} 
+DEBUG&Debugging mode state. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{message_8h_source_l00131}{131}} of file \mbox{\hyperlink{message_8h_source}{message.\+h}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{message_8h_aa11419f7bcfe097cf3f14e4fb4b708da}\index{message.h@{message.h}!message\_decode\_can\_id@{message\_decode\_can\_id}}
+\index{message\_decode\_can\_id@{message\_decode\_can\_id}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{message\_decode\_can\_id()}{message\_decode\_can\_id()}}
+{\footnotesize\ttfamily \label{message_8h_aa11419f7bcfe097cf3f14e4fb4b708da} 
+void message\+\_\+decode\+\_\+can\+\_\+id (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{can\+Id}{, }\item[{\mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{frame}{}\end{DoxyParamCaption})}
+
+
+
+Decodes a 29-\/bit CAN ID into a message frame structure. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em can\+Id} & The encoded CAN ID. \\
+\hline
+{\em frame} & Pointer to the message frame to populate. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{message_8c_source_l00046}{46}} of file \mbox{\hyperlink{message_8c_source}{message.\+c}}.
+
+\Hypertarget{message_8h_a024ea87d32238f9e5e22ce9e17c0ea13}\index{message.h@{message.h}!message\_deserialise\_payload@{message\_deserialise\_payload}}
+\index{message\_deserialise\_payload@{message\_deserialise\_payload}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{message\_deserialise\_payload()}{message\_deserialise\_payload()}}
+{\footnotesize\ttfamily \label{message_8h_a024ea87d32238f9e5e22ce9e17c0ea13} 
+void message\+\_\+deserialise\+\_\+payload (\begin{DoxyParamCaption}\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{, }\item[{\mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{frame}{}\end{DoxyParamCaption})}
+
+
+
+Deserializes a raw buffer into a message frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & Raw data buffer. \\
+\hline
+{\em size} & Buffer size. \\
+\hline
+{\em frame} & Pointer to the message frame to populate. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{message_8c_source_l00079}{79}} of file \mbox{\hyperlink{message_8c_source}{message.\+c}}.
+
+\Hypertarget{message_8h_a52fc8532bc7516189314f3df105ef056}\index{message.h@{message.h}!message\_encode\_can\_id@{message\_encode\_can\_id}}
+\index{message\_encode\_can\_id@{message\_encode\_can\_id}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{message\_encode\_can\_id()}{message\_encode\_can\_id()}}
+{\footnotesize\ttfamily \label{message_8h_a52fc8532bc7516189314f3df105ef056} 
+uint32\+\_\+t message\+\_\+encode\+\_\+can\+\_\+id (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{frame}{}\end{DoxyParamCaption})}
+
+
+
+Encodes a message frame into a 29-\/bit CAN ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em frame} & Pointer to the message frame. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Encoded CAN ID. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{message_8c_source_l00028}{28}} of file \mbox{\hyperlink{message_8c_source}{message.\+c}}.
+
+\Hypertarget{message_8h_a2ee1650d7fa0eb6af3b0aa596b27a72d}\index{message.h@{message.h}!message\_serialise\_payload@{message\_serialise\_payload}}
+\index{message\_serialise\_payload@{message\_serialise\_payload}!message.h@{message.h}}
+\doxysubsubsection{\texorpdfstring{message\_serialise\_payload()}{message\_serialise\_payload()}}
+{\footnotesize\ttfamily \label{message_8h_a2ee1650d7fa0eb6af3b0aa596b27a72d} 
+void message\+\_\+serialise\+\_\+payload (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structmessage__frame__t}{message\+\_\+frame\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{frame}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Serializes a message frame into a raw buffer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em frame} & Pointer to the message frame. \\
+\hline
+{\em buffer} & Buffer to store serialized data. \\
+\hline
+{\em size} & Buffer size. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{message_8c_source_l00061}{61}} of file \mbox{\hyperlink{message_8c_source}{message.\+c}}.
+

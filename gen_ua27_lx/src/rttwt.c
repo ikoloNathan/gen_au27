@@ -1,0 +1,60 @@
+/*
+ ============================================================================
+ Name        : rttwt.c
+ Author      : Nathan
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "broker.h"
+#include "ao_system.h"
+#include "ao_database.h"
+#include "ao_snmp.h"
+#include "ao_ws.h"
+#include "ao_udp.h"
+
+
+int main(void) {
+	broker_t *broker = broker_ctor();
+//	static system_obj_t sys = {0};
+//	static db_obj_t db = {0};
+	static snmp_agent_ao_t snmp = {0};
+	udp_obj_t *udp = udp_ctor(broker,"udp_server");
+	ao_ws_t ws;
+	ws_ctor(&ws, broker, "ao_ws", 80);
+
+
+//	register_active_object((base_obj_t*)&db);
+//	register_active_object((base_obj_t*)&sys);
+//
+//	db_ctor(&db,broker,"Database");
+//	system_ctor(&sys,broker,"System");
+	snmp_agent_ctor(&snmp,broker,"snmp_agent",NULL);
+
+	/* Start the AO like your others; the framework’s start() will
+	   spawn the AO thread and fsm_init() with initialisation_state */
+	ws.super.vptr->start((base_obj_t*)&ws);
+	udp->super.vptr->start((base_obj_t*)udp);
+	/* elsewhere in AO space, you can post to it or call: */
+	ws_broadcast(&ws, "hello from AO!");
+
+//	sys.super.vptr->start((base_obj_t*)&sys);
+//	db.super.vptr->start((base_obj_t*)&db);
+	snmp.super.vptr->start((base_obj_t*)&snmp);
+//	int i = 0;
+//	while(1){
+//
+//		printf("%d: loading cpu\n",++i);
+//	}
+//	pthread_join(sys.super.thread_id,NULL);
+	pthread_join(snmp.super.thread_id,NULL);
+	pthread_join(ws.super.thread_id,NULL);
+	pthread_join(udp->super.thread_id,NULL);
+//	pthread_join(db.super.thread_id,NULL);
+	return EXIT_SUCCESS;
+}
