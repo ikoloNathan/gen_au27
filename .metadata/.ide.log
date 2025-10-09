@@ -315,3 +315,9 @@
 2025-10-09 10:06:33,220 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
 2025-10-09 10:06:52,596 [INFO] WebApp:194 - Connection lost
 2025-10-09 10:06:52,919 [INFO] WebApp:191 - Connection restablished
+2025-10-09 10:07:03,209 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Oct 09, 2025 10:07:03 AM java.util.prefs.FileSystemPreferences checkLockFile0ErrorCode
+2025-10-09 10:07:03,209 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Could not lock System prefs. Unix error code 2.
+2025-10-09 10:07:03,210 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 
+2025-10-09 10:07:03,210 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] Oct 09, 2025 10:07:03 AM java.util.prefs.FileSystemPreferences syncWorld
+2025-10-09 10:07:03,210 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] WARNING: Couldn't flush system prefs: java.util.prefs.BackingStoreException: Couldn't get file lock.
+2025-10-09 10:07:03,210 [ERROR] LogOutputStream:75 - [STDERR_REDIRECT] 

@@ -5565,3 +5565,13 @@ Command-line arguments:  -os linux -ws gtk -arch x86_64
 
 !ENTRY com.genuitec.eclipse.codetogether.ui 1 0 2025-10-09 10:06:24.278
 !MESSAGE No proxy data found for url: https://live.codetogether.io/ct-url
+
+!ENTRY org.eclipse.equinox.p2.transport.ecf 4 1002 2025-10-09 10:07:07.176
+!MESSAGE HTTP Request Not Acceptable: https://github.com/content.xml
+!STACK 1
+org.eclipse.ecf.filetransfer.BrowseFileTransferException: HttpComponents connection error response code 406.
+	at org.eclipse.ecf.provider.filetransfer.httpclientjava.HttpClientFileSystemBrowser.runRequest(HttpClientFileSystemBrowser.java:295)
+	at org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser$DirectoryJob.run(AbstractFileSystemBrowser.java:71)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.ecf.identity 4 0 2025-10-09 10:07:07.177
+!MESSAGE HttpComponents connection error response code 406.
