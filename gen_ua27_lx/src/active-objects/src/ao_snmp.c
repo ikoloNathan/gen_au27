@@ -262,7 +262,7 @@ bool register_from_json(snmp_agent_ao_t *me, const char *json_str) {
 			switch (accj ? accj->valueint : HANDLER_CAN_RONLY) {
 			case MIB_ACCESS_READONLY:
 			case MIB_ACCESS_READWRITE:
-			case MIB_ACCESS_WRITEONLY:
+			case MIB_ACCESS_WRITEONLY: {
 				netsnmp_handler_registration *reg =
 						netsnmp_create_handler_registration(entry->name,
 								snmp_scalar_handler, oid_arr, oid_len,
@@ -271,6 +271,7 @@ bool register_from_json(snmp_agent_ao_t *me, const char *json_str) {
 				reg->my_reg_void = (void*) me;
 				success = true;
 				break;
+			}
 			}
 		}
 	}
@@ -355,6 +356,7 @@ int snmp_log_callback(int major, int minor, void *serverarg, void *clientarg) {
 		return 1;
 
 	if (strstr(msg, "AgentX subagent connected")) {
+		me->agent_inited = 1;
 		// post log to broker
 	} else if (strstr(msg, "AgentX master disconnected us")
 			|| strstr(msg, "Failed to connect to the agentx master agent")
@@ -570,7 +572,9 @@ bool snmp_agent_init(snmp_agent_ao_t *me) {
 	}
 	const char *app = me->cfg.app_name ? me->cfg.app_name : "snmp_agent";
 
-	init_agent(app);
+	if (init_agent(app) != 0) {
+		return false;
+	}
 
 	/* Switch to master if requested (requires UDP :161 privileges). */
 	if (!me->cfg.subagent) {
@@ -580,16 +584,24 @@ bool snmp_agent_init(snmp_agent_ao_t *me) {
 	}
 	setenv("MIBS", "HPA-MIB", 1); //important in order for read_mib to consider path
 	init_snmp(app);
+	agent_check_and_process(100); /* 100 ms */
+	if (me->agent_inited == 0) {
+		return false;
+	}
 	init_mib();
-	read_mib("/usr/share/snmp/mibs/HPA-MIB.mib");
 
-	struct tree *root = get_tree_head();
+	struct tree *root = read_mib("/usr/share/snmp/mibs/HPA-MIB.mib");
+	if (!root) {
+		me->agent_inited = 0;
+		return false;
+	}
 	cJSON *jarray = cJSON_CreateArray();
 
 	tree_to_json(root, "", jarray);
 	//add validation of json array
 	char *outstr = cJSON_Print(jarray);
 	if (outstr == NULL) {
+		me->agent_inited = 0;
 		return false;
 	}
 
@@ -598,7 +610,6 @@ bool snmp_agent_init(snmp_agent_ao_t *me) {
 	cJSON_Delete(jarray);
 	free(outstr);
 	free(root);
-	me->agent_inited = 1;
 
 	return true;
 }
@@ -855,7 +866,7 @@ void snmp_on_entry_error(fsm_t *fsm) {
 void snmp_operational_handler(fsm_t *fsm, const message_frame_t *event) {
 	snmp_agent_ao_t *me = (snmp_agent_ao_t*) fsm->super;
 	switch (event->signal) {
-	case SNMP_GET_RX(0) ... SNMP_GET_RX(0xFFFF):
+	case SNMP_GET_RX(0) ... SNMP_GET_RX(0xFFFF): {
 		pending_get_t *pg = snmp_find_delegate_agent(me, CORR(event->payload));
 		mib_entry_t *entry = find_mib_entry_by_msg_id(event->signal & 0xFFFF);
 		if (!pg || !entry)
@@ -871,6 +882,7 @@ void snmp_operational_handler(fsm_t *fsm, const message_frame_t *event) {
 		}
 		schedule_get_completion(pg);
 		break;
+	}
 	}
 }
 
@@ -930,7 +942,7 @@ void dispatch(base_obj_t *const me, const message_frame_t *frame) {
  * @param name    Name of the AO.
  * @param cfg     Optional configuration; may be NULL for defaults.
  */
-void snmp_agent_ctor(snmp_agent_ao_t * const me, broker_t *broker, char *name,
+void snmp_agent_ctor(snmp_agent_ao_t *const me, broker_t *broker, char *name,
 		const snmp_agent_cfg_t *cfg) {
 	INIT_BASE(me, broker, name, system_id, NULL); /* subscribes and binds this TU's dispatch */
 	MsgQueue_Init(&me->super.msgQueue);

@@ -21,35 +21,15 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-
-#ifdef _WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <process.h>
-#include <synchapi.h>
-#elif defined (__linux__)
 #include <pthread.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <sys/timerfd.h>
 #include <errno.h>
 #include <time.h>
-#else
-#include "FreeRTOS.h"
-#include "timers.h"
-#include "semphr.h"
-#endif
 
 /** @brief Maximum number of system timers that can be created. */
 #define MAX_TIMERS 3
-
-/**
- * @enum timer_type_t
- * @brief Defines the types of timers supported.
- */
-typedef enum {
-    RTOS,     /**< FreeRTOS-based timer */
-    HARDWARE  /**< Hardware-based timer */
-} timer_type_t;
 
 /**
  * @brief Predefined timer intervals.
@@ -83,14 +63,9 @@ typedef struct timer_callback_entry timer_callback_entry_t;
 struct timer_callback_entry {
 	uint8_t timer_id; /**< Identifier for the associated timer. */
     uint8_t state; /**< Priority of the callback (higher executes first). */
+    bool one_shot;
     timer_callback_t callback; /**< Function to be executed when the timer expires. */
-#ifdef _WIN32
-    CRITICAL_SECTION sem_entry; /**< Mutex for thread safety (Windows) */
-#elif defined (__linux__)
     pthread_mutex_t sem_entry;
-#else
-    SemaphoreHandle_t sem_entry; /**< Mutex for thread safety (FreeRTOS) */
-#endif
     void *context;  /**< User-defined context data for the callback. */
     uint8_t priority; /**< Execution priority of the callback */
     struct timer_callback_entry *next; /**< Pointer to the next callback entry */
@@ -125,9 +100,10 @@ typedef struct {
      * @param callback Function to be executed when the timer expires.
      * @param context Pointer to user-defined context.
      * @param priority Priority level for the callback execution.
+     * @param one_shot Defines is the should only be executed once
      * @return Pointer to the newly created TimerCallbackEntry.
      */
-    timer_callback_entry_t* (*add_callback)(uint8_t timer_id, timer_callback_t callback, void *context, uint8_t priority);
+    timer_callback_entry_t* (*add_callback)(uint8_t timer_id, timer_callback_t callback, void *context, uint8_t priority, bool one_shot);
 
     /**
      * @brief Removes a callback from a timer.
@@ -135,7 +111,7 @@ typedef struct {
      * @param timerId ID of the timer.
      * @param callback Function pointer to remove.
      */
-    void (*remove_callback)(uint8_t timer_id, timer_callback_t callback, void* context);
+    void (*remove_callback)(uint8_t timer_id, timer_callback_t callback);
 } timers_t;
 
 /**
@@ -148,7 +124,7 @@ typedef struct {
  * @param type The type of timer to initialize.
  * @return Pointer to the created `timers_t` instance, or `NULL` if failed.
  */
-timers_t* timer_ctor(timer_type_t type);
+timers_t* timer_ctor(void);
 
 #ifdef __cplusplus
 }

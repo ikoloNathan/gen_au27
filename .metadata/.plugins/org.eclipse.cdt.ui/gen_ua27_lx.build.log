@@ -1,4 +1,4 @@
-20:17:20 **** Incremental Build of configuration Debug for project gen_ua27_lx ****
+16:49:03 **** Incremental Build of configuration Debug for project gen_ua27_lx ****
 make all 
 Wrapper for /opt/st/stm32cubeide_1.19.0/plugins/com.st.stm32cube.ide.mpu.linux.toolchain_2.2.0.202409171043/tools/bin/make
 FIP_DEPLOYDIR_ROOT: /home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/Debug/../../FIP_artifacts
@@ -9,11 +9,44 @@ Invoking: MPU GCC Compiler
 arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi "../src/hal/src/hal_gpio.c" -std=gnu11 -g3 -c -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/active-objects/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/hal/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/RTEF/include" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src" -Og -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"src/hal/src/hal_gpio.d" -MT"src/hal/src/hal_gpio.o" -o "src/hal/src/hal_gpio.o"
 Finished building: ../src/hal/src/hal_gpio.c
  
+Building file: ../src/active-objects/src/ao_snmp.c
+Invoking: MPU GCC Compiler
+arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi "../src/active-objects/src/ao_snmp.c" -std=gnu11 -g3 -c -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/active-objects/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/hal/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/RTEF/include" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src" -Og -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"src/active-objects/src/ao_snmp.d" -MT"src/active-objects/src/ao_snmp.o" -o "src/active-objects/src/ao_snmp.o"
+Finished building: ../src/active-objects/src/ao_snmp.c
+ 
+Building file: ../src/active-objects/src/ao_system.c
+Invoking: MPU GCC Compiler
+arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi "../src/active-objects/src/ao_system.c" -std=gnu11 -g3 -c -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/active-objects/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/hal/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/RTEF/include" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src" -Og -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"src/active-objects/src/ao_system.d" -MT"src/active-objects/src/ao_system.o" -o "src/active-objects/src/ao_system.o"
+../src/active-objects/src/ao_system.c: In function ‘timer_callback_10ms’:
+../src/active-objects/src/ao_system.c:291:21: warning: unused variable ‘me’ [-Wunused-variable]
+  291 |         base_obj_t *me = (base_obj_t*)context;
+      |                     ^~
+../src/active-objects/src/ao_system.c: In function ‘timer_callback_100ms’:
+../src/active-objects/src/ao_system.c:296:21: warning: unused variable ‘me’ [-Wunused-variable]
+  296 |         base_obj_t *me = (base_obj_t*)context;
+      |                     ^~
+Finished building: ../src/active-objects/src/ao_system.c
+ 
+Building file: ../src/active-objects/src/ao_watchdog.c
+Invoking: MPU GCC Compiler
+arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi "../src/active-objects/src/ao_watchdog.c" -std=gnu11 -g3 -c -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/active-objects/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/hal/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/RTEF/include" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src" -Og -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"src/active-objects/src/ao_watchdog.d" -MT"src/active-objects/src/ao_watchdog.o" -o "src/active-objects/src/ao_watchdog.o"
+Finished building: ../src/active-objects/src/ao_watchdog.c
+ 
+Building file: ../src/RTEF/src/sys_timer.c
+Invoking: MPU GCC Compiler
+arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi "../src/RTEF/src/sys_timer.c" -std=gnu11 -g3 -c -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/active-objects/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/hal/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/RTEF/include" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src" -Og -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"src/RTEF/src/sys_timer.d" -MT"src/RTEF/src/sys_timer.o" -o "src/RTEF/src/sys_timer.o"
+Finished building: ../src/RTEF/src/sys_timer.c
+ 
+Building file: ../src/main.c
+Invoking: MPU GCC Compiler
+arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi "../src/main.c" -std=gnu11 -g3 -c -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/active-objects/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/hal/includes" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src/RTEF/include" -I"/home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/src" -Og -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o"
+Finished building: ../src/main.c
+ 
 Building target: gen_ua27_lx
 Invoking: MPU GCC Linker
-arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi -o "gen_ua27_lx" ./src/hal/src/hal_gpio.o  ./src/active-objects/src/ao_can.o ./src/active-objects/src/ao_database.o ./src/active-objects/src/ao_snmp.o ./src/active-objects/src/ao_system.o ./src/active-objects/src/ao_udp.o ./src/active-objects/src/ao_watchdog.o ./src/active-objects/src/ao_ws.o  ./src/RTEF/src/active_object.o ./src/RTEF/src/broker.o ./src/RTEF/src/fsm.o ./src/RTEF/src/message.o ./src/RTEF/src/sys_timer.o  ./src/main.o    -Wl,-Map="gen_ua27_lx.map" -Wl,--gc-sections -lsqlite3 -lcrypto -lssl -lcjson -lnetsnmpagent -lnetsnmpmibs -lnetsnmp
+arm-ostl-linux-gnueabi-gcc  -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7 -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 --sysroot=/home/nathan/Documents/openstlinux-sdk/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi -o "gen_ua27_lx" ./src/hal/src/hal_gpio.o  ./src/active-objects/src/ao_can.o ./src/active-objects/src/ao_database.o ./src/active-objects/src/ao_snmp.o ./src/active-objects/src/ao_system.o ./src/active-objects/src/ao_udp.o ./src/active-objects/src/ao_watchdog.o ./src/active-objects/src/ao_ws.o  ./src/RTEF/src/active_object.o ./src/RTEF/src/broker.o ./src/RTEF/src/fsm.o ./src/RTEF/src/message.o ./src/RTEF/src/sys_timer.o  ./src/main.o    -Wl,-Map="gen_ua27_lx.map" -Wl,--gc-sections -lsqlite3 -lpthread -lcrypto -lssl -lcjson -lnetsnmpagent -lnetsnmpmibs -lnetsnmp
 Finished building target: gen_ua27_lx
  
 
-20:17:21 Build Finished. 0 errors, 0 warnings. (took 598ms)
+16:49:21 Build Finished. 0 errors, 2 warnings. (took 17s.388ms)
 

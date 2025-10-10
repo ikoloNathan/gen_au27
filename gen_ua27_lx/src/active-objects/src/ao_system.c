@@ -317,11 +317,11 @@ void system_ctor(system_obj_t *const me, broker_t *broker, char *name) {
 	broker_subscribe(broker, configs,
 				1, ((base_obj_t*) me));
 	me->super.initialisation_state = &initialisation_state;
-	me->timer = timer_ctor(RTOS);
+	me->timer = timer_ctor();
 	timer_callback_entry_t *entry1 = me->timer->add_callback(TIMER_10ms,
-			timer_callback_10ms, me, 1);
+			timer_callback_10ms, me, 1,false);
 	timer_callback_entry_t *entry2 = me->timer->add_callback(TIMER_100ms,
-			timer_callback_100ms, me, 1);
+			timer_callback_100ms, me, 1,false);
 	me->timer->arm(entry1);
 	me->timer->arm(entry2);
 }

@@ -77,16 +77,16 @@ watchdog_obj_t* watchdog_ctor(broker_t *broker, char *name) {
 		memset(me, 0, sizeof(watchdog_obj_t));
 		INIT_BASE(me, broker, name, system_id, NULL);
 
-		me->timer = timer_ctor(RTOS);
+		me->timer = timer_ctor();
 
 		/* Schedule heartbeat transmission every 10ms */
 		timer_callback_entry_t *entry_heartbeat = me->timer->add_callback(
-				TIMER_10ms, heartbeat, broker, 1);
+				TIMER_10ms, heartbeat, broker, 1,false);
 		me->timer->arm(entry_heartbeat);
 
 		/* Schedule heartbeat monitoring every 100ms */
 		timer_callback_entry_t *entry_checkbeat = me->timer->add_callback(
-				TIMER_100ms, heartbeat_monitor_callback, NULL, 1);
+				TIMER_100ms, heartbeat_monitor_callback, NULL, 1,false);
 		me->timer->arm(entry_checkbeat);
 	}
 	return me;
