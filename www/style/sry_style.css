@@ -1,0 +1,290 @@
+/* -------------------------------------------------------------------------- */
+
+
+/*                                    Value                                   */
+
+
+/* -------------------------------------------------------------------------- */
+
+#body {
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+.value {
+    background-color: rgba(200, 200, 200, 0.1);
+    /*background: transparent;*/
+    border: 1px solid #00eeee;
+    border-radius: 5px;
+    float: none;
+    width: 130px;
+    text-align: center;
+    /*vertical-align:middle;*/
+    padding-top: 3px;
+    /*margin-top: -4px;*/
+    /*margin-bottom: 4px;*/
+    margin-left: 4px;
+    height: 20px;
+    font-size: 14px;
+    /*text-transform: uppercase;*/
+    color: #fff;
+    display: inline-block;
+    /*display: inline-block;*/
+    cursor: pointer;
+}
+
+.value.extra_long {
+    width: 440px;
+}
+
+.value.disabled {
+    background-color: rgba(200, 200, 200, 0);
+    border: 1px solid #ccc;
+    cursor: default;
+    color: #ccc;
+}
+
+.value.key.unselected {
+    color: #ccc;
+    border: 1px solid #555;
+}
+
+.value.key {
+    color: #ccc;
+    border: 1px solid #555;
+}
+
+.value.key:hover {
+    background: rgba(255, 255, 255, 0.6);
+    border: 2px solid #00eeee;
+    margin-top: -1px;
+	margin-bottom: -1px;
+    margin-right: -2px;
+    color: #fff;
+    transition: box-background-color 0.2s ease-in-out;
+    float: none;
+}
+
+.value.key.selected {
+    background: rgba(255, 255, 255, 0.6);
+    border: 2px solid #00eeee;
+    margin-top: -1px;
+	margin-bottom: -1px;
+    margin-right: -2px;
+    color: #fff;
+    float: none;
+}
+
+.value.monit {
+    background-color: rgba(30, 130, 30, 0.8);
+    /*background: transparent;*/
+    border: 1px solid #fff;
+    border-radius: 5px;
+    /* float: left; */
+    text-align: center;
+    /*vertical-align:middle;*/
+    padding-top: 3px;
+    /*margin-top: -4px;*/
+    /*margin-bottom: 4px;*/
+    margin-left: 4px;
+    height: 20px;
+    font-size: 14px;
+    /*text-transform: uppercase;*/
+    color: #fff;
+    float: none;
+    /*display: inline-block;*/
+    cursor: default;
+}
+
+.value.monit.alarm {
+    background-color: rgba(255, 0, 0, 0.6);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+/*                                 Description                                */
+
+
+/* -------------------------------------------------------------------------- */
+
+.mod-description {
+    width: auto;
+    display: inline-block;
+    color: #fff;
+    margin: auto 5px auto 5px;
+}
+
+.service-description {
+    color: white;
+    margin: 10px auto auto auto;
+}
+
+.status-description {
+    display: inline-block;
+    color: white;
+}
+
+.software-description {
+    float: right;
+    color: white;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+/*                                 Containers                                 */
+
+
+/* -------------------------------------------------------------------------- */
+
+.module-body-container {
+    width: auto;
+    color: #fff;
+    /* float:left; */
+    /* margin: auto 5px auto 5px; */
+}
+
+.table-container {
+    width: 763px;
+    /*750px plus padding and border size*/
+    margin-bottom: 40px;
+}
+
+.Service-table-container {
+    width: 763px;
+    /*750px plus padding and border size*/
+}
+
+.header-container {
+    border-top: 2px solid #0ee;
+    border-left: 2px solid #0ee;
+    border-top-left-radius: 10px;
+    color: #fff;
+    font-size: 20px;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.body-container {
+    /* position: relative;
+    left: 50px; */
+    /* width: 700px; */
+    /* padding: 0 10px 0 12px;  */
+    padding-top: 20px;
+    border-right: 2px solid #0ee;
+    margin: auto auto auto 40px;
+}
+
+.module-body-container {
+    border-right: 2px solid #0ee;
+}
+
+.service-body-container {
+    border-right: 2px solid #0ee;
+}
+
+.footer-container {
+    border-left: 2px solid #0ee;
+    border-bottom: 2px solid #0ee;
+    border-right: 2px solid #0ee;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+/*                               Table contents                               */
+
+
+/* -------------------------------------------------------------------------- */
+
+.title-control {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin: auto;
+}
+
+.lbl {
+    color: white;
+    width: 150px;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.row {
+    padding: 10px;
+}
+
+.service-row {
+    padding: 10px 10px 0px 10px;
+}
+
+.serial-number {
+    float: right;
+    color: white;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+/*                               Module Specific                              */
+
+
+/* -------------------------------------------------------------------------- */
+
+.Switch {
+    background-color: rgba(200, 200, 200, 0.1);
+    /*background: transparent;*/
+    border: 1px solid #00eeee;
+    border-radius: 5px;
+    float: left;
+    width: 50px;
+    text-align: center;
+    /*vertical-align:middle;*/
+    padding-top: 3px;
+    /*margin-top: -4px;*/
+    /*margin-bottom: 4px;*/
+    margin-left: 4px;
+    height: 20px;
+    font-size: 14px;
+    /*text-transform: uppercase;*/
+    color: #fff;
+    /*display: inline-block;*/
+    cursor: pointer;
+}
+
+.compact-width {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.fixed-border {
+    border: 1px; /* 1px border on all sides */
+}
+
+.fixed-width {
+    width: 132px;
+}
+
+/* -------------------------------------------------------------------------- */
+
+
+/*                                  modifiers                                 */
+
+
+/* -------------------------------------------------------------------------- */
+
+.disable {
+    cursor: not-allowed;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+    box-shadow: none;
+    background-color: grey;
+}

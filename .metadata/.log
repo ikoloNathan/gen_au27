@@ -5640,3 +5640,26 @@ org.eclipse.ecf.filetransfer.BrowseFileTransferException: HttpComponents connect
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
 !SUBENTRY 1 org.eclipse.ecf.identity 4 0 2025-10-10 16:50:10.236
 !MESSAGE HttpComponents connection error response code 406.
+
+!ENTRY org.eclipse.egit.ui 4 0 2025-10-10 16:53:06.735
+!MESSAGE Failed to read credentials for 'https://github.com/ikoloNathan/gen_au27.git' from secure store
+!STACK 0
+org.eclipse.equinox.security.storage.StorageException: Unable to locate secure storage module (org.eclipse.equinox.security.linuxkeystoreintegrationjna).
+	at org.eclipse.equinox.internal.security.storage.PasswordProviderSelector.findStorageModule(PasswordProviderSelector.java:220)
+	at org.eclipse.equinox.internal.security.storage.SecurePreferencesRoot.getModulePassword(SecurePreferencesRoot.java:224)
+	at org.eclipse.equinox.internal.security.storage.SecurePreferencesRoot.getPassword(SecurePreferencesRoot.java:217)
+	at org.eclipse.equinox.internal.security.storage.SecurePreferences.get(SecurePreferences.java:269)
+	at org.eclipse.equinox.internal.security.storage.SecurePreferencesWrapper.get(SecurePreferencesWrapper.java:123)
+	at org.eclipse.egit.core.securestorage.EGitSecureStore.getCredentials(EGitSecureStore.java:84)
+	at org.eclipse.egit.ui.internal.SecureStoreUtils.getCredentials(SecureStoreUtils.java:67)
+	at org.eclipse.egit.ui.internal.credentials.EGitCredentialsProvider.get(EGitCredentialsProvider.java:106)
+	at org.eclipse.jgit.transport.HttpAuthMethod.authorize(HttpAuthMethod.java:238)
+	at org.eclipse.jgit.transport.TransportHttp.connect(TransportHttp.java:569)
+	at org.eclipse.jgit.transport.TransportHttp.openPush(TransportHttp.java:467)
+	at org.eclipse.jgit.transport.PushProcess.execute(PushProcess.java:160)
+	at org.eclipse.jgit.transport.Transport.push(Transport.java:1367)
+	at org.eclipse.jgit.api.PushCommand.call(PushCommand.java:170)
+	at org.eclipse.egit.core.op.PushOperation.run(PushOperation.java:217)
+	at org.eclipse.egit.ui.internal.push.PushJob.performJob(PushJob.java:86)
+	at org.eclipse.egit.ui.internal.jobs.RepositoryJob.run(RepositoryJob.java:59)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)

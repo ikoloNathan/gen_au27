@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<link href="../style/prompt.css" rel="stylesheet" type="text/css" />
+	<script src="../script/prompt.js" type="text/javascript"></script>-->
+    <script src="../script/main.js" type="text/javascript"></script>
+    <script src="../script/settings.js" type="text/javascript"></script>
+	<link href="../style/sry_style.css" rel="stylesheet" />
+</head>
+
+<body id="body" style="background-color: transparent;">
+	<div id="content">
+		<div class="class_module_display">
+			<div class="class_module_control">
+				<table style="color: white;">
+					<tr>
+						<td>
+							<form name="upload1_form" action="upload1.htm" method="post" enctype="multipart/form-data" onSubmit="startUpload()">
+								<b>To upgrade the module 1 and 2:</b><br>
+								1 - Select firmware file: <input type="file" name="upgradefile1" size="30" accept=".bin" onChange="checkUploadMob1()"/></br>
+								2 - Click Upgrade <input id='upload1button' type="submit" value="Upgrade" />
+							</form>
+							<br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<form name="upload2_form" action="upload2.htm" method="post" enctype="multipart/form-data" onSubmit="startUpload()">
+								<b>To upgrade the module 3 and 4:</b><br>
+								1 - Select firmware file: <input type="file" name="upgradefile2" size="30" accept=".bin" onChange="checkUploadMob2()"/></br>
+								2 - Click Upgrade <input id='upload2button' type="submit" value="Upgrade" />
+							</form>
+							<br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<form name="uploadcpu_form" action="upload_cpu.htm" method="post" enctype="multipart/form-data" onSubmit="startUpload()">
+								<b>To upgrade the CPU firmware:</b><br>
+								1 - Select firmware file: <input type="file" name="upgradefilecpu" size="30" accept=".hex" onChange="checkUploadCpu()"/></br>
+								2 - Click Upgrade <input id='uploadcpubutton' type="submit" value="Upgrade" />
+							</form>
+							<br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<form name="uploadweb_form" action="../mpfsupload" method="post" enctype="multipart/form-data" onSubmit="startUpload()">
+								<b>To upgrade the CPU webpage:</b><br>
+								1 - Select webpage file: <input type="file" name="upgradefileweb" size="40" accept=".bin" onChange="checkUploadWeb()"/></br>
+								2 - Click Upgrade <input id='uploadwebbutton' type="submit" value="Upgrade" />
+							</form>
+							<br>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div id="modupg"></div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+
+    <script>
+	var upgrading = 0;
+	var fetch_interval;
+	
+	disableUpload();
+	fetch_fw_upgrade();
+	fetch_interval = setInterval(fetch_fw_upgrade, 2000);
+	
+	function startUpload()
+	{
+		disableUpload();
+		clearInterval(fetch_interval);
+		document.getElementById('modupg').innerHTML = "Upgrading. Please wait...";
+		upgrading = 1;
+	}
+
+/*
+	function fetch_uploadcpu()
+	{
+        fetch("upload_cpu.htm")
+		.then((response) => response.text())
+		.then((y) => document.getElementById('modupg').innerHTML = 'Software upgraded')
+        .catch((error) => setTimeout(fetch_uploadcpu, 60000));
+	}
+*/
+	function checkUpload(file_name, regex, upload_button)
+	{
+		if (upgrading)
+			return;
+	
+		if (file_name.match(regex))
+		{
+			upload_button.disabled = false;
+		}
+		else
+		{
+			upload_button.disabled = true;
+			if (file_name)
+				document.getElementById('modupg').innerHTML = "Wrong file selected";
+			else
+				document.getElementById('modupg').innerHTML = "";
+		}
+	}
+
+	function checkUploadCpu()
+	{
+		checkUpload(document.getElementsByName("upgradefilecpu")[0].value, /e704.*\.hex/, document.getElementById('uploadcpubutton'));
+	}
+
+	function checkUploadWeb()
+	{
+		checkUpload(document.getElementsByName("upgradefileweb")[0].value, /w704.*\.bin/, document.getElementById('uploadwebbutton'));
+	}
+	
+	function checkUploadMob1()
+	{
+		checkUpload(document.getElementsByName("upgradefile1")[0].value, /e70[78].*\.bin/, document.getElementById('upload1button'));
+	}
+	
+	function checkUploadMob2()
+	{
+		checkUpload(document.getElementsByName("upgradefile2")[0].value, /e70[78].*\.bin/, document.getElementById('upload2button'));
+	}
+
+	function disableUpload()
+	{
+		document.getElementById('upload1button').disabled = true;
+		document.getElementById('upload2button').disabled = true;
+		document.getElementById('uploadcpubutton').disabled = true;
+		document.getElementById('uploadwebbutton').disabled = true;
+	}
+	
+	function fetch_fw_upgrade()
+	{
+		// check fw upgrade by other browser
+        fetch("../fw_upgrade.json", {
+                method: 'GET',
+                cache: 'no-cache', // Specify 'no-cache' to prevent caching
+            })
+            .then((response) => response.json())
+            .then((item) => {
+				if (!upgrading && item.upgrading)
+				{
+					disableUpload();
+					document.getElementById('modupg').innerHTML = "Upgrading. Please wait...";
+				}
+				else if (upgrading && !item.upgrading)
+				{
+					location.reload();
+				}
+				upgrading = item.upgrading;
+            })
+            .catch((error) => console.log("Error fetching data:", error));
+    }
+	
+    </script>
+</body>
+
+</html>

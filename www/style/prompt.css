@@ -1,0 +1,439 @@
+@media (max-width: 768px) {
+ 
+    @-webkit-keyframes grow {
+        0% {
+            -webkit-transform: scale(0.0);
+        }
+        100% {
+            -webkit-transform: scale(1);
+        }
+    }
+    
+    .shrink{
+        /*transform-origin: center center;*/
+        transform: scale(0.0);
+        transition: transform 200ms linear;
+    
+    }
+    
+    .etlAlarm{
+    
+  /*background: linear-gradient(to top right, #114c5c, #194f67  );*/
+    
+  background: -o-radial-gradient(rgb(44,102,130), black);/* For Opera 11.6 to 12.0 */
+    
+  background: -moz-radial-gradient(rgb(44,102,130), black);/* For Firefox 3.6 to 15 */
+    
+  background: radial-gradient(rgb(44,102,130), black);/* Standard syntax */
+    
+  min-width: 800px;
+    
+  min-height: 200px;
+    
+  text-align:center;
+    
+  color: #fff;
+    
+  position: fixed;
+    
+  top: 0px;
+    
+  left: 0px;
+    
+  padding-top: 20px;
+    
+  -webkit-touch-callout: none;
+    
+  -webkit-user-select: none;
+    
+  -khtml-user-select: none;
+    
+  -moz-user-select: none;
+    
+  -ms-user-select: none;
+    
+  user-select: none;
+    
+  -webkit-animation: grow 200ms ease-out;
+    }
+    
+    .etlAlarm.big_screen{
+    
+        border: 2px solid #00eeee;
+        border-radius: 5px;
+        min-width: initial;
+        min-height: initial;
+        padding: 30px;
+    }
+    
+    .etlAlarm table{
+    
+        display: inline-block;
+        vertical-align: middle;
+        max-width: 500px;
+    }
+    
+    
+    .etlPrompt{
+    
+  /* background: linear-gradient(to top right, #114c5c, #194f67  ); */
+    
+  background: -o-radial-gradient(rgb(44,102,130), black);/* For Opera 11.6 to 12.0 */
+    
+  background: -moz-radial-gradient(rgb(44,102,130), black);/* For Firefox 3.6 to 15 */
+    
+  background: radial-gradient(rgb(44,102,130), black);/* Standard syntax */
+    
+  text-align:center;
+    
+  color: #fff;
+    
+  display: inline-block;
+    
+  position: fixed;
+    
+  top: 0;
+    
+  width: 100%;
+    
+  left: 0px;
+    
+  padding-left: 10px;
+    
+  -webkit-touch-callout: none;
+    
+  -webkit-user-select: none;
+    
+  -khtml-user-select: none;
+    
+  -moz-user-select: none;
+    
+  -ms-user-select: none;
+    
+  user-select: none;
+    
+  -webkit-animation: grow 200ms ease-out;
+    
+  font-size: 0.8em;
+    
+  text-align: left;
+    
+  padding-bottom: 10px;
+    }
+    
+    .etlPrompt.big_screen{
+    
+        border: 2px solid #00eeee;
+        border-radius: 5px;
+        padding: 50px;
+    }
+    
+    #content {
+        transition: opacity 200ms linear;
+    }
+    
+    #pageLoading {
+        color: rgba(255, 255, 255, 0.8);
+        transition: opacity 500ms linear;
+    }
+    
+    #question {
+        float: left;
+        width: 200px;
+    }
+    
+    #theQuestion {
+        max-width: 235px;
+        font-size: 18px;
+        text-align:left;
+        padding-top: 7.5px;
+        vertical-align:top;
+        word-wrap:break-word;
+    }
+    
+    #theAnswer {
+        text-align:left;
+        vertical-align:top;
+        word-wrap:break-word;
+    }
+    
+    #theAnswerInput,
+    #theUser,
+    #thePassword {
+        text-align:left;
+    }
+    
+    input {
+        background: transparent;
+        color: #fff;
+        font-size: 18px;
+        border: 0px;
+        border-left: 1px solid #00eeee;
+        border-bottom: 1px solid #00eeee;
+        border-bottom-left-radius: 5px;
+    
+        padding-left: 5px;
+        /*textarea:focus {outline: none;}*/
+    }
+    
+    input:focus {
+        outline: none;
+    }
+    
+    #modalContainer label {
+        background: transparent;
+        color: #59cbcb;
+        font-size: 18px;
+        border: 0px;
+        padding-bottom: 5px;
+        display: block;
+    }
+    
+    #keyboard {
+        text-align:center;
+        padding-top: 7.5px;
+    }
+    
+    #keyboard div{
+        background: transparent;
+        border: 1px solid #00eeee;
+        border-radius: 5px;
+        float: left;
+        width: 35px;
+        text-align:center;
+        margin-top: 5px;
+        padding-top: 5px;
+        margin-bottom: 5px;
+        margin-left: 2px;
+        margin-right: 2px;
+        height: 20px;
+        font-size: 13px;
+        color: #fff;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    #keyboard button {
+        background: transparent;
+        border: 1px solid #00eeee;
+        border-radius: 5px;
+        float: left;
+        width: 50px;
+        text-align: center;
+        margin-bottom: 5px;
+        margin-left: 2px;
+        margin-right: 2px;
+        height: 40px;
+        font-size: 13px;
+        color: #fff;
+        display: inline-block;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+   }
+   
+   @media (min-width: 769px) {
+     @-webkit-keyframes grow {
+        0% {
+            -webkit-transform: scale(0.0);
+        }
+        100% {
+            -webkit-transform: scale(1);
+        }
+    }
+    
+    .shrink{
+        /*transform-origin: center center;*/
+        transform: scale(0.0);
+        transition: transform 200ms linear;
+    
+    }
+    
+    #confirm td{
+    text-align:center;
+    }
+    
+    .etlAlarm{
+    
+        /*background: linear-gradient(to top right, #114c5c, #194f67  );*/
+        background: -o-radial-gradient(rgb(44,102,130), black);/* For Opera 11.6 to 12.0 */
+        background: -moz-radial-gradient(rgb(44,102,130), black);/* For Firefox 3.6 to 15 */
+        background: radial-gradient(rgb(44,102,130), black);/* Standard syntax */
+        
+    
+        min-width: 800px;
+        min-height: 200px;
+    
+        text-align:center;
+        color: #fff;
+    
+        position: fixed;
+        top: 0px;
+        left: 0px;
+    
+        padding-top: 20px;
+    
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;	
+    
+        -webkit-animation: grow 200ms ease-out;
+    }
+    
+    .etlAlarm.big_screen{
+    
+        border: 2px solid #00eeee;
+        border-radius: 5px;
+        min-width: initial;
+        min-height: initial;
+        padding: 30px;
+    }
+    
+    .etlAlarm table{
+    
+        display: inline-block;
+        vertical-align: middle;
+        max-width: 500px;
+    }
+    
+    
+    .etlPrompt{
+    
+        /*background: linear-gradient(to top right, #114c5c, #194f67  );*/
+        background: -o-radial-gradient(rgb(44,102,130), black);/* For Opera 11.6 to 12.0 */
+        background: -moz-radial-gradient(rgb(44,102,130), black);/* For Firefox 3.6 to 15 */
+        background: radial-gradient(rgb(44,102,130), black);/* Standard syntax */
+        
+        text-align:center;
+        color: #fff;
+        display: inline-block;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        padding-left: 10px;
+    
+    
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;	
+    
+        -webkit-animation: grow 200ms ease-out;
+    
+    }
+    
+    .etlPrompt.big_screen{
+    
+        border: 2px solid #00eeee;
+        border-radius: 5px;
+        padding: 50px;
+    }
+    
+    #content {
+        transition: opacity 200ms linear;
+    }
+    
+    #pageLoading {
+        color: rgba(255, 255, 255, 0.8);
+        transition: opacity 500ms linear;
+    }
+    
+    #question {
+        float: left;
+        width: 200px;
+    }
+    
+    #theQuestion {
+        max-width: 235px;
+        color: white;
+        font-size: 18px;
+        text-align:center;
+        vertical-align:top;
+        word-wrap:break-word;
+    }
+    
+    #theAnswer {
+        text-align:left;
+        vertical-align:top;
+        word-wrap:break-word;
+    }
+    
+    #theAnswerInput,
+    #theUser,
+    #thePassword {
+        text-align:left;
+    }
+    
+    input {
+        background: transparent;
+        color: #fff;
+        font-size: 18px;
+        border: 0px;
+        border-left: 1px solid #00eeee;
+        border-bottom: 1px solid #00eeee;
+        border-bottom-left-radius: 5px;
+    
+        padding-left: 5px;
+        /*textarea:focus {outline: none;}*/
+    }
+    
+    input:focus {
+        outline: none;
+    }
+    
+    #modalContainer label {
+        background: transparent;
+        color: #59cbcb;
+        font-size: 18px;
+        border: 0px;
+        padding-bottom: 5px;
+        display: block;
+    }
+    
+    #keyboard {
+        text-align:center;
+    }
+    
+    #keyboard div{
+        background: transparent;
+        border: 1px solid #00eeee;
+        border-radius: 5px;
+        float: left;
+        width: 35px;
+    
+        text-align:center;
+        padding-top: 9px;
+        margin-bottom: 4px;
+        margin-left: 2px;
+        margin-right: 2px;
+        height: 27px;
+        font-size: 15px;
+        color: #fff;
+    
+        display: inline-block;
+        cursor: pointer;
+    }
+    #keyboard button {
+        background: transparent;
+        border: 1px solid #00eeee;
+        border-radius: 5px;
+        float: left;
+        width: 45px;
+        text-align: center;
+        margin-bottom: 5px;
+        margin-left: 2px;
+        margin-right: 2px;
+        height: 45px;
+        font-size: 15px;
+        color: #fff;
+        display: inline-block;
+        cursor: pointer;
+        font-weight: bold;
+    }
+  }

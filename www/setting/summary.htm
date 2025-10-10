@@ -1,0 +1,30 @@
+<!-- * File:   index.htm -->
+<!-- * Author: Nathan.Ikolo -->
+<!-- * Created on December 01, 2023, 09:04 AM -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../style/summary.css" rel="stylesheet" type="text/css" />
+    <script src="../script/main.js" type="text/javascript"></script>
+</head>
+
+<body id="main_page" style="background-color: transparent;">
+    <script>
+        var page = new Body({
+            modules: 'module_ctrl',
+            settings: 'settings',
+            logo: 'logo_panel',
+            display_panel: 'main_page'
+        });
+        page.show_main_summary();
+        page.update_summary();
+        page.Document.set_intervals_callbacks(page.update_summary, 2000);
+    </script>
+</body>
+
+</html>

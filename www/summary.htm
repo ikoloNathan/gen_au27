@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta charset="UTF-8">
+
+
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script src="./library/ajax.js" type="text/javascript"></script>
+	
+	
+	<link href="./summary.css" rel="stylesheet" type="text/css" />
+	<script src="./summary.js" type="text/javascript"></script>
+
+
+</head>
+
+<script type="text/javascript">
+	function $dw(data)
+	{
+		document.write(data);
+	}
+
+	function insertSummaryModule(number, label, class_type)
+	{
+		$dw("<table id=\"sum_m"+number+"\" class=\"summary_module "+class_type+"\">");
+		$dw("	<tr>");
+		$dw("		<td colspan=\"3\" id=\"sum_m"+number+"_name\" class=\"summary_module_name\">"+label+"</td>");
+		$dw("	</tr>");
+		$dw("	<tr>");
+		$dw("		<td id=\"sum_m"+number+"_type\" class=\"summary_module_type\">&nbsp;</td>");
+		$dw("		<td>&nbsp;</td>");
+		$dw("		<td id=\"sum_m"+number+"_sn\" class=\"summary_module_sn\">&nbsp;</td>");
+		$dw("	</tr>");
+		$dw("	<tr>");
+		$dw("		<td id=\"sum_m"+number+"_status\" class=\"summary_module_status\">&nbsp;</td>");
+		$dw("		<td class=\"summary_module_bottom_gap\">&nbsp;</td>");
+		$dw("		<td id=\"sum_m"+number+"_sw\" class=\"summary_module_sw\">&nbsp;</td>");
+		$dw("	</tr>");
+		$dw("</table>");
+	}
+</script>
+
+
+<body id="body" style="background-color: transparent;">
+
+
+<script type="text/javascript">
+	
+	function insertModules()
+	{
+		var i;
+		for(i=1; i<=34; i++)
+		{
+			insertSummaryModule(i, "S"+i, "unfitted");
+		}
+	}
+	insertModules();
+	
+	insertSummaryModule(35, "OSC", "unfitted");
+	insertSummaryModule(38, "S38", "unfitted");
+	insertSummaryModule(39, "S39", "unfitted");
+	insertSummaryModule(40, "CPU1", "unfitted");
+	insertSummaryModule(41, "CPU2", "unfitted");
+	insertSummaryModule(36, "PSU1", "unfitted");
+	insertSummaryModule(37, "PSU2", "unfitted");
+	
+	
+</script>	
+
+
+
+<script>
+	initSummaryPage();
+</script>
+
+	
+</body>
+
+</html>
+
+ 

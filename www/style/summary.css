@@ -1,0 +1,77 @@
+@import url(main.css);
+.class_module_summary.Operating {
+    height: 122px;
+    width: 730px;
+    border-bottom: 1px solid #00eeee;
+    border-top: 1px solid #00eeee;
+    border-radius: 22px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+}
+
+.class_module_summary.Error,
+.class_module_summary.Bootloader,
+.class_module_summary.Debug {
+    height: 122px;
+    width: 730px;
+    border-bottom: 2px solid #ee0000;
+    border-top: 2px solid #ee0000;
+    border-radius: 22px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+}
+
+.class_slot_name {
+    color: white;
+    display: block;
+    font-size: 18px;
+    height: 38px;
+    width: 100%;
+}
+
+.class_part_number {
+    color: white;
+    display: block;
+    line-height: 40px;
+    text-align: right;
+    font-size: 18px;
+    height: 38px;
+    width: 100%;
+}
+
+.class_model_numbers.Operating {
+    width: 400px;
+    border-right: 1px solid #00eeee;
+    border-radius: 12px;
+    padding-right: 10px
+}
+
+.class_model_numbers.Debug,
+.class_model_numbers.Bootloader,
+.class_model_numbers.Error {
+    width: 400px;
+    border-right: 2px solid #ee0000;
+    border-radius: 12px;
+    padding-right: 10px
+}
+
+.class_slot_name.Operating {
+    border-bottom: 1px solid #00eeee;
+    border-right: 1px solid #00eeee;
+    border-bottom-right-radius: 22px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+}
+
+.class_slot_name.Bootloader,
+.class_slot_name.Debug,
+.class_slot_name.Error {
+    border-bottom: 2px solid #ee0000;
+    border-bottom-right-radius: 22px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+}
+
+#main_page {
+    font-family: Arial, sans-serif;
+}

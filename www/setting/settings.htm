@@ -1,0 +1,180 @@
+<!-- * File:   index.htm -->
+<!-- * Author: Nathan.Ikolo -->
+<!-- * Created on December 01, 2023, 09:04 AM -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="../style/prompt.css" rel="stylesheet" type="text/css" />
+    <script src="../script/prompt.js" type="text/javascript"></script>
+    <script src="../script/main.js" type="text/javascript"></script>
+    <script src="../script/settings.js" type="text/javascript"></script>
+	<link href="../style/sry_style.css" rel="stylesheet" />
+</head>
+
+<body id="body" style="background-color: transparent;">
+	<div id="content">
+		<div class="ip-container">
+            <div class="table-container">
+                <div class="header-container">
+                    <h3 class="title-control">IP Settings</h3>
+                </div>
+				<div class="body-container">
+					<div class="row">
+                        <div class="lbl">DHCP:</div>
+						<div id="id_button_dhcp" class="value key"></div>
+                    </div>
+					<div class="row">
+                        <div class="lbl">IP address:</div>
+                        <input id="ipAddress" class="value compact-width" type="text"/>
+                    </div>
+					<div class="row">
+                        <div class="lbl">Subnet mask:</div>
+                        <input id="subnet_mask" class="value compact-width" type="text"/>
+                    </div>
+					<div class="row">
+                        <div class="lbl">Gateway:</div>
+                        <input id="gateway" class="value compact-width" type="text"/>
+                    </div>
+					<div class="row">
+						<div id="id_button_valid" class="value key">Apply IP settings</div>
+                    </div>
+				</div>
+				<div class="footer-container">
+                    &nbsp;
+                </div>
+			</div>
+        </div>
+
+        <div class="snmp-container">
+            <div class="table-container">
+				<div class="header-container">
+                    <h3 class="title-control">SNMP Settings</h3>
+                </div>
+				<div class="body-container">
+					<form method="post" action="settings.htm" name="commun">
+						<div class="row">
+							<div class="lbl">Read Community 1:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="rcm0"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Read Community 2:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="rcm1"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Read Community 3:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="rcm2"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Write Community 1:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="wcm0"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Write Community 2:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="wcm1"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Write Community 3:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="wcm2"/>
+						</div>
+						<div class="row">
+							<input type="submit" name="scm" value="Apply SNMP settings" class="value key" style="height: 26px; width: 140px;"/>
+						</div>
+					</form>
+				</div>
+				<div class="footer-container">
+                    &nbsp;
+                </div>
+			</div>
+        </div>
+
+        <div class="trap-container">
+            <div class="table-container">
+				<div class="header-container">
+                    <h3 class="title-control">SNMP Trap Settings</h3>
+                </div>
+				<div class="body-container">
+					<form method="post" action="settings.htm" name="trap">
+						<div class="row">
+							<div class="lbl">Traps Enabled:</div>
+							<div id="id_button_trap_en" class="value key"></div>
+							<input type="checkbox" name="tren" style="display:none"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Trap Destination:</div>
+							<input class="value compact-width" type="text" maxlength="15" name="trd"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Trap Community:</div>
+							<input class="value compact-width" type="text" maxlength="8" name="trc"/>
+						</div>
+						<div class="row">
+							<input type="submit" name="str" value="Apply Trap settings" class="value key" style="height: 26px; width: 140px;"/>
+						</div>
+					</form>
+				</div>
+				<div class="footer-container">
+                    &nbsp;
+                </div>
+			</div>
+        </div>
+		
+		<div class="system-container">
+            <div class="table-container">
+                <div class="header-container">
+                    <h3 class="title-control">System</h3>
+                </div>
+				<div class="body-container">
+					<div class="row">
+                        <div class="lbl">CPU reboot:</div>
+						<div id="id_button_cpu_reboot" class="value key">Reboot</div>
+                    </div>
+				</div>
+				<div class="footer-container">
+                    &nbsp;
+                </div>
+			</div>
+        </div>
+		
+		<div class="password-container">
+            <div class="table-container">
+				<div class="header-container">
+                    <h3 class="title-control">Change Password</h3>
+                </div>
+				<div class="body-container">
+					<form method="post" action="settings.htm" name="password">
+						<div class="row">
+							<div class="lbl">Current Password:</div>
+							<input class="value compact-width" type="password" maxlength="20" name="cur"/>
+						</div>
+						<div class="row">
+							<div class="lbl">New Password:</div>
+							<input class="value compact-width" type="password" maxlength="20" name="new"/>
+						</div>
+						<div class="row">
+							<div class="lbl">Confirm Password:</div>
+							<input class="value compact-width" type="password" maxlength="20" name="conf"/>
+						</div>
+						<div class="row">
+							<input type="submit" name="pass" value="Change" class="value key" style="height: 26px; width: 140px;"/>
+						</div>
+					</form>
+				</div>
+				<div class="footer-container">
+                    &nbsp;
+                </div>
+			</div>
+        </div>
+    </div>
+
+    <script>
+        var Document = new Doc();
+        var page = new Settings(Document, "main_page");
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="../style/prompt.css" rel="stylesheet" type="text/css" />
+	<script src="../script/prompt.js" type="text/javascript"></script>
+    <script src="../script/main.js" type="text/javascript"></script>
+    <script src="../script/home_CPU.js" type="text/javascript"></script>
+	<link href="../style/sry_style.css" rel="stylesheet" />
+</head>
+<style>
+    .sw-info {
+        margin-top: 5px;
+        width: 750px;
+        color: #ccc;
+        text-align: center;
+        font-size: 12px;
+    }
+</style>
+<body id="body" style="background-color: transparent;">
+	<div id="content">
+		<div class="control-container">
+            <div class="table-container">
+                <div class="header-container">
+                    <h3 class="title-control">Control</h3>
+                </div>
+				<div class="body-container">
+					<div class="row">
+                        <div class="lbl">Gain - 10 MHz:</div>
+                        <input id="GainSet" class="value compact-width">
+                        <div class="lbl" style="display:none;">dB</div>
+                    </div>
+                    <div class="row" id="div_input_path">
+                        <div class="lbl">Input Path - 10 MHz</div>
+                        <div id="id_10MHz_input_path_div" class="value key"></div>
+                    </div>
+					<div class="row" id="div_int_ref_out">
+                        <div class="lbl">Int Ref Out - 10 MHz</div>
+                        <div id="id_10MHz_ref_out_div" class="value key"></div>
+                    </div>
+					<div class="row" id="div_s1s2_10mhz">
+                        <div class="lbl">S1 & S2 - 10 MHz</div>
+                        <div id="id_10MHz_tx_path_div" class="value key"></div>
+                    </div>
+					<div class="row" id="div_s3s4_10mhz">
+                        <div class="lbl">S3 & S4 - 10 MHz</div>
+                        <div id="id_10MHz_rx_path_div" class="value key"></div>
+                    </div>
+					<div class="row" id="div_ctrl_optical" style="display:none">
+                        <div class="lbl">Optical In Limits:</div>
+                        <div id="InputPowerLimits" class="value">0dBm | 0dBm</div>
+                    </div>
+				</div>
+				<div class="footer-container">
+                    &nbsp;
+                </div>
+			</div>
+        </div>
+		<div class="monitor-container">
+            <div class="table-container">
+                <div class="header-container">
+                    <h3 class="title-control">Monitoring</h3>
+                </div>
+				<div class="body-container">
+					<div class="row" id="div_mon_optical">
+                        <div class="lbl" id="lbl_mon_optical"></div>
+                        <div id="id_monitoring_optical" style="float: none;" class="value monit "></div>
+                    </div>
+                    <div class="row">
+                        <div class="lbl">V-PSU:</div>
+                        <div id="id_monitoring_vbus" style="float: none;" class="value monit "></div>
+						<div class="lbl" id="id_lbl_vbus2" style="display:none">V-PSU2:</div>
+                        <div id="id_monitoring_vbus2" style="float: none; display:none" class="value monit "></div>
+                    </div>
+					<div class="row">
+                        <div class="lbl">V-Module:</div>
+                        <div id="id_monitoring_ibus" style="float: none;" class="value monit "></div>
+						<div class="lbl">I-Module:</div>
+                        <div id="id_monitoring_ip" style="float: none;" class="value monit "></div>
+                    </div>
+					<div class="row">
+                        <div class="lbl">Temperature:</div>
+                        <div id="id_monitoring_temp" style="float: none;" class="value monit "></div>
+						<div class="lbl">I-3V3:</div>
+                        <div id="id_monitoring_op" style="float: none;" class="value monit "></div>
+                    </div>
+				</div>
+                <div class="footer-container">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+		<div class="module-info">
+            <div class="table-container">
+                <div class="header-container">
+                    <h3 class="title-control address" id="address" style="display:none;"></h3>
+					<h3 class="title-control address">CPU</h3>
+                </div>
+                <div class="module-body-container">
+                    <div class="row">
+                        <div class="mod-description"><b>CPU</b></div>
+                        <div class="mod-description" id="id_info_model_number"></div>
+                        <div class="serial-number" id="id_info_serial_number"></div>
+                    </div>
+                </div>
+                <div class="footer-container">
+                    <div class="row">
+                        <div class="status-description">Status: <span id="module_top_status"></span></div>
+                        <div class="software-description" id="id_info_build_number"></div>
+                    </div>
+                </div>
+            </div>
+ 		</div>
+        <div class="Service">
+            <div class="Service-table-container">
+                <div class="header-container">
+                    <h3 class="title-control">Service</h3>
+                </div>
+                <div class="service-body-container">
+                    <div class="service-row">
+                        <div class="service-description">
+                            Warranty expires: <span style="font-size: auto" id="warranty_date">N/A</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-container">
+                    <div class="service-row">
+                        <div class="service-description">Release date: <span style="font-size: auto" id="release_date"></span></div>
+					</div>
+					<div class="service-row">
+						<div class="service-description">
+                            Hours of operation: <span style="font-size: auto" id="hours_operation"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div style="margin-top:5px; width:750px; color:#ccc; text-align:center; font-size: 12px;" id="web_ver"></div>
+    <!-- content -->
+
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+            
+    <module id="id_module" style="visibility: hidden;"></module>
+    <script>
+        var Document = new Doc();
+        var page = new Module(Document, "main_page");
+        Document.set_intervals_callbacks(page.fetch_module_monitoring, 1000);
+		show_version();
+    </script>
+</body>
+
+</html>

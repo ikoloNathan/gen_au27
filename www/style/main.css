@@ -1,0 +1,285 @@
+#body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: -o-radial-gradient(rgb(44, 102, 130), black);
+    /* For Opera 11.6 to 12.0 */
+    background: -moz-radial-gradient(rgb(44, 102, 130), black);
+    /* For Firefox 3.6 to 15 */
+    background: radial-gradient(rgb(44, 102, 130), black);
+    /* Standard syntax */
+}
+
+ ::-webkit-scrollbar {
+    width: 6px;
+    /* Width of the scrollbar */
+}
+
+ ::-webkit-scrollbar-track {
+    background-color: transparent;
+    /* Color of the track */
+}
+
+ ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    /* Color of the scrollbar handle */
+    border-radius: 6px;
+    /* Rounded corners of the scrollbar handle */
+}
+
+ ::-webkit-scrollbar-thumb:hover {
+    background-color: transparent;
+    /* Color of the scrollbar handle on hover */
+}
+
+.container_body {
+    display: flex;
+    flex-direction: column;
+    /* Stack items vertically */
+    height: 100%;
+    /* Full height of the viewport */
+}
+
+.header {
+    border-bottom: 1px solid #00eeee;
+    color: white;
+    flex-direction: row;
+    padding: 10px;
+    text-align: right;
+    font-weight: 700;
+}
+
+.header.Error {
+    border-bottom: 1px solid red;
+    color: white;
+    flex-direction: row;
+    padding: 10px;
+    text-align: right;
+    font-weight: 700;
+}
+
+.content {
+    flex: 1;
+    /* Take up remaining space */
+    padding: 5px;
+}
+
+.footer {
+    border-top: 1px solid #00eeee;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    /* height: 100vh; /* Full height of the viewport */
+}
+
+.sidebar {
+    width: 320px;
+    color: white;
+    /* Border to the right */
+    border-radius: 8px;
+    margin-right: 5px;
+    padding: 20px;
+    box-shadow: inset 0 0 10px rgba(0, 238, 238, 238);
+}
+
+.main-content {
+    flex: 1;
+    /* Border to the right */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: inset 0 0 10px rgba(0, 238, 238, 238);
+    /* Inner box shadow */
+}
+
+.class_outer_hexagon_small.Operating {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    /* Adjust as needed */
+    background-color: #00eeee;
+    /* Outer hexagon color */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.class_outer_hexagon_small.disabled {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    /* Adjust as needed */
+    background-color: #445f5f;
+    /* Outer hexagon color */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.class_outer_hexagon_small.Debug,
+.class_outer_hexagon_small.Bootloader,
+.class_outer_hexagon_small.Error {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    /* Adjust as needed */
+    background-color: red;
+    /* Outer hexagon color */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.class_inner_hexagon_small.enabled {
+    width: 54px;
+    height: 54px;
+    position: absolute;
+    top: 3.2px;
+    left: 3.3px;
+    /* fill-opacity: 1; */
+    background-color: #102229;
+    /* Inner hexagon crgba(255, 255, 255, 0) */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    text-align: center;
+}
+
+.class_inner_hexagon_small.disabled {
+    width: 54px;
+    height: 54px;
+    position: absolute;
+    top: 3.2px;
+    left: 3.3px;
+    /* fill-opacity: 1; */
+    background-color: #ccc;
+    /* Inner hexagon crgba(255, 255, 255, 0) */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    text-align: center;
+}
+
+.class_inner_hexagon_small.selected {
+    width: 54px;
+    height: 54px;
+    position: absolute;
+    top: 3.2px;
+    left: 3.3px;
+    background-color: #2c6582;
+    /* Inner hexagon crgba(255, 255, 255, 0) */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    text-align: center;
+    transition: box-background-color 0.2s ease-in-out;
+}
+
+.class_outer_hexagon_medium.Operating {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    /* Adjust as needed */
+    background-color: #00eeee;
+    /* Outer hexagon color */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.class_outer_hexagon_medium.Error {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    /* Adjust as needed */
+    background-color: red;
+    /* Outer hexagon color */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.class_inner_hexagon_small.enabled:hover {
+    background-color: #2c6582;
+}
+
+.class_inner_hexagon_medium {
+    width: 114px;
+    height: 114px;
+    position: absolute;
+    top: 3.2px;
+    left: 3.3px;
+    /* fill-opacity: 1; */
+    background-color: #102229;
+    /* Inner hexagon crgba(255, 255, 255, 0) */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    text-align: center;
+}
+
+.class_inner_hexagon_medium.selected {
+    width: 114px;
+    height: 114px;
+    position: absolute;
+    top: 3.2px;
+    left: 3.3px;
+    /* fill-opacity: 1; */
+    background-color: #2c6582;
+    /* Inner hexagon crgba(255, 255, 255, 0) */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    text-align: center;
+    transition: box-background-color 0.2s ease-in-out;
+}
+
+.class_inner_hexagon_medium:hover {
+    background-color: #2c6582;
+}
+
+.class_setting_ctrl {
+    width: 114px;
+    height: 114px;
+    color: white;
+    border: none;
+    border-style: 2px;
+    border-radius: 50%;
+    background-color: transparent;
+    /* background-color: #405a5a; */
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.class_slot_ctrl.enabled {
+    width: 54px;
+    height: 54px;
+    color: white;
+    border: none;
+    border-style: 2px;
+    border-radius: 50%;
+    background-color: transparent;
+    /* background-color: #405a5a; */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.class_slot_ctrl.disabled {
+    width: 54px;
+    height: 54px;
+    color: #445f5f;
+    border: none;
+    border-style: 2px;
+    border-radius: 50%;
+    background-color: transparent;
+    /* background-color: #405a5a; */
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.class_sidebar_div {
+    display: block;
+    width: 64px;
+    height: 60px;
+}
+
+.class_setting_upper {
+    position: absolute;
+    margin-left: 0px;
+    margin-top: 80px;
+    width: 320px;
+    height: 120px;
+}
+
+.class_setting_lower {
+    position: absolute;
+    margin-left: 62px;
+    margin-top: 175px;
+    width: 320px;
+    height: 120px;
+}

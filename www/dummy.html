@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dummy Page</title>
+    
+  <script>
+    function sendGetRequest() {
+      fetch('./dummy.html')
+        .then(response => response.text())
+        .then(data => {
+          console.log('Response:', data);
+          alert('GET request sent successfully!');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to send GET request.');
+        });
+    }
+  </script>
+
+</head>
+<body>
+    <h1>Welcome to the Dummy Page</h1>
+    <p>This is a simple dummy web page for testing iframe embedding.</p>
+    <button onclick="sendGetRequest()">Send Request</button>
+</body>
+</html>

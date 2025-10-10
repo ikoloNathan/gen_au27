@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="../style/prompt.css" rel="stylesheet" type="text/css" />
+	<script src="../script/prompt.js" type="text/javascript"></script>
+    <script src="../script/main.js" type="text/javascript"></script>
+    <script src="../script/log.js" type="text/javascript"></script>
+	<link href="../style/sry_style.css" rel="stylesheet" />
+</head>
+<body id="body" style="-webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto;">
+    <div id="content">
+        <input style="border: 1px solid #00eeee; border-radius: 5px;" type="button" name="LogFormat" id="logFormat" value="Clear Log" onclick="doFormatLog()"/>
+        <input style="border: 1px solid #00eeee; border-radius: 5px;" type="button" name="LogDownload" id="logDownload" value="Download Log" onclick="doDownloadLog()"/>
+        <p>
+            <br/>
+        </p>
+		<table id="logContainer" border=0></table>
+	
+        <script type="text/javascript">
+            initLog();
+        </script>
+    </div>
+</body>
+</html>

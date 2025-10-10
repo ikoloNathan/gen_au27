@@ -1,0 +1,47 @@
+[{
+        "summary": 0,
+        "slot": "S1",
+        "name": "SRY-IDU-S4001-TX",
+        "sn": "190740 #1",
+        "status": "N/A",
+        "app_id": "SW: e708 1v00 07/09/2023",
+        "ldr_id": "BL: e709 1v00 07/09/2023"
+    },
+    {
+        "summary": 0,
+        "slot": "S2",
+        "name": "SRY-IDU-S4001-TX",
+        "sn": "190740 #2",
+        "status": "OK",
+        "app_id": "SW: e708 1v00 07/09/2023",
+        "ldr_id": "BL: e709 1v00 07/09/2023"
+    },
+    {
+        "summary": 0,
+        "slot": "S3",
+        "name": "SRY-IDU-S4001-RX",
+        "sn": "191028 #1",
+        "status": "N/A",
+        "app_id": "SW: e707 1v00 07/09/2023",
+        "ldr_id": "BL: e709 1v00 07/09/2023"
+    },
+    {
+        "summary": 0,
+        "slot": "S4",
+        "name": "SRY-IDU-S4001-RX",
+        "sn": "191028 #2",
+        "status": "OK",
+        "app_id": "SW: e707 1v00 07/09/2023",
+        "ldr_id": "BL: e709 1v00 07/09/2023"
+    },
+    {
+        "summary": 0,
+        "slot": "CPU",
+        "name": "SRY-IDU-S4001-CPU-101",
+        "sn": "190983",
+        "status": "OK",
+        "app_id": "SW: e704 1v00 07/09/2023",
+        "ldr_id": "BL: e560 2v01 24/05/2022"
+    }
+
+]
