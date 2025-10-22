@@ -73,5 +73,7 @@
 }
 
 #main_page {
+    flex: 1;
+    height: 100%;
     font-family: Arial, sans-serif;
 }

@@ -1,0 +1,79 @@
+/* Basic setup */
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 2rem;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  line-height: 1.5;
+}
+
+/* Layout */
+h1 { margin: 0 0 .5rem; font-weight: 700; }
+.muted { opacity: .75; font-size: .95rem; }
+
+/* Status */
+#status {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: .4rem;
+  border: 1px solid rgba(127,127,127,.35);
+}
+
+/* Log window */
+#log {
+  margin-top: 1rem;
+  height: 260px;
+  overflow: auto;
+  border: 1px solid rgba(127,127,127,.35);
+  border-radius: .6rem;
+  padding: 1rem;
+  background: rgba(127,127,127,.06);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: .95rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Form */
+form {
+  margin-top: 1rem;
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+input#msg {
+  flex: 1;
+  min-width: 0;
+  padding: .6rem .7rem;
+  border: 1px solid rgba(127,127,127,.35);
+  border-radius: .5rem;
+  background: transparent;
+  outline: none;
+}
+input#msg:focus {
+  border-color: #6aa0ff;
+  box-shadow: 0 0 0 3px rgba(106,160,255,.25);
+}
+
+/* Buttons */
+button {
+  padding: .6rem .9rem;
+  border-radius: .5rem;
+  border: 1px solid rgba(127,127,127,.35);
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.04));
+  cursor: pointer;
+  user-select: none;
+}
+button:hover { filter: brightness(1.05); }
+button:active { transform: translateY(1px); }
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106,160,255,.35);
+}
+
+/* Small screens */
+@media (max-width: 520px) {
+  body { margin: 1rem; }
+  #log { height: 200px; }
+}

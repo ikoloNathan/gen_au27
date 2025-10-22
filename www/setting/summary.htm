@@ -14,6 +14,12 @@
 </head>
 
 <body id="main_page" style="background-color: transparent;">
+    <div style="height: 200px">
+
+    </div>
+    <div style="height: 400px">
+
+    </div>
     <script>
         var page = new Body({
             modules: 'module_ctrl',
@@ -21,9 +27,16 @@
             logo: 'logo_panel',
             display_panel: 'main_page'
         });
-        page.show_main_summary();
-        page.update_summary();
-        page.Document.set_intervals_callbacks(page.update_summary, 2000);
+        window.addEventListener("message", (e) => {
+            console.log("iframe received: ",e);
+            window.parent.postMessage({
+                type:"local",
+                topic:"reply",
+                payload: "Replay from iframe"
+            }, window.origin);
+        }
+    );
+        // page.summary_setup();
     </script>
 </body>
 

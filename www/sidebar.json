@@ -1,22 +1,27 @@
 [{
+        "present": 1,
         "summary": 0,
-        "slot": "S1"
+        "type": "RX",
+        "slot": "AMP"
+    },
+    {
+        "present": 1,
+        "summary": 0,
+        "type": "TX",
+        "slot": "BUC"
+    },
+    {
+		"present": 1,
+        "summary": 0,
+        "slot": "X"
     },
     {
         "summary": 0,
-        "slot": "S2"
+        "slot": "X"
     },
     {
         "summary": 0,
-        "slot": "S3"
-    },
-    {
-        "summary": 0,
-        "slot": "S4"
-    },
-    {
-        "summary": 0,
-        "slot": "CPU"
+        "slot": "X"
     }
 
 ]

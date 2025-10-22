@@ -1,14 +1,16 @@
 [{
         "summary": 0,
+        "present": 1,
         "slot": "S1",
-        "name": "SRY-IDU-S4001-TX",
+        "name": "SRY-IDU-S4001-RX",
         "sn": "190740 #1",
         "status": "N/A",
-        "app_id": "SW: e708 1v00 07/09/2023",
+        "app_id": "SW: e707 1v00 07/09/2023",
         "ldr_id": "BL: e709 1v00 07/09/2023"
     },
     {
         "summary": 0,
+        "present": 1,
         "slot": "S2",
         "name": "SRY-IDU-S4001-TX",
         "sn": "190740 #2",

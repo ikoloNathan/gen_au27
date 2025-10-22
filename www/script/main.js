@@ -111,17 +111,20 @@ class Doc {
     }
 }
 
-const slotId = ['S1', 'S2', 'S3', 'S4', 'CPU'];
+/*
+    IDs : main:0, iframe:1, server: 2
+    payload: {...}
+*/
+
 const settings_id = ['sum', 'config', 'log', 'load'];
-const settings_names = ['SUM', 'CONFIG', 'LOG', 'UPGRADE'];
+const settings_names = ['CONTROL', 'CONFIG', 'LOG', 'UPGRADE'];
 const settings_links = ['./setting/summary.htm', './setting/settings.htm', './setting/log.htm', './setting/upload.htm'];
-const status_summary = ["Operating", "Bootloader", "Debug", "Error"];
-const status_flags = ["OK", "INITIALISATION", "MAINTENANCE", "FAULT"];
 type = ['TX', 'TX', 'RX', 'RX', 'CPU'];
 
 class Body {
     constructor(select) {
-
+        this.worker = null;
+        this.port = null;
         this.slots = [];
         this.sidebar_dividers_outer = [];
         this.sidebar_dividers_inner = [];
@@ -136,10 +139,13 @@ class Body {
         this.settings = this.Document.getElementById(select.settings);
         this.main = this.Document.getElementById(select.display_panel);
         this.main_summary_cells = [];
+        this.show_settings = this.load.bind(this);
         this.show_modules = this.show_modules.bind(this);
-        this.show_settings = this.show_settings.bind(this);
+        this.send_message = this.send_message.bind(this);
+        this.test_parent_post = this.test_parent_post.bind(this);
+        this.on_message_worker = this.on_message_worker.bind(this);
+        this.broker = this.broker.bind(this);
     }
-
     async show_modules() {
         this.Document.Document.addEventListener('DOMContentLoaded', () => {
             /**
@@ -172,13 +178,9 @@ class Body {
                             this.slots[i].innerHTML = item.slot;
                 			this.slots[i].addEventListener("click", function() {
                     			var Document = new Doc();
-                                var rcm = "{MOD005SIS," + item.slot + "}";
                                 Document.clear_select("id_inner_hex_small_", slots_names);
                     			Document.clear_select("id_inner_hex_medium_", settings_id);
                                 Document.getElementById("id_inner_hex_small_" + item.slot).classList.add('selected');
-                    			Document.post("../selected_slot.json", rcm);
-                    			//var status = "{MOD00" + (i + 1) + "ST?,0}";
-                    			//Document.post('../rcm.txt', status);
                                 Document.getElementById("main_page").setAttribute("page", "module_" + item.slot);
                                 Document.getElementById("main_page").setAttribute("src", "./module/home_" + item.type + ".htm?slot_id=" + item.slot);
 
@@ -195,28 +197,28 @@ class Body {
 						this.sidebar_dividers_outer[i].appendChild(this.sidebar_dividers_inner[i]);
 						this.sidebar_table_slot_cells[i].appendChild(this.sidebar_dividers_outer[i]);
                     });
-                    //setInterval(this.update_sidebar, 2000);
                 })
                 .catch((error) => console.log("Error fetching data:", error));
         });
     }
 
-    show_settings() {
+    load() {
         this.Document.Document.addEventListener('DOMContentLoaded', () => {
-            let slots_names = [];
-            fetch("../sidebar.json", {
-                    method: 'GET',
-                    cache: 'no-cache', // Specify 'no-cache' to prevent caching
-                })
-                .then((response) => response.json())
-                .then((jsonArray) => {
-                    for (let i = 0, j = 0; i < jsonArray.length; i++) {
-                        if (jsonArray[i].present === 1)
-                        {
-                            slots_names[j++] = jsonArray[i].slot;
-                        }
-                    }
-                });
+            window.addEventListener("message", (event) => {
+            if (event.origin === window.origin) {
+                this.broker(event.data);
+            }
+            });
+            if ('SharedWorker' in window) {
+                try {
+                    this.worker = new SharedWorker('worker.js', { name: 'worker'});
+                    this.port = this.worker.port;
+                    this.port.start();
+                    this.port.onmessage = this.on_message_worker;
+                } catch (err) {
+                    console.error('Failed to start SharedWorker:', err);
+                }
+            }
             this.sidebar_setting_table = this.Document.createElement("table", null, null, this.settings);
             this.sidebar_setting_cell_upper = new Array(2);
 			this.sidebar_setting_cell_lower = new Array(2);
@@ -237,7 +239,6 @@ class Body {
                 this.sidebar_settings_ctrl[i].innerHTML = settings_names[i];
                 this.sidebar_settings_ctrl[i].addEventListener("click", function() {
                     var Document = new Doc();
-                    Document.clear_select("id_inner_hex_small_", slots_names);
                     Document.clear_select("id_inner_hex_medium_", settings_id);
                     Document.getElementById("id_inner_hex_medium_" + settings_id[i]).classList.add('selected');
                     Document.getElementById("main_page").setAttribute("page", "setting_" + settings_id[i]);
@@ -253,132 +254,88 @@ class Body {
 			this.sidebar_setting_cell_lower[1].appendChild(this.sidebar_settings_div_outer[3]);
         });
     }
-	
-    show_main_summary() {
-        var table = [];
-        var table_inner = [];
-
-        var row = [];
-        this.Document.Document.addEventListener('DOMContentLoaded', () => {
-            fetch("../sidebar.json", {
-                    method: 'GET',
-                    cache: 'no-cache', // Specify 'no-cache' to prevent caching
-                })
-                .then((response) => response.json())
-                .then((jsonArray) => {
-                    let slots_names = [];
-                    for (let i = 0, j = 0; i < jsonArray.length; i++) {
-                        if (jsonArray[i].present === 1)
-                        {
-                            slots_names[j++] = jsonArray[i].slot;
+    test_parent_post(){
+        console.log("posting from parent");
+        const iframe = document.getElementById("main_page");
+        iframe.contentWindow.postMessage({
+        type: "publish",
+        topic: "chat/messages",
+        payload: { message: "Hello from parent!" }
+        }, window.origin);
+    }
+    
+    /**
+     * on message event listener to the worker event from the server
+     * @param {*} e 
+     */
+    on_message_worker(e){
+        const { type,status, payload } = e.data;
+        switch(type){
+            case "ws-status":
+                switch(status){
+                    case "open":
+                        {   //handle websocket connection opened
+                            const statusEl = document.getElementById('status');
+                            statusEl.textContent = "connected";
                         }
-                    }
-                    jsonArray.forEach((item, i) => {
-                        if (item.present === 1)
-                        {
-                            this.module_summary[i] = this.Document.createElement("div", "id_summary_" + item.slot, "class_module_summary Operating", this.main);
-			                this.module_summary[i].setAttribute("width", "100%");
-			                this.module_summary[i].classList.add("Operating");
-			                table[i] = this.Document.createElement("table", null, null, this.main);
-			                table[i].setAttribute("width", "100%");
-			                table[i].setAttribute("height", "100%");
-			                row[i] = table[i].insertRow(-1);
-			                this.main_summary_cells[i] = new Array(3);
-			                this.main_summary_cells[i][0] = row[i].insertCell(0);
-			                this.main_summary_cells[i][0].setAttribute("width", "400px");
-			
-			                table_inner[i] = new Array(3);
-                            table_inner[i][0] = this.Document.createElement("div", "id_slot_name_" + item.slot, "class_slot_name Operating", this.main);
-                			table_inner[i][0].classList.add("Operating");
-                			table_inner[i][0].setAttribute("style", "line-height: 40px");
+                        break;
+                    case "closed":
+                    case "disconnected":
+                    case "closing":
+                        {   //handle closed connection
+                            const statusEl = document.getElementById('status');
+                            statusEl.textContent = "closed";
+                        }
+                        break;
+                }
 
-                			table_inner[i][1] = this.Document.createElement("div", null, "class_slot_name", this.main);
-                            table_inner[i][1].innerHTML = item.slot;
-                			table_inner[i][1].setAttribute("style", "line-height: 40px");
-                            table_inner[i][2] = this.Document.createElement("div", "id_status_" + item.slot, "class_slot_name", this.main);
-                			table_inner[i][2].setAttribute("style", "line-height: 40px");
-
-			                this.main_summary_cells[i][0].appendChild(table_inner[i][0]);
-			                this.main_summary_cells[i][0].appendChild(table_inner[i][1]);
-			                this.main_summary_cells[i][0].appendChild(table_inner[i][2]);
-			
-			                this.main_summary_cells[i][1] = row[i].insertCell(1);
-			                table_inner[i][0] = this.Document.createElement("div", null, "class_part_number", this.main);
-                            table_inner[i][1] = this.Document.createElement("div", "id_part_number_" + item.slot, "class_part_number", this.main);
-                            table_inner[i][2] = this.Document.createElement("div", "id_model_number_" + item.slot, "class_part_number", this.main);
-			
-			                this.main_summary_cells[i][1].className = "class_model_numbers Operating";
-                            this.main_summary_cells[i][1].id = "id_model_numbers_" + item.slot;
-			                this.main_summary_cells[i][1].appendChild(table_inner[i][0]);
-			                this.main_summary_cells[i][1].appendChild(table_inner[i][1]);
-			                this.main_summary_cells[i][1].appendChild(table_inner[i][2]);
-			                this.module_summary[i].appendChild(table[i]);
-			            }
-			        });
-					this.Document.createElement("div", "web_ver", null, this.main);
-					document.getElementById("web_ver").style.cssText = "margin-top:5px; width:750px; color:#ccc; text-align:center; font-size: 12px;";
-					show_version();
-                });
-        });
+                break;
+            case "tab-broadcast":
+            case "server-message":
+            case "message-main":
+                {
+                    this.broker(payload);
+                }
+                break;
+        }
     }
 
-    update_sidebar() {
-        fetch("sidebar.json", {
-                method: 'GET',
-                cache: 'no-cache', // Specify 'no-cache' to prevent caching
-            })
-            .then((response) => response.json())
-            .then((jsonArray) => {
-				var sum_alarm = 0;
-                jsonArray.forEach((item) => {
-					if (item.present)
-					{
-						document.getElementById("id_outer_hex_small_" + item.slot).className = "class_outer_hexagon_small " + status_summary[item.summary];
-						if (item.summary)
-							sum_alarm = 1;
-					}
-					else
-					{
-						document.getElementById("id_outer_hex_small_" + item.slot).className = "class_outer_hexagon_small disabled";
-					}
-                });
-				if (sum_alarm)
-				{
-					document.getElementById("id_header").className = "header Error";
-					document.getElementById("id_outer_hex_medium_sum").className = "class_outer_hexagon_medium Error";
-				}
-				else
-				{
-					document.getElementById("id_header").className = "header";
-					document.getElementById("id_outer_hex_medium_sum").className = "class_outer_hexagon_medium Operating";
-				}
-            })
-            .catch((error) => console.log("Error fetching data:", error));
+    broker(payload){
+        const {type,dest,data} = payload;
+        if(type === "ping"){
+            console.log("server sent: ",payload);
+        }else{
+            switch(dest){
+                case 0: // addressed to the main page
+                    break;
+                case 1: // sending to the iframe
+                {
+                    const iframe = document.getElementById("main_page");
+                    iframe.contentWindow.postMessage(payload, window.origin);
+                }
+                    break;
+                    default:// send this message to server
+                    this.send_message({type:"client-message",payload:payload});
+                    break;
+
+            }
+        }
     }
-    update_summary() {
-        fetch("../summary.json", {
-                method: 'GET',
-                cache: 'no-cache', // Specify 'no-cache' to prevent caching
-            })
-            .then((response) => response.json())
-            .then((jsonArray) => {
-                jsonArray.forEach((item) => {
-                    if (item.present === 1)
-                    {
-                        try {
-		                    document.getElementById("id_slot_name_" + item.slot).innerHTML = item.name;
-                            document.getElementById("id_status_" + item.slot).innerHTML = "Status:\t" + status_flags[item.summary];
-		                    document.getElementById("id_model_number_" + item.slot).innerHTML = item.app_id;
-		                    document.getElementById("id_part_number_" + item.slot).innerHTML = "S/N:" + item.sn;
-		                    document.getElementById("id_summary_" + item.slot).className = "class_module_summary " + status_summary[item.summary];
-		                    document.getElementById("id_slot_name_" + item.slot).className = "class_slot_name " + status_summary[item.summary];
-		                    document.getElementById("id_model_numbers_" + item.slot).className = "class_model_numbers " + status_summary[item.summary];
-                        } catch (error) {}
-                    }
-                });
-            })
-            .catch((error) => console.log("Error fetching data:", error));
+
+    send_message(msg) {
+        if (this.port) {
+            this.port.postMessage(msg);
+        }
     }
+
+}
+
+function post(event){
+     window.parent.postMessage(event, window.origin);
+}
+
+function register_event_listner(fn){
+    window.addEventListener("message", fn);
 }
 
 function show_version()

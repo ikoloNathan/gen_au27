@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 connect-src 'self' ws: wss:;
+                 script-src 'self';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data:">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WebSocket Demo</title>
+  <link rel="stylesheet" href="/static/styles.css"><!-- optional -->
+</head>
+<body>
+  <h1>WebSocket Demo</h1>
+  <p>Status: <strong id="status">connecting…</strong></p>
+  <div id="log" aria-live="polite"></div>
+  <form id="form" autocomplete="off">
+    <input id="msg" placeholder="Type a message…" required />
+    <button type="submit">Send</button>
+    <button type="button" id="ping">Ping</button>
+  </form>
+
+  <!-- load external script; CSP allows because it's 'self' -->
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
