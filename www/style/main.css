@@ -1,7 +1,18 @@
+html,
+body {
+    flex: 1 1 auto;
+    height: 100%;
+}
+
 #body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    display: flex;
+    flex: 1 1 auto;
+    /* Stack items vertically */
+    height: 100%;
+
     background: -o-radial-gradient(rgb(44, 102, 130), black);
     /* For Opera 11.6 to 12.0 */
     background: -moz-radial-gradient(rgb(44, 102, 130), black);
@@ -10,41 +21,43 @@
     /* Standard syntax */
 }
 
- ::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 6px;
     /* Width of the scrollbar */
 }
 
- ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     background-color: transparent;
     /* Color of the track */
 }
 
- ::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background-color: transparent;
     /* Color of the scrollbar handle */
     border-radius: 6px;
     /* Rounded corners of the scrollbar handle */
 }
 
- ::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
     background-color: transparent;
     /* Color of the scrollbar handle on hover */
 }
 
 .container_body {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     /* Stack items vertically */
-    height: 100%;
+    height: inherit;
     /* Full height of the viewport */
 }
 
 .header {
     border-bottom: 1px solid #00eeee;
     color: white;
+    display: block;
     flex-direction: row;
-    padding: 10px;
+    height: 20px;
     text-align: right;
     font-weight: 700;
 }
@@ -59,7 +72,11 @@
 }
 
 .content {
-    flex: 1;
+    display: flex;
+    flex: 1 1 auto;
+    /* take the remaining space */
+    min-height: 0;
+    overflow: auto;
     /* Take up remaining space */
     padding: 5px;
 }
@@ -67,18 +84,26 @@
 .footer {
     border-top: 1px solid #00eeee;
     color: white;
-    padding: 10px;
-    text-align:right;
+    height: 20px;
+    text-align: right;
     font-weight: bold;
 }
 
 .container {
     display: flex;
-    /* height: 100vh; /* Full height of the viewport */
+    flex: 1 1 auto;
+    min-width: 0;
+    /* prevent overflow from long content */
+    min-height: 0;
+    /* important for proper height calculations */
+
 }
 
 .sidebar {
-    width: 320px;
+    display: flex;
+    flex: 0 0 300px;
+    /* no grow, no shrink, fixed 80px */
+    flex-direction: column;
     color: white;
     /* Border to the right */
     border-radius: 8px;
@@ -101,22 +126,25 @@
 
 /* Fixed-height top panel */
 .fixed {
-  flex: 0 0 300px;        /* no grow, no shrink, fixed 80px */
-  flex-direction: column;
-  color: white;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  border-left: 1px solid #00eeee;
+    flex: 0 0 350px;
+    /* no grow, no shrink, fixed 300px */
+    flex-direction: column;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
 }
 
 
 /* Flexible bottom panel */
 .flex {
-  flex: 1 1 auto;        /* takes the remaining space */
-  min-height: 0;         /* IMPORTANT: allow content to shrink/scroll */
-  overflow: auto;        /* scroll inside if content is long */
-  padding: 16px;
+    display: flex;
+    flex: 1 1 auto;
+    /* takes the remaining space */
+    min-height: 0;
+    /* IMPORTANT: allow content to shrink/scroll */
+    overflow: hidden;
+    /* scroll inside if content is long */
 }
 
 
@@ -132,17 +160,80 @@
 }
 
 .info {
-    border-bottom: 1px solid #00eeee;
+    display: flex;
+    flex-direction: column;
     border-radius: 12px;
     width: 100%;
 }
 
-.info.status{
+.info.status {
+    border: 1px solid #00eeee;
+    border-radius: 6px;
     height: 125px;
 }
 
-.info.summary{
+
+.status_header_name {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 30px;
+    background-color: #1a6d6d;
+    margin-bottom: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-weight: bold;
+}
+
+.status_info_report {
+    width: 20%;
+    height: inherit;
+    padding-left: 12px;
+    padding-top: 5px;
+}
+
+.status_header_ctrl {
+    display: flex;
     flex: 1;
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    margin-bottom: 2px;
+    border-radius: 6px;
+}
+
+.status_header_report {
+    display: flex;
+    flex-direction: row;
+    font-size:x-small;
+    width: 100%;
+    height: 20px;
+    margin-bottom: 2px;
+    background-color: #1a6d6d;
+}
+
+.state_button_ctrl {
+    width: 90%;
+    height: 80%;
+    color: white;
+    background-color: #102229;
+    border: 2px solid #00eeee;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.state_button_ctrl:hover{
+    background-color: #2c6582;
+}
+
+.state_button_ctrl.selected{
+    background-color: #2c6582;
+}
+
+.info.summary {
+    flex: 1;
+    margin-top: 4px;
+    border: 1px solid #00eeee;
 }
 
 .class_outer_hexagon_small.disabled {

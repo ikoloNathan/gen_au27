@@ -27,7 +27,7 @@
         <div id ="id_header" class="header">
         </div>
         <div class="content">
-            <div class="container" height="100%">
+            <div class="container">
                 <!-- <div class="header">Header</div> -->
                 <div id="menu_panel" class="sidebar">
                     <div id="module_ctrl" class="module_ctrl_class" style="height: 100px;border-bottom: 1px solid #00eeee; border-radius: 12px;margin-top: 20px;">
@@ -37,7 +37,7 @@
                     <div id="settings" style="height: 400px;border-bottom: 1px solid #00eeee; border-radius: 12px;">
                     </div>
                     <!-- ETL Systems logo panel -->
-                    <div id="logo_panel" style="height: 300px;border-bottom: 1px solid #00eeee; border-radius: 12px;">
+                    <div id="logo_panel" style="flex: 1;border-bottom: 1px solid #00eeee; border-radius: 12px;">
                         <div class="logo_image" style="text-align: center;padding-top: 30px;">
                             <object type="image/svg+xml" data="./media/logo.svg" height="250" width="250">
                                 <!-- <link href="./style/main.css" rel="stylesheet" type="text/css" /> -->
@@ -46,14 +46,42 @@
                     </div>
                 </div>
                 <!-- Display area for infos and controls -->
-                <div id="display_panel" class="main-content">
-                    <div class="flex">
-                        <iframe allowtransparency="true" page="setting_sum" class="main_page" id="main_page" src="./setting/summary.htm" style="width: 100%;height: 100%;border: none;background: transparent;">
+                <div id="display_panel" class="main-content" style="border:none">
+                    <div class="flex" style="border: none;">
+                        <iframe allowtransparency="true" page="setting_sum" class="main_page" id="main_page" src="./setting/summary.htm" style="width: 100%;height: auto;background: transparent;border: none;">
                     </iframe>
                     </div>
                     <div class="fixed">
                         <div class="info status">
-
+                            <div class="status_header_name">
+                                <div id="system_name" style="width: 50%;height: auto;padding-top: 6px;padding-left: 12px;"></div>
+                                <div id="system_status" style="width: 50%;height: auto;padding-top: 6px;padding-right: 14px;text-align: right;color: red;"></div>
+                            </div>
+                            <div class="status_header_ctrl">
+                                <div style="display:flex;justify-content: center;width: 33%;height: auto;align-items: center;">
+                                    <button id="system_state_off" class="state_button_ctrl"></button>
+                                </div>
+                                <div style="display:flex;justify-content: center;width: 33%;height: auto;align-items: center;">
+                                    <button id="system_state_standby" class="state_button_ctrl"></button>
+                                </div>
+                                <div style="display:flex;justify-content: center;width: 33%;height: auto;align-items: center;">
+                                    <button id="system_state_transmit" class="state_button_ctrl"></button>
+                                </div>
+                            </div>
+                            <div class="status_header_report">
+                                <div class="status_info_report">Power</div>
+                                <div id="system_status_power" class="status_info_report">1W</div>
+                                <div class="status_info_report"></div>
+                                <div class="status_info_report"></div>
+                                <div class="status_info_report"></div>
+                            </div>
+                            <div class="status_header_report" style="margin-bottom: 0;border-bottom-right-radius: 6px;border-bottom-left-radius: 6px;">
+                                <div class="status_info_report">Status</div>
+                                <div id="system_status_state" class="status_info_report">OFF</div>
+                                <div class="status_info_report"></div>
+                                <div class="status_info_report"></div>
+                                <div class="status_info_report"></div>
+                            </div>
                         </div>
                         <div class="info summary">
 
@@ -64,7 +92,7 @@
             </div>
         </div>
         <div class="footer">
-            <div id="status">>connecting…</div>
+            <div id="status">connecting…</div>
         </div>
     </div>
     <script>

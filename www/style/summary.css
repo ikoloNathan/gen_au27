@@ -1,4 +1,9 @@
 @import url(main.css);
+html, body {
+    display: flex;
+    flex: 1 1 auto;
+}
+
 .class_module_summary.Operating {
     height: 122px;
     width: 730px;
@@ -73,7 +78,10 @@
 }
 
 #main_page {
+    display: flex;
+    margin: 0;
     flex: 1;
-    height: 100%;
+    flex-direction: column;
+    height: auto;
     font-family: Arial, sans-serif;
 }

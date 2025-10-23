@@ -119,6 +119,7 @@ class Doc {
 const settings_id = ['sum', 'config', 'log', 'load'];
 const settings_names = ['CONTROL', 'CONFIG', 'LOG', 'UPGRADE'];
 const settings_links = ['./setting/summary.htm', './setting/settings.htm', './setting/log.htm', './setting/upload.htm'];
+const status_button_li = ['OFF','STANDBY','TRANSMIT'];
 type = ['TX', 'TX', 'RX', 'RX', 'CPU'];
 
 class Body {
@@ -126,6 +127,8 @@ class Body {
         this.worker = null;
         this.port = null;
         this.slots = [];
+        this.status_buttons = [];
+        
         this.sidebar_dividers_outer = [];
         this.sidebar_dividers_inner = [];
         this.sidebar_table_slot_cells = []; // dynamic cell array
@@ -145,6 +148,10 @@ class Body {
         this.test_parent_post = this.test_parent_post.bind(this);
         this.on_message_worker = this.on_message_worker.bind(this);
         this.broker = this.broker.bind(this);
+        this.status_button_off_fn = this.status_button_off_fn.bind(this);
+        this.status_button_standby_fn = this.status_button_standby_fn.bind(this);
+        this.status_button_transmit_fn = this.status_button_transmit_fn.bind(this);
+        this.status_buttons_fn = [this.status_button_off_fn,this.status_button_standby_fn,this.status_button_transmit_fn];
     }
     async show_modules() {
         this.Document.Document.addEventListener('DOMContentLoaded', () => {
@@ -219,6 +226,18 @@ class Body {
                     console.error('Failed to start SharedWorker:', err);
                 }
             }
+
+            this.status_buttons = new Array(status_button_li.length);
+            status_button_li.forEach((button, i) => {
+                this.status_buttons[i] = this.Document.getElementById("system_state_" + button.toLowerCase());
+                this.status_buttons[i].textContent = button;
+
+                if (this.status_buttons[i] !== null) {
+                    this.status_buttons[i].addEventListener('click', this.status_buttons_fn[i]);
+                }
+            });
+
+
             this.sidebar_setting_table = this.Document.createElement("table", null, null, this.settings);
             this.sidebar_setting_cell_upper = new Array(2);
 			this.sidebar_setting_cell_lower = new Array(2);
@@ -263,7 +282,15 @@ class Body {
         payload: { message: "Hello from parent!" }
         }, window.origin);
     }
-    
+    status_button_off_fn(){
+        console.log('status button off clicked');
+    }
+    status_button_standby_fn(){
+        console.log('status button standby clicked');
+    }
+    status_button_transmit_fn(){
+        console.log('status button transmit clicked');
+    }
     /**
      * on message event listener to the worker event from the server
      * @param {*} e 
@@ -301,7 +328,7 @@ class Body {
     }
 
     broker(payload){
-        const {type,dest,data} = payload;
+        const {type,dest} = payload;
         if(type === "ping"){
             console.log("server sent: ",payload);
         }else{
@@ -314,10 +341,9 @@ class Body {
                     iframe.contentWindow.postMessage(payload, window.origin);
                 }
                     break;
-                    default:// send this message to server
+                default:// send this message to server
                     this.send_message({type:"client-message",payload:payload});
                     break;
-
             }
         }
     }
