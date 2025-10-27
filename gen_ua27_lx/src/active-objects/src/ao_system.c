@@ -52,9 +52,9 @@ sw_info_t sw;
  */
 static void on_enter_initialisation(fsm_t *fsm) {
 	printf("sys_init\n");
-	topic_config_t configs[] = {
-    				{.topic = SNMP_GET_TX(0),.type = EXACT_MATCH}};
-    broker_subscribe(((base_obj_t*) fsm->super)->broker, configs,
+	topic_config_t config[] = { { .topic = SNMP_GET_TX(2<<8), .start = SNMP_GET_TX(
+				2<<8), .type = MASK }, };
+    broker_subscribe(((base_obj_t*) fsm->super)->broker, config,
     				1, ((base_obj_t*) fsm->super));
 }
 
@@ -281,7 +281,7 @@ struct state maintenance_state = { .handler = NULL, .on_entry =
  */
 static void dispatch(base_obj_t *const me, const message_frame_t *frame) {
 	printf("system dispatch");
-	char* outstr = "{\"name\":\"unit1date\",\"mode\":\"GET\",\"value\":\"hello\"}";
+	char* outstr = "{\"name\":\"pduoutputstate\",\"mode\":\"GET\",\"value\":\"hello\"}";
 	message_frame_t msg = {
 			.signal = SNMP_GET_RX(0),
 			.length = strlen(outstr)

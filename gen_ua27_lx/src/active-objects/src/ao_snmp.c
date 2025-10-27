@@ -74,6 +74,11 @@ typedef enum {
 	MIB_ERR_NOT_FOUND /**< Requested entry was not found in the table. */
 } mib_status_t;
 
+enum SNMP_DST{
+	SNMP_SYSTEM_REQUEST = 1,
+	SNMP_MODULE_REQUEST
+};
+
 /**
  * @struct mib_entry
  * @brief Represents a single Management Information Base (MIB) entry.
@@ -82,7 +87,7 @@ typedef enum {
  * type, access rights, and associated value buffer.
  */
 typedef struct mib_entry {
-	uint16_t msg_id[MAX_OID_LEN]; /**< Unique message identifier (OID portion). */
+	oid msg_id[MAX_OID_LEN]; /**< Unique message identifier (OID portion). */
 	char name[64]; /**< SNMP symbol name used as the key. */
 	int asn_type; /**< ASN.1 type of the value (e.g., INTEGER, OCTET_STR). */
 	int access; /**< Access rights (e.g., read-only, read-write). */
@@ -202,7 +207,22 @@ void tree_to_json(struct tree *subtree, const char *prefix, cJSON *jarray) {
 			cJSON *jobj = cJSON_CreateObject();
 			cJSON_AddStringToObject(jobj, "oid", newprefix);
 			cJSON_AddStringToObject(jobj, "name", t->label ? t->label : "");
-			cJSON_AddNumberToObject(jobj, "asn_type", t->type);
+			switch(t->type){
+				case TYPE_INTEGER32:
+				case TYPE_UNSIGNED32:
+				case TYPE_UINTEGER:
+					cJSON_AddNumberToObject(jobj, "asn_type", ASN_INTEGER);
+					break;
+				case TYPE_INTEGER:
+					cJSON_AddNumberToObject(jobj, "asn_type", ASN_BOOLEAN);
+					break;
+				case TYPE_OCTETSTR:
+					cJSON_AddNumberToObject(jobj, "asn_type", ASN_OCTET_STR);
+					break;
+				default:
+					cJSON_AddNumberToObject(jobj, "asn_type", ASN_NULL);
+					break;
+			}
 			cJSON_AddNumberToObject(jobj, "access", t->access);
 			if (t->description)
 				cJSON_AddStringToObject(jobj, "descr", t->description);
@@ -255,7 +275,7 @@ bool register_from_json(snmp_agent_ao_t *me, const char *json_str) {
 		if (!cJSON_IsString(oidj) || !cJSON_IsString(namej))
 			continue;
 
-		oid oid_arr[MAX_OID_LEN];
+		oid oid_arr[MAX_OID_LEN] = {0};
 		size_t oid_len = MAX_OID_LEN;
 		if (!read_objid(oidj->valuestring, oid_arr, &oid_len)) {
 			snmp_perror("read_objid");
@@ -599,7 +619,7 @@ void complete_get_cb(unsigned int clientreg, void *clientarg) {
 	case MODE_GETNEXT:
 		if (pg->val && pg->val_len) {
 			snmp_set_var_typed_value(requests->requestvb,
-			/*(u_char)pg->asn_type,*/ASN_OCTET_STR, (const u_char*) pg->val,
+			(u_char)pg->asn_type,(const u_char*) pg->val,
 					pg->val_len);
 		} else {
 			/* No data -> map to NOSUCHOBJECT for simple scalar example. */
@@ -814,8 +834,12 @@ int snmp_scalar_handler(netsnmp_mib_handler *handler,
 				requests, NULL);
 		pg->asn_type = requests->requestvb->type;
 		snmp_append_delegate_agent(me, pg);
+		mib_entry_t *entry = find_mib_entry_by_name(handler->handler_name);
+		if(!entry){
+			return SNMP_ERR_NOERROR;
+		}
 
-		evt.signal = SNMP_GET_TX(0);
+		evt.signal = SNMP_GET_TX(entry->msg_id[7] << 8 | (entry->msg_id[8] &0xFF));
 		char* payload = snmp_json_str(handler->handler_name,0,NULL);
 		if(payload){
 			memcpy(evt.payload,payload,strlen(payload));
@@ -828,7 +852,8 @@ int snmp_scalar_handler(netsnmp_mib_handler *handler,
 	}
 		break;
 	case MODE_SET_ACTION:{
-		evt.signal = SNMP_SET_VALUE(0);
+		mib_entry_t *entry = find_mib_entry_by_name(handler->handler_name);
+		evt.signal = SNMP_GET_TX(entry->msg_id[7] << 8 | (entry->msg_id[8] &0xFF));
 		char* payload = snmp_json_str(handler->handler_name,0,(char*)requests->requestvb->val.string);
 		if(payload){
 			memcpy(evt.payload,payload,strlen(payload));
@@ -999,7 +1024,6 @@ void snmp_operational_handler(fsm_t *fsm, const message_frame_t *event) {
 	snmp_agent_ao_t *me = (snmp_agent_ao_t*) fsm->super;
 	switch (event->signal) {
 		case SNMP_GET_RX(0) ... SNMP_GET_RX(0xFFFF): {
-			printf("%s\n",event->payload);
 			snmp_payload_t snmp_payload = {0};
 			if(!snmp_payload_from_json((char*)event->payload,&snmp_payload,NULL,0))return;
 			mib_entry_t *entry = find_mib_entry_by_name(snmp_payload.name);
