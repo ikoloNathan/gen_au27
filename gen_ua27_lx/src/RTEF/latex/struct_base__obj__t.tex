@@ -1,0 +1,29 @@
+\doxysection{Base\+\_\+obj\+\_\+t Struct Reference}
+\hypertarget{struct_base__obj__t}{}\label{struct_base__obj__t}\index{Base\_obj\_t@{Base\_obj\_t}}
+
+
+Base Active Object class.  
+
+
+
+
+{\ttfamily \#include $<$active\+\_\+object.\+h$>$}
+
+
+
+\doxysubsection{Detailed Description}
+Base Active Object class. 
+
+The Active Object pattern enables event-\/driven execution with stateful behavior. This structure encapsulates an object that can process messages asynchronously.
+
+Each Active Object\+:
+\begin{DoxyItemize}
+\item Is linked to a {\bfseries{message broker}} for event dispatching.
+\item Runs within a {\bfseries{separate task/thread}} (depending on platform).
+\item Uses a {\bfseries{Finite State Machine (FSM)}} to manage state transitions.
+\item Can define a {\bfseries{custom initialization state}} ({\ttfamily initialisation\+\_\+state}). 
+\end{DoxyItemize}
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/active\+\_\+object.\+h\end{DoxyCompactItemize}

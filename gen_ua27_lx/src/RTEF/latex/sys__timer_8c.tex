@@ -1,0 +1,141 @@
+\doxysection{src/sys\+\_\+timer.c File Reference}
+\hypertarget{sys__timer_8c}{}\label{sys__timer_8c}\index{src/sys\_timer.c@{src/sys\_timer.c}}
+
+
+Implements a system timer manager for scheduling timed callbacks.  
+
+
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$sys\+\_\+timer.\+h$>$}\newline
+\doxysubsubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structtimer__manager__t}{timer\+\_\+manager\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Represents a timer manager for RTOS. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae}{TIMER\+\_\+\+PERIOD\+\_\+10\+MS}}~pd\+MS\+\_\+\+TO\+\_\+\+TICKS(10)
+\item 
+\#define \mbox{\hyperlink{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1}{TIMER\+\_\+\+PERIOD\+\_\+100\+MS}}~pd\+MS\+\_\+\+TO\+\_\+\+TICKS(100)
+\item 
+\#define \mbox{\hyperlink{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568}{TIMER\+\_\+\+PERIOD\+\_\+200\+MS}}~pd\+MS\+\_\+\+TO\+\_\+\+TICKS(200)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83e}{timer\+\_\+state\+\_\+t}} \{ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e}{DISARM}} = 0x7A
+, \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}{ARM}} = 0x\+A7
+ \}
+\begin{DoxyCompactList}\small\item\em Defines the possible states of a timer callback. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structtimers__t}{timers\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{sys__timer_8c_a593d1cc4efdc07d786716bf11566d9be}{timer\+\_\+ctor}} (\mbox{\hyperlink{sys__timer_8h_a66e6b1d10289945ae9284d769f136e59}{timer\+\_\+type\+\_\+t}} type)
+\begin{DoxyCompactList}\small\item\em Constructs a system timer manager. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements a system timer manager for scheduling timed callbacks. 
+
+This file provides an implementation for system timers, supporting both Windows (using waitable timers) and RTOS (using software timers). The system allows registering callbacks with different timer periods and priority levels.
+
+It manages multiple timers and ensures proper execution of registered callback functions while maintaining synchronization between tasks.
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+February 24, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{sys__timer_8c_source}{sys\+\_\+timer.\+c}}.
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1}\index{sys\_timer.c@{sys\_timer.c}!TIMER\_PERIOD\_100MS@{TIMER\_PERIOD\_100MS}}
+\index{TIMER\_PERIOD\_100MS@{TIMER\_PERIOD\_100MS}!sys\_timer.c@{sys\_timer.c}}
+\doxysubsubsection{\texorpdfstring{TIMER\_PERIOD\_100MS}{TIMER\_PERIOD\_100MS}}
+{\footnotesize\ttfamily \label{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1} 
+\#define TIMER\+\_\+\+PERIOD\+\_\+100\+MS~pd\+MS\+\_\+\+TO\+\_\+\+TICKS(100)}
+
+Timer period for 100ms. 
+
+Definition at line \mbox{\hyperlink{sys__timer_8c_source_l00046}{46}} of file \mbox{\hyperlink{sys__timer_8c_source}{sys\+\_\+timer.\+c}}.
+
+\Hypertarget{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae}\index{sys\_timer.c@{sys\_timer.c}!TIMER\_PERIOD\_10MS@{TIMER\_PERIOD\_10MS}}
+\index{TIMER\_PERIOD\_10MS@{TIMER\_PERIOD\_10MS}!sys\_timer.c@{sys\_timer.c}}
+\doxysubsubsection{\texorpdfstring{TIMER\_PERIOD\_10MS}{TIMER\_PERIOD\_10MS}}
+{\footnotesize\ttfamily \label{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae} 
+\#define TIMER\+\_\+\+PERIOD\+\_\+10\+MS~pd\+MS\+\_\+\+TO\+\_\+\+TICKS(10)}
+
+Timer period for 10ms. 
+
+Definition at line \mbox{\hyperlink{sys__timer_8c_source_l00045}{45}} of file \mbox{\hyperlink{sys__timer_8c_source}{sys\+\_\+timer.\+c}}.
+
+\Hypertarget{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568}\index{sys\_timer.c@{sys\_timer.c}!TIMER\_PERIOD\_200MS@{TIMER\_PERIOD\_200MS}}
+\index{TIMER\_PERIOD\_200MS@{TIMER\_PERIOD\_200MS}!sys\_timer.c@{sys\_timer.c}}
+\doxysubsubsection{\texorpdfstring{TIMER\_PERIOD\_200MS}{TIMER\_PERIOD\_200MS}}
+{\footnotesize\ttfamily \label{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568} 
+\#define TIMER\+\_\+\+PERIOD\+\_\+200\+MS~pd\+MS\+\_\+\+TO\+\_\+\+TICKS(200)}
+
+Timer period for 200ms. 
+
+Definition at line \mbox{\hyperlink{sys__timer_8c_source_l00047}{47}} of file \mbox{\hyperlink{sys__timer_8c_source}{sys\+\_\+timer.\+c}}.
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83e}\index{sys\_timer.c@{sys\_timer.c}!timer\_state\_t@{timer\_state\_t}}
+\index{timer\_state\_t@{timer\_state\_t}!sys\_timer.c@{sys\_timer.c}}
+\doxysubsubsection{\texorpdfstring{timer\_state\_t}{timer\_state\_t}}
+{\footnotesize\ttfamily \label{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83e} 
+enum \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83e}{timer\+\_\+state\+\_\+t}}}
+
+
+
+Defines the possible states of a timer callback. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DISARM@{DISARM}!sys\_timer.c@{sys\_timer.c}}\index{sys\_timer.c@{sys\_timer.c}!DISARM@{DISARM}}}\Hypertarget{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e}\label{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e} 
+DISARM&Timer is disarmed (inactive). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ARM@{ARM}!sys\_timer.c@{sys\_timer.c}}\index{sys\_timer.c@{sys\_timer.c}!ARM@{ARM}}}\Hypertarget{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}\label{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6} 
+ARM&Timer is armed (active). \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{sys__timer_8c_source_l00028}{28}} of file \mbox{\hyperlink{sys__timer_8c_source}{sys\+\_\+timer.\+c}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{sys__timer_8c_a593d1cc4efdc07d786716bf11566d9be}\index{sys\_timer.c@{sys\_timer.c}!timer\_ctor@{timer\_ctor}}
+\index{timer\_ctor@{timer\_ctor}!sys\_timer.c@{sys\_timer.c}}
+\doxysubsubsection{\texorpdfstring{timer\_ctor()}{timer\_ctor()}}
+{\footnotesize\ttfamily \label{sys__timer_8c_a593d1cc4efdc07d786716bf11566d9be} 
+\mbox{\hyperlink{structtimers__t}{timers\+\_\+t}} \texorpdfstring{$\ast$}{*} timer\+\_\+ctor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{sys__timer_8h_a66e6b1d10289945ae9284d769f136e59}{timer\+\_\+type\+\_\+t}}}]{type}{}\end{DoxyParamCaption})}
+
+
+
+Constructs a system timer manager. 
+
+This function initializes and returns a timer manager instance. Depending on the {\ttfamily type} parameter, it can either be an RTOS timer or a hardware-\/based timer (not yet supported).
+
+
+\begin{DoxyParams}{Parameters}
+{\em type} & The type of timer to initialize. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pointer to the created {\ttfamily \doxylink{structtimers__t}{timers\+\_\+t}} instance, or {\ttfamily NULL} if failed. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{sys__timer_8c_source_l00083}{83}} of file \mbox{\hyperlink{sys__timer_8c_source}{sys\+\_\+timer.\+c}}.
+

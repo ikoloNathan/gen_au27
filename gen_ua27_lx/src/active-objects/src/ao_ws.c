@@ -777,13 +777,13 @@ char* ws_json_str(message_frame_t msg) {
 	if (cJSON_IsNull(root))
 		return NULL;
 	cJSON_AddNumberToObject(root, "signal", msg.signal);
-	cJSON_AddStringToObject(root, "payload", (const char * const)msg.payload);
+	cJSON_AddStringToObject(root, "payload", msg.payload);
 	char *outstr = cJSON_Print(root);
 	cJSON_Delete(root);
 	return outstr;
 }
 
-/* AO-side logic (business rules): who / say: / echo */
+
 void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 	ao_ws_t *me = (ao_ws_t*) fsm->super;
 	message_frame_t msg = { 0 };
@@ -792,7 +792,7 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 		int idx = 0;
 		memcpy(&idx, ev->payload, sizeof(int));
 		char m[WS_TX_BUFSZ];
-		snprintf(m, sizeof(m), "{\"type\":\"hello\",\"id\":%llu}",
+		snprintf(m, sizeof(m), "{\"type\":\"ws-status\",\"id\":%llu,\"dest\":0,\"status\":\"connected\"}",
 				me->clients[idx].conn_id);
 		ws_send_to(me, idx, m);
 	}
@@ -800,63 +800,66 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 
 	case WS_EVT_WS_MSG_RX : {
 		int idx = 0;
-		memcpy(&idx, ev->payload, sizeof(int));
+//		memcpy(&idx, ev->payload, sizeof(int));
 		const char *text = (const char*) (ev->payload + sizeof(int));
-		ws_parse_json(text, &msg);
-		broker_post(me->super.broker, msg, PRIMARY_QUEUE);
-//		if (!strcmp(text, "who")) {
-//			char m[WS_TX_BUFSZ];
-//			int p = snprintf(m, sizeof(m), "{\"type\":\"who\",\"clients\":[");
-//			int first = 1;
-//			for (int j = 0; j < WS_MAX_CLIENTS; j++)
-//				if (me->clients[j].st == WS_CL_WS) {
-//					p += snprintf(m + p, sizeof(m) - p, first ? "%d" : ",%d",
-//							j);
-//					first = 0;
-//				}
-//			if (p < (int) sizeof(m) - 2) {
-//				m[p++] = ']';
-//				m[p++] = '}';
-//				m[p] = '\0';
-//			}
-//			ws_send_to(me, idx, m);
-//		} else if (!strncmp(text, "say:", 4)) {
-//			char m[WS_TX_BUFSZ];
-//			snprintf(m, sizeof(m),
-//					"{\"type\":\"chat\",\"from\":%d,\"text\":\"%s\"}", idx,
-//					text + 4);
-//			ws_broadcast(me, m);
-//		} else {
+//		ws_parse_json(text, &msg);
+//		broker_post(me, msg, PRIMARY_QUEUE);
+		if (!strcmp(text, "who")) {
+			char m[WS_TX_BUFSZ];
+			int p = snprintf(m, sizeof(m), "{\"type\":\"who\",\"clients\":[");
+			int first = 1;
+			for (int j = 0; j < WS_MAX_CLIENTS; j++)
+				if (me->clients[j].st == WS_CL_WS) {
+					p += snprintf(m + p, sizeof(m) - p, first ? "%d" : ",%d",
+							j);
+					first = 0;
+				}
+			if (p < (int) sizeof(m) - 2) {
+				m[p++] = ']';
+				m[p++] = '}';
+				m[p] = '\0';
+			}
+			ws_send_to(me, idx, m);
+		} else if (!strncmp(text, "say:", 4)) {
+			char m[WS_TX_BUFSZ];
+			snprintf(m, sizeof(m),
+					"{\"type\":\"chat\",\"from\":%d,\"text\":\"%s\"}", idx,
+					text + 4);
+			ws_broadcast(me, m);
+		} else {
+			printf("%s\n",text);
 //			char m[WS_TX_BUFSZ];
 //			snprintf(m, sizeof(m), "{\"type\":\"echo\",\"text\":\"%s\"}", text);
 //			ws_send_to(me, idx, m);
-//		}
+		}
 	}
 		break;
-	case WS_QUERY_RX_CMD(0,0) ... WS_QUERY_RX_CMD(0xFF, 0xFF): {
-		int idx = (ev->signal >> 16) & 0x03F;
-		char *text = ws_json_str(*ev);
+	case WS_QUERY_RX_CMD(0,0) ... WS_QUERY_RX_CMD(0xFF, 0xFF):
+//	{
+//		int idx = (ev->signal >> 16) & 0x03F;
+//		char *text = ws_json_str(*ev);
 //		printf("%s\n",text);
-		ws_send_to(me, idx, text);
-		free(text);
-	}
-		break;
-//	case WS_CMD_BROADCAST : {
-//		const char *txt = (const char*) ev->payload;
-//		pthread_mutex_lock(&me->cmd.mx);
-//		int next = (me->cmd.tail + 1)
-//				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
-//		if (next != me->cmd.head) {
-//			me->cmd.q[me->cmd.tail].target_idx = -1;
-//			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
-//			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
-//			me->cmd.tail = next;
-//		}
-//		pthread_mutex_unlock(&me->cmd.mx);
-//		uint64_t one = 1;
-//		write(me->notifyfd, &one, sizeof(one));
+//		ws_send_to(me, idx, text);
+//		free(text);
 //	}
 //		break;
+	case WS_CMD_BROADCAST : {
+
+		char *txt = ws_json_str(*ev);
+		pthread_mutex_lock(&me->cmd.mx);
+		int next = (me->cmd.tail + 1)
+				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
+		if (next != me->cmd.head) {
+			me->cmd.q[me->cmd.tail].target_idx = -1;
+			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
+			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
+			me->cmd.tail = next;
+		}
+		pthread_mutex_unlock(&me->cmd.mx);
+		uint64_t one = 1;
+		write(me->notifyfd, &one, sizeof(one));
+	}
+		break;
 
 	case WS_CMD_SEND_TO_ONE : {
 		int idx = 0;
@@ -895,8 +898,8 @@ void ws_ctor(ao_ws_t *me, broker_t *broker, char *name, uint16_t port) {
 
 	me->super.initialisation_state = &ws_initialisation_state;
 
-	me->port = port ? port : 8080;
-	strncpy(me->docroot, "/var/www/html/", sizeof(me->docroot) - 1);
+	me->port = port ? port : 443;
+	strncpy(me->docroot, "./www", sizeof(me->docroot) - 1);
 
 	me->epfd = me->listenfd = me->notifyfd = -1;
 	me->pump_running = 0;

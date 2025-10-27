@@ -1,0 +1,220 @@
+\doxysection{base\+\_\+obj Struct Reference}
+\hypertarget{structbase__obj}{}\label{structbase__obj}\index{base\_obj@{base\_obj}}
+
+
+Base Active Object class.  
+
+
+
+
+{\ttfamily \#include $<$active\+\_\+object.\+h$>$}
+
+\doxysubsubsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{active__object_8h_a419d688054455bbdc5df45b516db06cb}{base\+\_\+vtable\+\_\+t}} const  \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__obj_a1ed87b5169929bab505a60576c4742a8}{vptr}}
+\begin{DoxyCompactList}\small\item\em Virtual table for Active Object operations. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{structbase__obj_a8037a396ecc1f2fd9dd7d4ccded016bd}{thread\+\_\+id}}
+\begin{DoxyCompactList}\small\item\em Task handle for Free\+RTOS implementation. \end{DoxyCompactList}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{structbase__obj_a0f1c4f70fecfb7a5cd1fe88e58dff41c}{msg\+\_\+queue\+\_\+id}}
+\begin{DoxyCompactList}\small\item\em Free\+RTOS message queue handle. \end{DoxyCompactList}\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{structbase__obj_aea2a32ad9813d6b1fd44be6dd41826a0}{sem\+\_\+log}}
+\begin{DoxyCompactList}\small\item\em Semaphore for logging synchronization (Free\+RTOS only). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__obj_a5a3a47f6be5a195a6d4287100f06edb6}{broker}}
+\begin{DoxyCompactList}\small\item\em Pointer to the event broker managing this Active Object. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \mbox{\hyperlink{structbase__obj_a95c9ad9a4bace3f923fec123c2ddd5d9}{fsm}}
+\begin{DoxyCompactList}\small\item\em Finite State Machine (FSM) associated with the Active Object. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstate}{state}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbase__obj_a9be6e5364e6fecb537346682b5bdae3d}{initialisation\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em Pointer to the initial state of the Active Object. \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structbase__obj_abc1e86d7c344fe34ff09e72d4595ab7e}{name}} \mbox{[}32\mbox{]}
+\begin{DoxyCompactList}\small\item\em Name identifier for the Active Object. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbase__obj_a5d59e553077bc28c4c43ed3380734060}{last\+\_\+heartbeat\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Last recorded heartbeat timestamp (used for monitoring). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base Active Object class. 
+
+The Active Object pattern enables event-\/driven execution with stateful behavior. This structure encapsulates an object that can process messages asynchronously.
+
+Each Active Object\+:
+\begin{DoxyItemize}
+\item Is linked to a {\bfseries{message broker}} for event dispatching.
+\item Runs within a {\bfseries{separate task/thread}} (depending on platform).
+\item Uses a {\bfseries{Finite State Machine (FSM)}} to manage state transitions.
+\item Can define a {\bfseries{custom initialization state}} ({\ttfamily initialisation\+\_\+state}). 
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00127}{127}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+
+
+\doxysubsection{Field Documentation}
+\Hypertarget{structbase__obj_a5a3a47f6be5a195a6d4287100f06edb6}\index{base\_obj@{base\_obj}!broker@{broker}}
+\index{broker@{broker}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{broker}{broker}}
+{\footnotesize\ttfamily \label{structbase__obj_a5a3a47f6be5a195a6d4287100f06edb6} 
+\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}}\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structbroker}{broker}}}
+
+
+
+Pointer to the event broker managing this Active Object. 
+
+The broker facilitates message dispatching between different Active Objects. Event broker 
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00196}{196}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_a95c9ad9a4bace3f923fec123c2ddd5d9}\index{base\_obj@{base\_obj}!fsm@{fsm}}
+\index{fsm@{fsm}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{fsm}{fsm}}
+{\footnotesize\ttfamily \label{structbase__obj_a95c9ad9a4bace3f923fec123c2ddd5d9} 
+\mbox{\hyperlink{fsm_8h_a94a3d1b22a6d8e0c292ce97108d2f161}{fsm\+\_\+t}} \mbox{\hyperlink{structfsm}{fsm}}}
+
+
+
+Finite State Machine (FSM) associated with the Active Object. 
+
+The FSM allows the Active Object to transition between states based on events. Finite state machine 
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00203}{203}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_a9be6e5364e6fecb537346682b5bdae3d}\index{base\_obj@{base\_obj}!initialisation\_state@{initialisation\_state}}
+\index{initialisation\_state@{initialisation\_state}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{initialisation\_state}{initialisation\_state}}
+{\footnotesize\ttfamily \label{structbase__obj_a9be6e5364e6fecb537346682b5bdae3d} 
+struct \mbox{\hyperlink{structstate}{state}}\texorpdfstring{$\ast$}{*} initialisation\+\_\+state}
+
+
+
+Pointer to the initial state of the Active Object. 
+
+Each derived Active Object assigns a custom {\ttfamily initialisation\+\_\+state}, which defines the default behavior when the object starts.
+
+
+\begin{DoxyItemize}
+\item The pointer is assigned dynamically in the constructor ({\ttfamily AO\+\_\+ctor()}).
+\item Different Active Objects can override this with unique states.
+\item The state defines entry/exit actions, event handlers, etc.
+\end{DoxyItemize}
+
+Example Usage\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{struct\ }State\ custom\_state\ =\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .handler\ =\ custom\_handler,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .on\_entry\ =\ custom\_init,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .on\_exit\ =\ custom\_cleanup,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transitions\ =\ next\_jump,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ .transition\_count\ =\ 2}
+\DoxyCodeLine{\};}
+\DoxyCodeLine{my\_active\_object.initialisation\_state\ =\ \&custom\_state;}
+
+\end{DoxyCode}
+ 
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00227}{227}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_a5d59e553077bc28c4c43ed3380734060}\index{base\_obj@{base\_obj}!last\_heartbeat\_time@{last\_heartbeat\_time}}
+\index{last\_heartbeat\_time@{last\_heartbeat\_time}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{last\_heartbeat\_time}{last\_heartbeat\_time}}
+{\footnotesize\ttfamily \label{structbase__obj_a5d59e553077bc28c4c43ed3380734060} 
+uint32\+\_\+t last\+\_\+heartbeat\+\_\+time}
+
+
+
+Last recorded heartbeat timestamp (used for monitoring). 
+
+This tracks the last time the Active Object was active.
+\begin{DoxyItemize}
+\item Updated regularly to indicate the system is alive.
+\item Used for health monitoring and timeout detection. Last time this AO updated its heartbeat 
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00245}{245}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_a0f1c4f70fecfb7a5cd1fe88e58dff41c}\index{base\_obj@{base\_obj}!msg\_queue\_id@{msg\_queue\_id}}
+\index{msg\_queue\_id@{msg\_queue\_id}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{msg\_queue\_id}{msg\_queue\_id}}
+{\footnotesize\ttfamily \label{structbase__obj_a0f1c4f70fecfb7a5cd1fe88e58dff41c} 
+Queue\+Handle\+\_\+t msg\+\_\+queue\+\_\+id}
+
+
+
+Free\+RTOS message queue handle. 
+
+This queue stores messages sent to the Active Object.
+\begin{DoxyItemize}
+\item Uses {\ttfamily x\+Queue\+Create()}.
+\item Messages are posted via {\ttfamily \doxylink{active__object_8h_ad899678bdc83ea48740722b90d5cc42c}{post()}}. Free\+RTOS message queue 
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00181}{181}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_abc1e86d7c344fe34ff09e72d4595ab7e}\index{base\_obj@{base\_obj}!name@{name}}
+\index{name@{name}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{name}{name}}
+{\footnotesize\ttfamily \label{structbase__obj_abc1e86d7c344fe34ff09e72d4595ab7e} 
+char name\mbox{[}32\mbox{]}}
+
+
+
+Name identifier for the Active Object. 
+
+This name is used for logging and debugging purposes.
+\begin{DoxyItemize}
+\item Assigned at initialization.
+\item Limited to 31 characters (null-\/terminated). Object name 
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00236}{236}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_aea2a32ad9813d6b1fd44be6dd41826a0}\index{base\_obj@{base\_obj}!sem\_log@{sem\_log}}
+\index{sem\_log@{sem\_log}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{sem\_log}{sem\_log}}
+{\footnotesize\ttfamily \label{structbase__obj_aea2a32ad9813d6b1fd44be6dd41826a0} 
+Semaphore\+Handle\+\_\+t sem\+\_\+log}
+
+
+
+Semaphore for logging synchronization (Free\+RTOS only). 
+
+Ensures thread-\/safe logging within the Active Object. Semaphore for log protection 
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00188}{188}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_a8037a396ecc1f2fd9dd7d4ccded016bd}\index{base\_obj@{base\_obj}!thread\_id@{thread\_id}}
+\index{thread\_id@{thread\_id}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{thread\_id}{thread\_id}}
+{\footnotesize\ttfamily \label{structbase__obj_a8037a396ecc1f2fd9dd7d4ccded016bd} 
+Task\+Handle\+\_\+t thread\+\_\+id}
+
+
+
+Task handle for Free\+RTOS implementation. 
+
+Represents the Free\+RTOS task running this Active Object.
+\begin{DoxyItemize}
+\item Created using {\ttfamily x\+Task\+Create()}.
+\item Deleted using {\ttfamily v\+Task\+Delete()} when {\ttfamily \doxylink{active__object_8h_abcc568f66a77cf2dc0cb3192a66503bf}{stop()}} is called. Free\+RTOS task handle 
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00172}{172}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+\Hypertarget{structbase__obj_a1ed87b5169929bab505a60576c4742a8}\index{base\_obj@{base\_obj}!vptr@{vptr}}
+\index{vptr@{vptr}!base\_obj@{base\_obj}}
+\doxysubsubsection{\texorpdfstring{vptr}{vptr}}
+{\footnotesize\ttfamily \label{structbase__obj_a1ed87b5169929bab505a60576c4742a8} 
+\mbox{\hyperlink{active__object_8h_a419d688054455bbdc5df45b516db06cb}{base\+\_\+vtable\+\_\+t}} const\texorpdfstring{$\ast$}{*} vptr}
+
+
+
+Virtual table for Active Object operations. 
+
+The virtual function table ({\ttfamily vptr}) enables polymorphic behavior, allowing derived Active Objects to override standard behavior. Virtual table pointer 
+
+Definition at line \mbox{\hyperlink{active__object_8h_source_l00135}{135}} of file \mbox{\hyperlink{active__object_8h_source}{active\+\_\+object.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{active__object_8h}{active\+\_\+object.\+h}}\end{DoxyCompactItemize}

@@ -82,12 +82,18 @@ typedef enum {
  * type, access rights, and associated value buffer.
  */
 typedef struct mib_entry {
-	uint16_t msg_id; /**< Unique message identifier (OID portion). */
+	uint16_t msg_id[MAX_OID_LEN]; /**< Unique message identifier (OID portion). */
 	char name[64]; /**< SNMP symbol name used as the key. */
 	int asn_type; /**< ASN.1 type of the value (e.g., INTEGER, OCTET_STR). */
 	int access; /**< Access rights (e.g., read-only, read-write). */
 	size_t val_len; /**< Length of the value stored in @c value. */
 } mib_entry_t;
+
+typedef struct {
+	char name[64];
+	uint8_t delegate;
+	uint8_t buff[128];
+} snmp_payload_t;
 
 /**
  * @struct mib_map_t
@@ -113,10 +119,13 @@ static mib_map_t mib_map = { 0 };
 static void dispatch(base_obj_t *const me, const message_frame_t *frame);
 static void* snmp_pump(void *arg);
 static mib_status_t add_mib_entry(mib_entry_t *entry);
-static mib_entry_t* find_mib_entry_by_msg_id(const uint16_t oid);
+static mib_entry_t* find_mib_entry_by_name(const char* name);
 static void tree_to_json(struct tree *subtree, const char *prefix,
 		cJSON *jarray);
 static bool register_from_json(snmp_agent_ao_t *me, const char *json_str);
+static char* snmp_json_str(const char *name, uint8_t action, const char *value);
+static bool snmp_payload_from_json(const char *json_str, snmp_payload_t *out,
+		char *errbuf, size_t errbuf_sz);
 
 static void complete_get_cb(unsigned int clientreg, void *clientarg);
 static void schedule_get_completion(pending_get_t *pg);
@@ -128,7 +137,7 @@ static void snmp_agent_shutdown(snmp_agent_ao_t *me);
 static void snmp_append_delegate_agent(snmp_agent_ao_t *me, pending_get_t *pg);
 static void snmp_clear_delegate_list(snmp_agent_ao_t *me);
 static pending_get_t* snmp_find_delegate_agent(snmp_agent_ao_t *me,
-		uint32_t corr);
+		const char* name);
 static void snmp_operational_handler(fsm_t *fsm, const message_frame_t *event);
 static void snmp_error_handler(fsm_t *fsm, const message_frame_t *event);
 static int snmp_log_callback(int major, int minor, void *serverarg,
@@ -147,7 +156,7 @@ TRANSITION(SNMP_CHANGE_STATE_ERR(0), snmp_error_state, NULL),
 TRANSITION( SNMP_CHANGE_STATE_INIT, snmp_initialisation_state, NULL ) };
 
 transition_t snmp_error_transitions[] = { {
-SNMP_CHANGE_STATE_INIT, &snmp_initialisation_state, NULL } };
+SNMP_CHANGE_STATE_OP, &snmp_operational_state, NULL } };
 
 /* --- STATE DEFINITIONS --- */
 state_t snmp_initialisation_state = { .handler = NULL, .on_entry =
@@ -185,7 +194,7 @@ state_t snmp_error_state = { .handler = snmp_error_handler, .on_entry =
  */
 void tree_to_json(struct tree *subtree, const char *prefix, cJSON *jarray) {
 	for (struct tree *t = subtree; t; t = t->next_peer) {
-		char newprefix[1024];
+		char newprefix[1024] = { 0 };
 		snprintf(newprefix, sizeof(newprefix), "%s.%lu", prefix, t->subid);
 
 		if (!t->child_list) {
@@ -257,7 +266,7 @@ bool register_from_json(snmp_agent_ao_t *me, const char *json_str) {
 		memcpy(entry->name, namej->valuestring, strlen(namej->valuestring));
 		entry->asn_type = typej ? typej->valueint : ASN_OCTET_STR;
 		entry->access = accj ? accj->valueint : HANDLER_CAN_RONLY;
-		entry->msg_id = MSG_OID(oid_arr);
+		memcpy(entry->msg_id, oid_arr, MAX_OID_LEN);
 		if (add_mib_entry(entry) == MIB_OK) {
 			switch (accj ? accj->valueint : HANDLER_CAN_RONLY) {
 			case MIB_ACCESS_READONLY:
@@ -277,6 +286,95 @@ bool register_from_json(snmp_agent_ao_t *me, const char *json_str) {
 	}
 	cJSON_Delete(root);
 	return success;
+}
+
+char* snmp_json_str(const char *name, uint8_t action, const char *value) {
+	cJSON *root = cJSON_CreateObject();
+
+	if (cJSON_IsNull(root))
+		return NULL;
+	switch (action) {
+	case 0: { //GET
+		cJSON_AddStringToObject(root, "name", name);
+		cJSON_AddStringToObject(root, "mode", "GET");
+		char *outstr = cJSON_Print(root);
+		cJSON_Delete(root);
+		return outstr;
+	}
+		break;
+	case 1: { // SET
+		cJSON_AddStringToObject(root, "name", name);
+		cJSON_AddStringToObject(root, "mode", "SET");
+		cJSON_AddStringToObject(root, "value", value);
+		char *outstr = cJSON_Print(root);
+		cJSON_Delete(root);
+		return outstr;
+	}
+		break;
+	default:
+		return NULL;
+	}
+
+}
+
+/**
+ * Parse JSON into snmp_payload_t.
+ *
+ * Expected JSON format (examples below):
+ * {
+ *   "name": "sysName",
+ *   "buff": "0xDEADBEEF"     // or "b64:AQID" or [222,173,190,239]
+ * }
+ *
+ * @param json_str         Input JSON string.
+ * @param out              Output struct to fill (cleared first).
+ * @param errbuf           Optional: buffer for error message.
+ * @param errbuf_sz        Size of errbuf.
+ * @return true on success; false on failure (errbuf filled if provided).
+ */
+bool snmp_payload_from_json(const char *json_str, snmp_payload_t *out,
+		char *errbuf, size_t errbuf_sz) {
+	if (!json_str || !out) {
+		if (errbuf && errbuf_sz)
+			snprintf(errbuf, errbuf_sz, "Invalid arguments");
+		return false;
+	}
+
+	memset(out, 0, sizeof(*out));
+
+	cJSON *root = cJSON_Parse(json_str);
+	if (!root) {
+		if (errbuf && errbuf_sz)
+			snprintf(errbuf, errbuf_sz, "Invalid JSON");
+		return false;
+	}
+
+	bool ok = false;
+	// name
+	const cJSON *name = cJSON_GetObjectItemCaseSensitive(root, "name");
+	if (!cJSON_IsString(name) || !name->valuestring) {
+		if (errbuf && errbuf_sz)
+			snprintf(errbuf, errbuf_sz, "Missing/invalid 'name'");
+		cJSON_Delete(root);
+		return false;
+	}
+	snprintf(out->name, sizeof(out->name), "%s", name->valuestring);
+
+	// buff (bytes)
+	const cJSON *buff = cJSON_GetObjectItemCaseSensitive(root, "value");
+
+	if (!cJSON_IsString(buff) || !buff->valuestring) {
+		if (errbuf && errbuf_sz)
+			snprintf(errbuf, errbuf_sz, "Missing/invalid 'name'");
+		cJSON_Delete(root);
+		return false;
+	}
+	snprintf((char*)out->buff, sizeof(out->buff), "%s", buff->valuestring);
+
+	ok = true;
+
+	cJSON_Delete(root);
+	return ok;
 }
 
 /**
@@ -312,15 +410,15 @@ mib_status_t add_mib_entry(mib_entry_t *entry) {
  * @brief Find a MIB entry by its message identifier.
  *
  * Searches the global @c mib_map table for an entry matching
- * the specified @p oid message identifier.
+ * the specified @p name string identifier.
  *
- * @param oid Message identifier (OID portion encoded as uint16_t).
+ * @param name string identifier for an OID
  *
  * @return Pointer to the matching MIB entry, or NULL if not found.
  */
-mib_entry_t* find_mib_entry_by_msg_id(const uint16_t oid) {
+mib_entry_t* find_mib_entry_by_name(const char* name) {
 	for (uint8_t i = 0; i < MAX_MIB_ENTRY; i++) {
-		if (mib_map.entry[i] && mib_map.entry[i]->msg_id == oid) {
+		if (mib_map.entry[i] && !strcmp(mib_map.entry[i]->name, name)) {
 			return mib_map.entry[i];
 		}
 	}
@@ -356,12 +454,20 @@ int snmp_log_callback(int major, int minor, void *serverarg, void *clientarg) {
 		return 1;
 
 	if (strstr(msg, "AgentX subagent connected")) {
+		pthread_mutex_lock(&me->agent_mtx);
 		me->agent_inited = 1;
+		pthread_mutex_unlock(&me->agent_mtx);
+		message_frame_t evt = { .signal = SNMP_CHANGE_STATE_ERRINT(0) };
+		memcpy(evt.payload, msg, strlen(msg));
+		evt.length = strlen(msg);
+		post((base_obj_t*) me, evt);
 		// post log to broker
 	} else if (strstr(msg, "AgentX master disconnected us")
 			|| strstr(msg, "Failed to connect to the agentx master agent")
 			|| strstr(msg, "AgentX master agent failed to respond to ping")) {
+		pthread_mutex_lock(&me->agent_mtx);
 		me->agent_inited = 0;
+		pthread_mutex_unlock(&me->agent_mtx);
 		message_frame_t evt = { .signal = SNMP_CHANGE_STATE_ERR(0) };
 		memcpy(evt.payload, msg, strlen(msg));
 		evt.length = strlen(msg);
@@ -409,12 +515,12 @@ void snmp_append_delegate_agent(snmp_agent_ao_t *me, pending_get_t *pg) {
  * @note The returned pointer is owned by the agent and must
  *       not be freed by the caller.
  */
-pending_get_t* snmp_find_delegate_agent(snmp_agent_ao_t *me, uint32_t corr) {
+pending_get_t* snmp_find_delegate_agent(snmp_agent_ao_t *me, const char *name) {
 	//TODO add assert me, me->pending_head
 	pthread_mutex_lock(&me->pending_mtx);
 	pending_get_t **pp = &me->pending_head, *p = *pp;
 	while (p) {
-		if (p->corr == corr) {
+		if (!strcmp(p->name, name)) {
 			*pp = p->next;
 			me->pg_count--;
 			break;
@@ -584,7 +690,7 @@ bool snmp_agent_init(snmp_agent_ao_t *me) {
 	}
 	setenv("MIBS", "HPA-MIB", 1); //important in order for read_mib to consider path
 	init_snmp(app);
-	agent_check_and_process(100); /* 100 ms */
+	agent_check_and_process(0); /* 100 ms */
 	if (me->agent_inited == 0) {
 		return false;
 	}
@@ -592,21 +698,21 @@ bool snmp_agent_init(snmp_agent_ao_t *me) {
 
 	struct tree *root = read_mib("/usr/share/snmp/mibs/HPA-MIB.mib");
 	if (!root) {
+		pthread_mutex_lock(&me->agent_mtx);
 		me->agent_inited = 0;
+		pthread_mutex_unlock(&me->agent_mtx);
 		return false;
 	}
 	cJSON *jarray = cJSON_CreateArray();
-
 	tree_to_json(root, "", jarray);
-	//add validation of json array
 	char *outstr = cJSON_Print(jarray);
 	if (outstr == NULL) {
+		pthread_mutex_lock(&me->agent_mtx);
 		me->agent_inited = 0;
+		pthread_mutex_unlock(&me->agent_mtx);
 		return false;
 	}
-
 	register_from_json(me, outstr);
-
 	cJSON_Delete(jarray);
 	free(outstr);
 	free(root);
@@ -630,8 +736,16 @@ void snmp_agent_shutdown(snmp_agent_ao_t *me) {
 	if (!me->agent_inited)
 		return;
 	const char *app = me->cfg.app_name ? me->cfg.app_name : "snmp_agent";
+	topic_config_t config_op[] = { { .topic = SNMP_CHANGE_STATE_ERRINT(0),
+			.type = EXACT_MATCH } };
+	broker_subscribe(((base_obj_t*) me)->broker, config_op, 1,
+			(base_obj_t*) me);
+	shutdown_agent();
 	snmp_shutdown(app);
+	pthread_mutex_lock(&me->agent_mtx);
+	me->pump_running = 0;
 	me->agent_inited = 0;
+	pthread_mutex_unlock(&me->agent_mtx);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -662,7 +776,6 @@ void* snmp_pump(void *arg) {
 		(void) agent_check_and_process(1); /* BLOCK until I/O or Net-SNMP alarm */
 		pthread_testcancel();
 	}
-	snmp_agent_shutdown(me);
 	return NULL;
 }
 
@@ -688,7 +801,7 @@ int snmp_scalar_handler(netsnmp_mib_handler *handler,
 	message_frame_t evt = { 0 };
 	switch (reqinfo->mode) {
 	case MODE_GET:
-	case MODE_GETNEXT:
+	case MODE_GETNEXT:{
 		requests->delegated = 1;
 		pending_get_t *pg = (pending_get_t*) calloc(1, sizeof(*pg));
 		if (!pg) {
@@ -696,20 +809,35 @@ int snmp_scalar_handler(netsnmp_mib_handler *handler,
 			SNMP_ERR_RESOURCEUNAVAILABLE);
 			return SNMP_ERR_GENERR;
 		}
-		pg->corr = MSG_OID(requests->requestvb->name_loc);
+		memcpy((char*)pg->name,handler->handler_name,strlen(handler->handler_name));
 		pg->cache = netsnmp_create_delegated_cache(handler, reginfo, reqinfo,
 				requests, NULL);
 		pg->asn_type = requests->requestvb->type;
 		snmp_append_delegate_agent(me, pg);
 
-		evt.signal = SNMP_GET_TX(MSG_OID(requests->requestvb->name_loc));
-		broker_post(me->super.broker, evt, PRIMARY_QUEUE);
+		evt.signal = SNMP_GET_TX(0);
+		char* payload = snmp_json_str(handler->handler_name,0,NULL);
+		if(payload){
+			memcpy(evt.payload,payload,strlen(payload));
+			evt.length = strlen(payload);
+			broker_post(me->super.broker, evt, PRIMARY_QUEUE);
+
+		}
+		//TODO handle error here GET
+		free(payload);
+	}
 		break;
-	case MODE_SET_ACTION:
-		evt.signal = SNMP_SET_VALUE(MSG_OID(requests->requestvb->name_loc));
-		evt.length = requests->requestvb->val_len;
-		memcpy(evt.payload, requests->requestvb->val.string, evt.length);
-		broker_post(me->super.broker, evt, PRIMARY_QUEUE);
+	case MODE_SET_ACTION:{
+		evt.signal = SNMP_SET_VALUE(0);
+		char* payload = snmp_json_str(handler->handler_name,0,(char*)requests->requestvb->val.string);
+		if(payload){
+			memcpy(evt.payload,payload,strlen(payload));
+			evt.length = strlen(payload);
+			broker_post(me->super.broker, evt, PRIMARY_QUEUE);
+		}
+		//TODO handle error here SET
+		free(payload);
+	}
 		break;
 #ifndef NETSNMP_NO_WRITE_SUPPORT
 	case MODE_SET_RESERVE1:
@@ -788,10 +916,14 @@ void snmp_on_entry_initialisation(fsm_t *fsm) {
 		return;
 	}
 	if (!me->pump_running) {
+		pthread_mutex_lock(&me->agent_mtx);
 		me->pump_running = 1;
+		pthread_mutex_unlock(&me->agent_mtx);
 		if (pthread_create(&me->pump_tid, NULL, snmp_pump, me) != 0) {
+			pthread_mutex_lock(&me->agent_mtx);
 			me->pump_running = 0;
 			me->agent_inited = 0;
+			pthread_mutex_unlock(&me->agent_mtx);
 			snmp_agent_shutdown(me);
 			evt.signal = SNMP_CHANGE_STATE_ERR(0); // Signal self to transition to ERROR state
 			post(((base_obj_t*) me), evt);
@@ -843,9 +975,9 @@ void snmp_on_entry_error(fsm_t *fsm) {
 			(base_obj_t*) fsm->super);
 	snmp_clear_delegate_list(me);
 	if (me->pump_running) {
+		pthread_mutex_lock(&me->agent_mtx);
 		me->pump_running = 0;
-		pthread_cancel(me->pump_tid);
-		pthread_join(me->pump_tid, NULL);
+		pthread_mutex_unlock(&me->agent_mtx);
 		snmp_agent_shutdown(me);
 	}
 	// finally, log this to broker
@@ -866,23 +998,27 @@ void snmp_on_entry_error(fsm_t *fsm) {
 void snmp_operational_handler(fsm_t *fsm, const message_frame_t *event) {
 	snmp_agent_ao_t *me = (snmp_agent_ao_t*) fsm->super;
 	switch (event->signal) {
-	case SNMP_GET_RX(0) ... SNMP_GET_RX(0xFFFF): {
-		pending_get_t *pg = snmp_find_delegate_agent(me, CORR(event->payload));
-		mib_entry_t *entry = find_mib_entry_by_msg_id(event->signal & 0xFFFF);
-		if (!pg || !entry)
-			return;
+		case SNMP_GET_RX(0) ... SNMP_GET_RX(0xFFFF): {
+			printf("%s\n",event->payload);
+			snmp_payload_t snmp_payload = {0};
+			if(!snmp_payload_from_json((char*)event->payload,&snmp_payload,NULL,0))return;
+			mib_entry_t *entry = find_mib_entry_by_name(snmp_payload.name);
+			if(!entry)return;
+			pending_get_t *pg = snmp_find_delegate_agent(me, entry->name);
+			if (!pg)return;
 
-		pg->asn_type = (int) entry->asn_type;
-		if (event->length - 4) {
-			pg->val = (char*) malloc(event->length - 4);
-			if (pg->val) {
-				memcpy(pg->val, &event->payload[4], event->length);
-				pg->val_len = event->length - 4;
+			pg->asn_type = (int) entry->asn_type;
+			uint8_t len = (uint8_t)strlen((char*)snmp_payload.buff);
+			if (len) {
+				pg->val = (char*) malloc(len);
+				if (pg->val) {
+					memcpy(pg->val, snmp_payload.buff, len);
+					pg->val_len = len;
+					schedule_get_completion(pg);
+				}
 			}
+			break;
 		}
-		schedule_get_completion(pg);
-		break;
-	}
 	}
 }
 
@@ -900,7 +1036,23 @@ void snmp_operational_handler(fsm_t *fsm, const message_frame_t *event) {
  *       decide whether to reset or halt the AO.
  */
 void snmp_error_handler(fsm_t *fsm, const message_frame_t *event) {
+	snmp_agent_ao_t *me = (snmp_agent_ao_t*) fsm->super;
+	switch (event->signal) {
+	case SNMP_CHANGE_STATE_ERRINT(0): {
+		pthread_mutex_lock(&me->agent_mtx);
+		me->pump_running = 1;
+		pthread_mutex_unlock(&me->agent_mtx);
+		topic_config_t config_op[] = { { .topic = SNMP_CHANGE_STATE_OP, .type =
+				EXACT_MATCH }, { .topic = SNMP_CHANGE_STATE_ERR(0), .type =
+				EXACT_MATCH } };
 
+		broker_subscribe(((base_obj_t*) fsm->super)->broker, config_op, 2,
+				((base_obj_t*) fsm->super));
+		message_frame_t evt = { .signal = SNMP_CHANGE_STATE_OP };
+		post((base_obj_t*) me, evt);
+	}
+		break;
+	}
 }
 
 /**
@@ -961,6 +1113,7 @@ void snmp_agent_ctor(snmp_agent_ao_t *const me, broker_t *broker, char *name,
 	me->agent_inited = 0;
 
 	pthread_mutex_init(&me->pending_mtx, NULL);
+	pthread_mutex_init(&me->agent_mtx, NULL);
 	me->pending_head = NULL;
 
 }

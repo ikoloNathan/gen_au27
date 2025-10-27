@@ -42,20 +42,16 @@ typedef struct {
 	timer_callback_entry_t *callbackList;
 } timer_manager_t;
 
-static inline void add_ms(struct timespec *t, uint32_t ms);
 /** @brief Array of timer managers, one for each timer type. */
 static timer_manager_t timer_manager[MAX_TIMERS];
 
 static void arm(timer_callback_entry_t *entry);
 static void disarm(timer_callback_entry_t *entry);
-static void timer_manager_init(void);
+static void TimerManager_Init(void);
 static timer_callback_entry_t* timer_manager_add_callback(uint8_t timer_id,
-		timer_callback_t callback, void *context, uint8_t priority,
-		bool one_shot);
+		timer_callback_t callback, void *context, uint8_t priority);
 static void timer_manager_remove_callback(uint8_t timer_id,
-		timer_callback_t callback);
-static void* timer_thread(void *arg);
-static inline uint32_t timer_period_ms(uint8_t timer_id);
+		timer_callback_t callback, void *context);
 
 /**
  * @brief Constructs a system timer manager.
@@ -74,12 +70,14 @@ timers_t* timer_ctor() {
 	if (timer_manager[0].handle == 0 && timer_manager[1].handle == 0
 			&& timer_manager[2].handle == 0) {
 
-		timer_manager_init();
+		TimerManager_Init();
 	}
 	return &timer;
 }
 
-uint32_t timer_period_ms(uint8_t timer_id) {
+static void* timer_thread(void *arg);
+
+static inline uint32_t timer_period_ms(uint8_t timer_id) {
 	switch (timer_id) {
 	case TIMER_10ms:
 		return TIMER_PERIOD_10MS;
@@ -92,7 +90,7 @@ uint32_t timer_period_ms(uint8_t timer_id) {
 	}
 }
 
-void timer_manager_init(void) {
+void TimerManager_Init(void) {
 	for (uint8_t i = 0; i < MAX_TIMERS; ++i) {
 		timer_manager[i].callbackList = NULL;
 		timer_manager[i].armed_count = 0;
@@ -110,13 +108,13 @@ void timer_manager_init(void) {
 	}
 }
 
-void add_ms(struct timespec *t, uint32_t ms) {
+static inline void add_ms(struct timespec *t, uint32_t ms) {
 	t->tv_nsec += (long) (ms % 1000) * 1000000L;
 	t->tv_sec += (time_t) (ms / 1000) + (t->tv_nsec / 1000000000L);
 	t->tv_nsec %= 1000000000L;
 }
 
-void* timer_thread(void *arg) {
+static void* timer_thread(void *arg) {
 	uint8_t id = (uint8_t) (uintptr_t) arg;
 	timer_manager_t *m = &timer_manager[id];
 	const uint32_t period = timer_period_ms(id);
@@ -149,8 +147,6 @@ void* timer_thread(void *arg) {
 					timer_callback_entry_t *next_e = e->next; // save before unlock
 					pthread_mutex_unlock(&m->lock);
 					e->callback(e->context);
-					if (e->one_shot)
-						e->state = DISARM;
 					pthread_mutex_lock(&m->lock);
 					e = next_e;                                // move on safely
 				} else {
@@ -178,8 +174,7 @@ void* timer_thread(void *arg) {
 
 // Add a callback to a timer with priority
 timer_callback_entry_t* timer_manager_add_callback(uint8_t timer_id,
-		timer_callback_t callback, void *context, uint8_t priority,
-		bool one_shot) {
+		timer_callback_t callback, void *context, uint8_t priority) {
 	if (timer_id >= MAX_TIMERS) {
 		return NULL; // Invalid timerId
 	}
@@ -194,7 +189,6 @@ timer_callback_entry_t* timer_manager_add_callback(uint8_t timer_id,
 
 	newEntry->timer_id = timer_id;
 	newEntry->state = DISARM;
-	newEntry->one_shot = one_shot;
 	newEntry->callback = callback;
 	newEntry->context = context;
 	newEntry->priority = priority;
@@ -220,7 +214,8 @@ timer_callback_entry_t* timer_manager_add_callback(uint8_t timer_id,
 }
 
 // Remove a callback from a timer
-void timer_manager_remove_callback(uint8_t timer_id, timer_callback_t callback) {
+void timer_manager_remove_callback(uint8_t timer_id, timer_callback_t callback,
+		void *context) {
 	if (timer_id >= MAX_TIMERS)
 		return;
 	timer_manager_t *m = &timer_manager[timer_id];
@@ -229,7 +224,8 @@ void timer_manager_remove_callback(uint8_t timer_id, timer_callback_t callback) 
 	timer_callback_entry_t *current = *head, *prev = NULL;
 
 	while (current != NULL) {
-		if (current->callback == callback && current->timer_id == timer_id) {
+		if (current->callback == callback && current->timer_id == timer_id
+				&& current->context == context) {
 			if (prev == NULL) {
 				*head = current->next; // Remove first element
 			} else {

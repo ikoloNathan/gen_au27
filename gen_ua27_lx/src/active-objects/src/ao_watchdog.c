@@ -81,12 +81,12 @@ watchdog_obj_t* watchdog_ctor(broker_t *broker, char *name) {
 
 		/* Schedule heartbeat transmission every 10ms */
 		timer_callback_entry_t *entry_heartbeat = me->timer->add_callback(
-				TIMER_10ms, heartbeat, broker, 1,false);
+				TIMER_10ms, heartbeat, broker, 1);
 		me->timer->arm(entry_heartbeat);
 
 		/* Schedule heartbeat monitoring every 100ms */
 		timer_callback_entry_t *entry_checkbeat = me->timer->add_callback(
-				TIMER_100ms, heartbeat_monitor_callback, NULL, 1,false);
+				TIMER_100ms, heartbeat_monitor_callback, NULL, 1);
 		me->timer->arm(entry_checkbeat);
 	}
 	return me;

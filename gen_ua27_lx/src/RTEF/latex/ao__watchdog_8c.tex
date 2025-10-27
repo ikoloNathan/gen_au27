@@ -1,0 +1,90 @@
+\doxysection{src/ao\+\_\+watchdog.c File Reference}
+\hypertarget{ao__watchdog_8c}{}\label{ao__watchdog_8c}\index{src/ao\_watchdog.c@{src/ao\_watchdog.c}}
+
+
+Implements the Watchdog Active Object.  
+
+
+{\ttfamily \#include $<$ao\+\_\+watchdog.\+h$>$}\newline
+{\ttfamily \#include "{}broker.\+h"{}}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ao__watchdog_8c_abd1e24640abcadec19ebb45ce2f73c10}{HEARTBEAT\+\_\+\+TIMEOUT}}~200
+\begin{DoxyCompactList}\small\item\em Heartbeat timeout threshold in milliseconds. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structwatchdog__obj__t}{watchdog\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{ao__watchdog_8c_a2ec3ea119560d3d22020c7daebd121a8}{watchdog\+\_\+ctor}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, char \texorpdfstring{$\ast$}{*}name)
+\begin{DoxyCompactList}\small\item\em Constructs and initializes the Watchdog Active Object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implements the Watchdog Active Object. 
+
+This file defines the Watchdog Active Object, responsible for monitoring system activity through heartbeat messages and detecting unresponsive components.
+
+The watchdog periodically checks system health and can take corrective action if a component fails to send a heartbeat within the defined timeout.
+
+The implementation supports both Windows (via system timers) and Free\+RTOS (via task scheduling).
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+March 2, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{ao__watchdog_8c_source}{ao\+\_\+watchdog.\+c}}.
+
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{ao__watchdog_8c_abd1e24640abcadec19ebb45ce2f73c10}\index{ao\_watchdog.c@{ao\_watchdog.c}!HEARTBEAT\_TIMEOUT@{HEARTBEAT\_TIMEOUT}}
+\index{HEARTBEAT\_TIMEOUT@{HEARTBEAT\_TIMEOUT}!ao\_watchdog.c@{ao\_watchdog.c}}
+\doxysubsubsection{\texorpdfstring{HEARTBEAT\_TIMEOUT}{HEARTBEAT\_TIMEOUT}}
+{\footnotesize\ttfamily \label{ao__watchdog_8c_abd1e24640abcadec19ebb45ce2f73c10} 
+\#define HEARTBEAT\+\_\+\+TIMEOUT~200}
+
+
+
+Heartbeat timeout threshold in milliseconds. 
+
+
+
+Definition at line \mbox{\hyperlink{ao__watchdog_8c_source_l00037}{37}} of file \mbox{\hyperlink{ao__watchdog_8c_source}{ao\+\_\+watchdog.\+c}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{ao__watchdog_8c_a2ec3ea119560d3d22020c7daebd121a8}\index{ao\_watchdog.c@{ao\_watchdog.c}!watchdog\_ctor@{watchdog\_ctor}}
+\index{watchdog\_ctor@{watchdog\_ctor}!ao\_watchdog.c@{ao\_watchdog.c}}
+\doxysubsubsection{\texorpdfstring{watchdog\_ctor()}{watchdog\_ctor()}}
+{\footnotesize\ttfamily \label{ao__watchdog_8c_a2ec3ea119560d3d22020c7daebd121a8} 
+\mbox{\hyperlink{structwatchdog__obj__t}{watchdog\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*} watchdog\+\_\+ctor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Constructs and initializes the Watchdog Active Object. 
+
+This function initializes the watchdog active object, linking it to a broker for event-\/based monitoring of system health.
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the event broker managing communication. \\
+\hline
+{\em name} & Name of the watchdog active object instance. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pointer to the initialized watchdog active object. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{ao__watchdog_8c_source_l00072}{72}} of file \mbox{\hyperlink{ao__watchdog_8c_source}{ao\+\_\+watchdog.\+c}}.
+

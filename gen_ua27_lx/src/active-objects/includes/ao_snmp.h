@@ -58,7 +58,7 @@ extern "C" {
  * returned by the backend.
  */
 typedef struct pending_get {
-    uint32_t                  corr;   /**< Correlation ID for broker round-trip. */
+    char                      name[64];   /**< name used as Correlation ID for broker round-trip. */
     netsnmp_delegated_cache  *cache;  /**< Net-SNMP delegated cache (completion handle). */
     int                       asn_type; /**< ASN.1 type to set in varbind. */
     char                   	 *val;    /**< Value copied from broker response (malloc'd). */
@@ -93,6 +93,7 @@ typedef struct snmp_agent_ao {
     snmp_agent_cfg_t cfg;          /**< Configuration (copied at construction). */
 
     pthread_t        pump_tid;     /**< Pump thread (runs agent_check_and_process). */
+    pthread_mutex_t  agent_mtx;
     volatile int     pump_running; /**< Non-zero while the pump thread should run. */
     volatile int     agent_inited; /**< Flag indicating Net-SNMP engine is initialized. */
 

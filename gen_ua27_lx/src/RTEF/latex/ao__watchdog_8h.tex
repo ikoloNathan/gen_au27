@@ -1,0 +1,67 @@
+\doxysection{include/ao\+\_\+watchdog.h File Reference}
+\hypertarget{ao__watchdog_8h}{}\label{ao__watchdog_8h}\index{include/ao\_watchdog.h@{include/ao\_watchdog.h}}
+
+
+Defines the Watchdog Active Object.  
+
+
+{\ttfamily \#include "{}sys\+\_\+timer.\+h"{}}\newline
+{\ttfamily \#include "{}active\+\_\+object.\+h"{}}\newline
+\doxysubsubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structwatchdog__obj__t}{watchdog\+\_\+obj\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Represents the Watchdog Active Object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structwatchdog__obj__t}{watchdog\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{ao__watchdog_8h_a2ec3ea119560d3d22020c7daebd121a8}{watchdog\+\_\+ctor}} (\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{structbroker}{broker}}, char \texorpdfstring{$\ast$}{*}name)
+\begin{DoxyCompactList}\small\item\em Constructs and initializes the Watchdog Active Object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Defines the Watchdog Active Object. 
+
+This file provides the structure and function declarations for the watchdog active object ({\ttfamily \doxylink{structwatchdog__obj__t}{watchdog\+\_\+obj\+\_\+t}}). It integrates with the active object framework and utilizes a timer to monitor system health.
+
+The watchdog ensures periodic checks are performed and can trigger recovery actions if a system component becomes unresponsive.
+
+\begin{DoxyAuthor}{Author}
+Nathan Ikolo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+March 2, 2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{ao__watchdog_8h_source}{ao\+\_\+watchdog.\+h}}.
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{ao__watchdog_8h_a2ec3ea119560d3d22020c7daebd121a8}\index{ao\_watchdog.h@{ao\_watchdog.h}!watchdog\_ctor@{watchdog\_ctor}}
+\index{watchdog\_ctor@{watchdog\_ctor}!ao\_watchdog.h@{ao\_watchdog.h}}
+\doxysubsubsection{\texorpdfstring{watchdog\_ctor()}{watchdog\_ctor()}}
+{\footnotesize\ttfamily \label{ao__watchdog_8h_a2ec3ea119560d3d22020c7daebd121a8} 
+\mbox{\hyperlink{structwatchdog__obj__t}{watchdog\+\_\+obj\+\_\+t}} \texorpdfstring{$\ast$}{*} watchdog\+\_\+ctor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{broker}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Constructs and initializes the Watchdog Active Object. 
+
+This function initializes the watchdog active object, linking it to a broker for event-\/based monitoring of system health.
+
+
+\begin{DoxyParams}{Parameters}
+{\em broker} & Pointer to the event broker managing communication. \\
+\hline
+{\em name} & Name of the watchdog active object instance. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pointer to the initialized watchdog active object. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{ao__watchdog_8c_source_l00072}{72}} of file \mbox{\hyperlink{ao__watchdog_8c_source}{ao\+\_\+watchdog.\+c}}.
+

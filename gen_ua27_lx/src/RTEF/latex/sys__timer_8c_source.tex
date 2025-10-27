@@ -1,0 +1,260 @@
+\doxysection{sys\+\_\+timer.\+c}
+\hypertarget{sys__timer_8c_source}{}\label{sys__timer_8c_source}\index{src/sys\_timer.c@{src/sys\_timer.c}}
+\mbox{\hyperlink{sys__timer_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00016}00016\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00017}00017\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00018}00018\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00021}00021\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{sys__timer_8h}{sys\_timer.h}}>}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00028}\mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83e}{00028}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00029}\mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e}{00029}}\ \ \ \ \ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e}{DISARM}}\ =\ 0x7A,\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00030}\mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}{00030}}\ \ \ \ \ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}{ARM}}\ =\ 0xA7\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00031}00031\ \}\ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83e}{timer\_state\_t}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00033}00033\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00034}00034\ \textcolor{preprocessor}{\ \ \ \ \#define\ TIMER\_PERIOD\_10MS\ \ 10}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00035}00035\ \textcolor{preprocessor}{\ \ \ \ \#define\ TIMER\_PERIOD\_100MS\ 100}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00036}00036\ \textcolor{preprocessor}{\ \ \ \ \#define\ TIMER\_PERIOD\_200MS\ 200}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00038}00038\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00039}00039\ \ \ \ \ \ \ \ \ HANDLE\ handle;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00040}00040\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *callbackList;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ CRITICAL\_SECTION\ lock;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00042}00042\ \ \ \ \ \}\ \mbox{\hyperlink{structtimer__manager__t}{timer\_manager\_t}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00044}00044\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00045}\mbox{\hyperlink{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae}{00045}}\ \textcolor{preprocessor}{\#define\ TIMER\_PERIOD\_10MS\ \ pdMS\_TO\_TICKS(10)\ \ \ \ }\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00046}\mbox{\hyperlink{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1}{00046}}\ \textcolor{preprocessor}{\#define\ TIMER\_PERIOD\_100MS\ pdMS\_TO\_TICKS(100)\ \ \ }\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00047}\mbox{\hyperlink{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568}{00047}}\ \textcolor{preprocessor}{\#define\ TIMER\_PERIOD\_200MS\ pdMS\_TO\_TICKS(200)\ \ \ }\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00053}\mbox{\hyperlink{structtimer__manager__t}{00053}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00054}\mbox{\hyperlink{structtimer__manager__t_a2467b1176627319c540710f897481b85}{00054}}\ \ \ \ \ TimerHandle\_t\ \mbox{\hyperlink{structtimer__manager__t_a2467b1176627319c540710f897481b85}{handle}};\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00055}\mbox{\hyperlink{structtimer__manager__t_a531f94c8684221235f4ef9265d09dabf}{00055}}\ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *\mbox{\hyperlink{structtimer__manager__t_a531f94c8684221235f4ef9265d09dabf}{callbackList}};\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00056}00056\ \}\ \mbox{\hyperlink{structtimer__manager__t}{timer\_manager\_t}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00057}00057\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00060}00060\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structtimer__manager__t}{timer\_manager\_t}}\ timer\_manager[\mbox{\hyperlink{sys__timer_8h_a79fd3eac646964332ed33ec7dd40f208}{MAX\_TIMERS}}];}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00061}00061\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00062}00062\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ arm(\mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *entry);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00063}00063\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ disarm(\mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *entry);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00064}00064\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ TimerManager\_Init(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00065}00065\ \textcolor{keyword}{static}\ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}*\ timer\_manager\_add\_callback(uint8\_t\ timer\_id,\ \mbox{\hyperlink{sys__timer_8h_ab57971ad291d7fe2382dc74720776a2c}{timer\_callback\_t}}\ callback,\ \textcolor{keywordtype}{void}\ *context,\ uint8\_t\ priority);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00066}00066\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ timer\_manager\_remove\_callback(uint8\_t\ timer\_id,\ \mbox{\hyperlink{sys__timer_8h_ab57971ad291d7fe2382dc74720776a2c}{timer\_callback\_t}}\ callback,\ \textcolor{keywordtype}{void}\ *context);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00067}00067\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00068}00068\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ timer\_callback\_handler(uint8\_t\ timer\_id);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00069}00069\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00070}00070\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ timer\_callback\_handler(TimerHandle\_t\ xTimer);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00071}00071\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00083}\mbox{\hyperlink{sys__timer_8h_a593d1cc4efdc07d786716bf11566d9be}{00083}}\ \mbox{\hyperlink{structtimers__t}{timers\_t}}*\ \mbox{\hyperlink{sys__timer_8c_a593d1cc4efdc07d786716bf11566d9be}{timer\_ctor}}(\mbox{\hyperlink{sys__timer_8h_a66e6b1d10289945ae9284d769f136e59}{timer\_type\_t}}\ type)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00084}00084\ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \mbox{\hyperlink{sys__timer_8h_a66e6b1d10289945ae9284d769f136e59a5953b2a0b23e81f49ac7c2d147baf3af}{RTOS}})\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{structtimers__t}{timers\_t}}\ timer\ =\ \{\ .arm\ =\ arm,}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .disarm\ =\ disarm,}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .add\_callback\ =\ timer\_manager\_add\_callback,}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .remove\_callback\ =\ timer\_manager\_remove\_callback\ \};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (timer\_manager[0].handle\ ==\ NULL\ \&\&\ timer\_manager[1].handle\ ==\ NULL\ \&\&\ timer\_manager[2].handle\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ TimerManager\_Init();}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \&timer;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00093}00093\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00094}00094\ \ \ \ \ \textcolor{keywordflow}{if}\ (type\ ==\ \mbox{\hyperlink{sys__timer_8h_a66e6b1d10289945ae9284d769f136e59af89b4e3abfb500aa3f738ca3c969df4e}{HARDWARE}})\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ NULL;\ \textcolor{comment}{//Not\ yet\ supported}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00096}00096\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00097}00097\ \ \ \ \ \textcolor{keywordflow}{return}\ NULL;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00098}00098\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00100}00100\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00101}00101\ \textcolor{comment}{//\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Windows\ Implementation\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00102}00102\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00103}00103\ \textcolor{keyword}{static}\ DWORD\ WINAPI\ TimerThread(LPVOID\ lpParam);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00105}00105\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00106}00106\ \textcolor{keywordtype}{void}\ TimerManager\_Init()\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00107}00107\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{sys__timer_8h_a79fd3eac646964332ed33ec7dd40f208}{MAX\_TIMERS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ timer\_manager[i].handle\ =\ CreateWaitableTimer(NULL,\ FALSE,\ NULL);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ InitializeCriticalSection(\&timer\_manager[i].lock);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ timer\_manager[i].callbackList\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00111}00111\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00112}00112\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (timer\_manager[i].handle)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ CreateThread(NULL,\ 0,\ TimerThread,\ (LPVOID)(uintptr\_t)i,\ 0,\ NULL);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00115}00115\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00116}00116\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00118}00118\ \textcolor{keyword}{static}\ DWORD\ WINAPI\ TimerThread(LPVOID\ lpParam)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00119}00119\ \ \ \ \ uint8\_t\ timer\_id\ =\ (uint8\_t)(uintptr\_t)lpParam;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00120}00120\ \ \ \ \ LARGE\_INTEGER\ dueTime;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00121}00121\ \ \ \ \ dueTime.QuadPart\ =\ -\/(int64\_t)(timer\_id\ ==\ \mbox{\hyperlink{sys__timer_8h_ab8f4179c2a2047237040c85a6a4401eda347d629c637cddffef927d6e34bef4e7}{TIMER\_10ms}}\ ?\ \mbox{\hyperlink{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae}{TIMER\_PERIOD\_10MS}}\ :}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ timer\_id\ ==\ \mbox{\hyperlink{sys__timer_8h_ab8f4179c2a2047237040c85a6a4401edaf7ce7ae8b01a06ddea2e20cce2b9c856}{TIMER\_100ms}}\ ?\ \mbox{\hyperlink{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1}{TIMER\_PERIOD\_100MS}}\ :}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568}{TIMER\_PERIOD\_200MS}})\ *\ 10000LL;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00124}00124\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00125}00125\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ SetWaitableTimer(timer\_manager[timer\_id].handle,\ \&dueTime,}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ timer\_id\ ==\ \mbox{\hyperlink{sys__timer_8h_ab8f4179c2a2047237040c85a6a4401eda347d629c637cddffef927d6e34bef4e7}{TIMER\_10ms}}\ ?\ \mbox{\hyperlink{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae}{TIMER\_PERIOD\_10MS}}\ :}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ timer\_id\ ==\ \mbox{\hyperlink{sys__timer_8h_ab8f4179c2a2047237040c85a6a4401edaf7ce7ae8b01a06ddea2e20cce2b9c856}{TIMER\_100ms}}\ ?\ \mbox{\hyperlink{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1}{TIMER\_PERIOD\_100MS}}\ :}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568}{TIMER\_PERIOD\_200MS}},}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ NULL,\ NULL,\ 0);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00131}00131\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00132}00132\ \ \ \ \ \ \ \ \ WaitForSingleObject(timer\_manager[timer\_id].handle,\ INFINITE);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00133}00133\ \ \ \ \ \ \ \ \ timer\_callback\_handler(timer\_id);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00134}00134\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00135}00135\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00136}00136\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00137}00137\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00138}00138\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ timer\_callback\_handler(uint8\_t\ timer\_id)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00139}00139\ \ \ \ \ EnterCriticalSection(\&timer\_manager[timer\_id].lock);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00140}00140\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00141}00141\ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *entry\ =\ timer\_manager[timer\_id].callbackList;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00142}00142\ \ \ \ \ \textcolor{keywordflow}{while}\ (entry)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a904c7bd4863a73541ce5edd872dfe9b4}{callback}}\ \&\&\ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a0b57aa10271a66f3dc936bba1d2f3830}{state}}\ ==\ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}{ARM}})\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a904c7bd4863a73541ce5edd872dfe9b4}{callback}}(entry-\/>\mbox{\hyperlink{structtimer__callback__entry_ae376f130b17d169ee51be68077a89ed0}{context}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00146}00146\ \ \ \ \ \ \ \ \ entry\ =\ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00147}00147\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00148}00148\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00149}00149\ \ \ \ \ LeaveCriticalSection(\&timer\_manager[timer\_id].lock);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00150}00150\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00151}00151\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00152}00152\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00153}00153\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00154}00154\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00155}00155\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00156}00156\ \textcolor{keywordtype}{void}\ TimerManager\_Init()\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00157}00157\ \ \ \ \ timer\_manager[0].handle\ =\ xTimerCreate(\textcolor{stringliteral}{"{}Timer\_200ms"{}},\ \mbox{\hyperlink{sys__timer_8c_ab4a79660eb07d4abc6ace46548c53568}{TIMER\_PERIOD\_200MS}},\ pdTRUE,\ NULL,\ timer\_callback\_handler);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00158}00158\ \ \ \ \ timer\_manager[1].handle\ =\ xTimerCreate(\textcolor{stringliteral}{"{}Timer\_10ms"{}},\ \mbox{\hyperlink{sys__timer_8c_a5985e70d65b9b3b05e81ab7bcbf333ae}{TIMER\_PERIOD\_10MS}},\ pdTRUE,\ NULL,\ timer\_callback\_handler);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00159}00159\ \ \ \ \ timer\_manager[2].handle\ =\ xTimerCreate(\textcolor{stringliteral}{"{}Timer\_100ms"{}},\ \mbox{\hyperlink{sys__timer_8c_a12c21a20ff409316feac5dcbddb9e8e1}{TIMER\_PERIOD\_100MS}},\ pdTRUE,\ NULL,\ timer\_callback\_handler);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00160}00160\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00161}00161\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{sys__timer_8h_a79fd3eac646964332ed33ec7dd40f208}{MAX\_TIMERS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ timer\_manager[i].callbackList\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (timer\_manager[i].handle\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ xTimerStart(timer\_manager[i].handle,\ 0);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00165}00165\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00166}00166\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00167}00167\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00168}00168\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00169}00169\ \textcolor{comment}{//\ Timer\ ISR\ Callback\ Handler}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00170}00170\ \textcolor{keywordtype}{void}\ timer\_callback\_handler(TimerHandle\_t\ xTimer)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00171}00171\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{sys__timer_8h_a79fd3eac646964332ed33ec7dd40f208}{MAX\_TIMERS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00172}00172\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (timer\_manager[i].handle\ ==\ xTimer)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *entry\ =\ timer\_manager[i].callbackList;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (entry\ !=\ NULL\ \&\&\ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a0b57aa10271a66f3dc936bba1d2f3830}{state}}\ ==\ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}{ARM}})\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a904c7bd4863a73541ce5edd872dfe9b4}{callback}})\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a904c7bd4863a73541ce5edd872dfe9b4}{callback}}(entry-\/>\mbox{\hyperlink{structtimer__callback__entry_ae376f130b17d169ee51be68077a89ed0}{context}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ entry\ =\ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00182}00182\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00183}00183\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00184}00184\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00185}00185\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00186}00186\ \textcolor{comment}{//\ Add\ a\ callback\ to\ a\ timer\ with\ priority}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00187}00187\ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}*\ timer\_manager\_add\_callback(uint8\_t\ timer\_id,\ \mbox{\hyperlink{sys__timer_8h_ab57971ad291d7fe2382dc74720776a2c}{timer\_callback\_t}}\ callback,\ \textcolor{keywordtype}{void}\ *context,\ uint8\_t\ priority)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00188}00188\ \ \ \ \ \textcolor{keywordflow}{if}\ (timer\_id\ >=\ \mbox{\hyperlink{sys__timer_8h_a79fd3eac646964332ed33ec7dd40f208}{MAX\_TIMERS}})\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;\ \textcolor{comment}{//\ Invalid\ timerId}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00190}00190\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00191}00191\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00192}00192\ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *newEntry\ =\ (\mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}*)\ malloc(\textcolor{keyword}{sizeof}(\mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}));}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00193}00193\ \ \ \ \ \textcolor{keywordflow}{if}\ (!newEntry)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ NULL;\ \textcolor{comment}{//\ Memory\ allocation\ failed}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00195}00195\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00196}00196\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00197}00197\ \ \ \ \ InitializeCriticalSection(\&newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00198}00198\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00199}00199\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}}\ =\ xSemaphoreCreateMutex();}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00200}00200\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00201}00201\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a2f5be4ef54ee5ab425bdbd31d44307ec}{timer\_id}}\ =\ timer\_id;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00202}00202\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a0b57aa10271a66f3dc936bba1d2f3830}{state}}\ =\ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e}{DISARM}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00203}00203\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a904c7bd4863a73541ce5edd872dfe9b4}{callback}}\ =\ callback;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00204}00204\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_ae376f130b17d169ee51be68077a89ed0}{context}}\ =\ context;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00205}00205\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a0ad043071ccc7a261d79a759dc9c6f0c}{priority}}\ =\ priority;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00206}00206\ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00207}00207\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00208}00208\ \ \ \ \ \textcolor{comment}{//\ Insert\ the\ new\ callback\ in\ sorted\ order\ based\ on\ priority}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00209}00209\ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ **head\ =\ \&timer\_manager[timer\_id].callbackList;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00210}00210\ \ \ \ \ \textcolor{keywordflow}{if}\ (*head\ ==\ NULL\ ||\ (*head)-\/>priority\ <\ priority)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Insert\ at\ the\ head\ if\ higher\ priority}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}}\ =\ *head;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ *head\ =\ newEntry;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00214}00214\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Insert\ in\ sorted\ order}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *current\ =\ *head;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}}\ !=\ NULL\ \&\&\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}}-\/>\mbox{\hyperlink{structtimer__callback__entry_a0ad043071ccc7a261d79a759dc9c6f0c}{priority}}\ >=\ priority)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ current\ =\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00219}00219\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00220}00220\ \ \ \ \ \ \ \ \ newEntry-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}}\ =\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}}\ =\ newEntry;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00222}00222\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00223}00223\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00224}00224\ \ \ \ \ \textcolor{keywordflow}{return}\ newEntry;\ \textcolor{comment}{//\ Success}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00225}00225\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00226}00226\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00227}00227\ \textcolor{comment}{//\ Remove\ a\ callback\ from\ a\ timer}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00228}00228\ \textcolor{keywordtype}{void}\ timer\_manager\_remove\_callback(uint8\_t\ timer\_id,\ \mbox{\hyperlink{sys__timer_8h_ab57971ad291d7fe2382dc74720776a2c}{timer\_callback\_t}}\ callback,\ \textcolor{keywordtype}{void}\ *context)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00229}00229\ \ \ \ \ \textcolor{keywordflow}{if}\ (timer\_id\ >=\ \mbox{\hyperlink{sys__timer_8h_a79fd3eac646964332ed33ec7dd40f208}{MAX\_TIMERS}})}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00230}00230\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00231}00231\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00232}00232\ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ **head\ =\ \&timer\_manager[timer\_id].callbackList;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00233}00233\ \ \ \ \ \mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *current\ =\ *head,\ *prev\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00234}00234\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00235}00235\ \ \ \ \ \textcolor{keywordflow}{while}\ (current\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00236}00236\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (current-\/>\mbox{\hyperlink{structtimer__callback__entry_a904c7bd4863a73541ce5edd872dfe9b4}{callback}}\ ==\ callback\ \&\&\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a2f5be4ef54ee5ab425bdbd31d44307ec}{timer\_id}}\ ==\ timer\_id\ \&\&\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_ae376f130b17d169ee51be68077a89ed0}{context}}\ ==\ context)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (prev\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *head\ =\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};\ \textcolor{comment}{//\ Remove\ first\ element}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prev-\/>next\ =\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ free(current);}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ prev\ =\ current;}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ current\ =\ current-\/>\mbox{\hyperlink{structtimer__callback__entry_a413f1e4b680ccef24d4d88b2c459bd7e}{next}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00247}00247\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00248}00248\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00249}00249\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00250}00250\ \textcolor{keywordtype}{void}\ arm(\mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *entry)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00251}00251\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00252}00252\ \ \ \ \ EnterCriticalSection(\&entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00253}00253\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00254}00254\ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}},\ portMAX\_DELAY)\ ==\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00255}00255\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00256}00256\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entry)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a0b57aa10271a66f3dc936bba1d2f3830}{state}}\ =\ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea3a92c0053fe92a134da3e6a82ea1adb6}{ARM}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00259}00259\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00260}00260\ \ \ \ \ LeaveCriticalSection(\&entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00261}00261\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00262}00262\ \ \ \ \ \ \ \ \ xSemaphoreGive(entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00263}00263\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00264}00264\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00265}00265\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00266}00266\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00267}00267\ \textcolor{keywordtype}{void}\ disarm(\mbox{\hyperlink{sys__timer_8h_a5b2d79c5d149d268e7621b18994ba8e0}{timer\_callback\_entry\_t}}\ *entry)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00268}00268\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00269}00269\ \ \ \ \ EnterCriticalSection(\&entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00270}00270\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00271}00271\ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}},\ portMAX\_DELAY)\ ==\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00272}00272\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00273}00273\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (entry)\ \{}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a0b57aa10271a66f3dc936bba1d2f3830}{state}}\ =\ \mbox{\hyperlink{sys__timer_8c_a1360292eee5d5a5288646fd1eb37c83ea0c91d1715103d7e8ef345a25927a575e}{DISARM}};}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00275}00275\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00276}00276\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00277}00277\ \ \ \ \ LeaveCriticalSection(\&entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00278}00278\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00279}00279\ \ \ \ \ \ \ \ \ xSemaphoreGive(entry-\/>\mbox{\hyperlink{structtimer__callback__entry_a93de9bd38155a09245c439973f3b3e57}{sem\_entry}});}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00280}00280\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00281}00281\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00282}00282\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00283}00283\ }
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00284}00284\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00285}00285\ \}}
+\DoxyCodeLine{\Hypertarget{sys__timer_8c_source_l00286}00286\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

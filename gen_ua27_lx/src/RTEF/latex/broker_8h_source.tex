@@ -1,0 +1,129 @@
+\doxysection{broker.\+h}
+\hypertarget{broker_8h_source}{}\label{broker_8h_source}\index{include/broker.h@{include/broker.h}}
+\mbox{\hyperlink{broker_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00002}00002\ \textcolor{comment}{\ *\ Broker.h}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00003}00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00004}00004\ \textcolor{comment}{\ *\ \ Created\ on:\ 10\ Feb\ 2025}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00005}00005\ \textcolor{comment}{\ *\ \ \ \ \ \ Author:\ Nathan\ Ikolo}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00006}00006\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00007}00007\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00019}00019\ \textcolor{preprocessor}{\#ifndef\ BROKER\_H\_}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00020}00020\ \textcolor{preprocessor}{\#define\ BROKER\_H\_}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00022}00022\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00023}00023\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00024}00024\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00026}00026\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ <winsock2.h>}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ <windows.h>}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ <process.h>}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ <synchapi.h>}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00031}00031\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}task.h"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00035}00035\ \textcolor{preprocessor}{\#include\ "{}semphr.h"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00036}00036\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00038}00038\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{message_8h}{message.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00039}00039\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{active__object_8h}{active\_object.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00040}00040\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00041}00041\ \textcolor{preprocessor}{\#include\ <\mbox{\hyperlink{ao__udp_8h}{ao\_udp.h}}>}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00042}00042\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00043}00043\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ao__can_8h}{ao\_can.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00044}00044\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00047}\mbox{\hyperlink{broker_8h_a623ec78b7909090dbedac4af1d52abb4}{00047}}\ \textcolor{preprocessor}{\#define\ MAX\_QUEUE\_SIZE\ \ 64}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00050}\mbox{\hyperlink{broker_8h_a91bc2cac3c4615c062e7524ba2ea2278}{00050}}\ \textcolor{preprocessor}{\#define\ MAX\_TOPICS\ \ \ \ \ \ 16}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00053}\mbox{\hyperlink{broker_8h_ae039b6dcd703089e83fa3e1b3fc896c8}{00053}}\ \textcolor{preprocessor}{\#define\ MAX\_SUBSCRIBERS\_PER\_TOPIC\ 8}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00056}\mbox{\hyperlink{broker_8h_a25b9f6533efd7b3caf52d7f873352234}{00056}}\ \textcolor{preprocessor}{\#define\ TOPIC\_MASK\ \ \ \ \ \ 0x3FFEFFF}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00062}\mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659}{00062}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00063}\mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659a04d5eb44be06ceb1a5a098f896f48034}{00063}}\ \ \ \ \ \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659a04d5eb44be06ceb1a5a098f896f48034}{SECONDARY\_QUEUE}},\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00064}\mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659a5cec4c839a504acfee482fbfe2977574}{00064}}\ \ \ \ \ \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659a5cec4c839a504acfee482fbfe2977574}{PRIMARY\_QUEUE}}\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00065}00065\ \}\ \mbox{\hyperlink{broker_8h_a9af747320c5f5550ceda71171c087659}{QueueSelection}};}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00071}\mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7a}{00071}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00072}\mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{00072}}\ \ \ \ \ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aadfbe19133d0377544d453f088e2d8f79}{EXACT\_MATCH}},\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00073}\mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aabf45d730958ea4212a090650e58b3dd8}{00073}}\ \ \ \ \ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aabf45d730958ea4212a090650e58b3dd8}{MASK}},\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00074}\mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aa36ccd76c516f51bf87c02b44305284ca}{00074}}\ \ \ \ \ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7aa36ccd76c516f51bf87c02b44305284ca}{RANGE}}\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00075}00075\ \}\ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7a}{entry\_type\_t}};}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00076}00076\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00081}\mbox{\hyperlink{structtopic__config__t}{00081}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00082}\mbox{\hyperlink{structtopic__config__t_a7121900c95c03bb9b78f367369559bbd}{00082}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structtopic__config__t_a7121900c95c03bb9b78f367369559bbd}{topic}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00083}\mbox{\hyperlink{structtopic__config__t_a61eb63d26b2fa6c2971603ceccffb14b}{00083}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structtopic__config__t_a61eb63d26b2fa6c2971603ceccffb14b}{start}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00084}\mbox{\hyperlink{structtopic__config__t_a204a3f4fa39b9c007f9784d3e4af4667}{00084}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structtopic__config__t_a204a3f4fa39b9c007f9784d3e4af4667}{end}};\ \ \ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00085}\mbox{\hyperlink{structtopic__config__t_a5106ca1fa217c19de085a01508afaeff}{00085}}\ \ \ \ \ \mbox{\hyperlink{broker_8h_a7e00527da87fefde59d447ebc4aedd7a}{entry\_type\_t}}\ \mbox{\hyperlink{structtopic__config__t_a5106ca1fa217c19de085a01508afaeff}{type}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00086}00086\ \}\ \mbox{\hyperlink{structtopic__config__t}{topic\_config\_t}};}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00092}\mbox{\hyperlink{structtopic__entry__t}{00092}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00093}\mbox{\hyperlink{structtopic__entry__t_a2e9fa7c93fd315dbef7bbed940fe6012}{00093}}\ \ \ \ \ \mbox{\hyperlink{structtopic__config__t}{topic\_config\_t}}\ \mbox{\hyperlink{structtopic__entry__t_a2e9fa7c93fd315dbef7bbed940fe6012}{ui}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00094}\mbox{\hyperlink{structtopic__entry__t_aa5805c5e936174e5092bf7a5b78e7e64}{00094}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtopic__entry__t_aa5805c5e936174e5092bf7a5b78e7e64}{active}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00095}00095\ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00096}\mbox{\hyperlink{structtopic__entry__t_af7ce84e556187b977143e3b85b2ca770}{00096}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\_obj\_t}}\ *\mbox{\hyperlink{structtopic__entry__t_af7ce84e556187b977143e3b85b2ca770}{subscriber}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00097}00097\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtopic__entry__t_aa5805c5e936174e5092bf7a5b78e7e64}{active}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00098}\mbox{\hyperlink{structtopic__entry__t_af1e3dd72ca8063fd26c15908cf9d33be}{00098}}\ \ \ \ \ \}\ idx[\mbox{\hyperlink{broker_8h_ae039b6dcd703089e83fa3e1b3fc896c8}{MAX\_SUBSCRIBERS\_PER\_TOPIC}}];\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00099}00099\ \}\ \mbox{\hyperlink{structtopic__entry__t}{topic\_entry\_t}};}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00107}\mbox{\hyperlink{struct_broker___queue__t}{00107}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00108}\mbox{\hyperlink{struct_broker___queue__t_ab9dbb2afb33d33f8349feb5a7be87575}{00108}}\ \ \ \ \ \mbox{\hyperlink{structmessage__frame__t}{message\_frame\_t}}\ \mbox{\hyperlink{struct_broker___queue__t_ab9dbb2afb33d33f8349feb5a7be87575}{buffer}}[\mbox{\hyperlink{broker_8h_a623ec78b7909090dbedac4af1d52abb4}{MAX\_QUEUE\_SIZE}}];\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00109}\mbox{\hyperlink{struct_broker___queue__t_a20358970b1abaf992eb85e071e454653}{00109}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_broker___queue__t_a20358970b1abaf992eb85e071e454653}{head}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00110}\mbox{\hyperlink{struct_broker___queue__t_aff39d864a6594bc5f4a5e365282e00fe}{00110}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_broker___queue__t_aff39d864a6594bc5f4a5e365282e00fe}{tail}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00111}\mbox{\hyperlink{struct_broker___queue__t_ad43c3812e6d13e0518d9f8b8f463ffcf}{00111}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{struct_broker___queue__t_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00112}00112\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00113}00113\ \ \ \ \ CRITICAL\_SECTION\ lock;\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00114}00114\ \ \ \ \ CONDITION\_VARIABLE\ cond;\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00115}00115\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00116}\mbox{\hyperlink{struct_broker___queue__t_a836914bf2b6dc90f189bee163a0ccef2}{00116}}\ \ \ \ \ QueueHandle\_t\ \mbox{\hyperlink{struct_broker___queue__t_a836914bf2b6dc90f189bee163a0ccef2}{queue\_handle}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00117}00117\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00118}00118\ \}\ \mbox{\hyperlink{struct_broker___queue__t}{Broker\_Queue\_t}};}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00119}00119\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00124}\mbox{\hyperlink{structbroker}{00124}}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structbroker}{broker}}\ \{}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00125}00125\ \textcolor{preprocessor}{\#ifdef\ \_WIN32}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00126}00126\ \ \ \ \ HANDLE\ \mbox{\hyperlink{structbroker_abcf633761d71f14fe6e61bdd2c5ffa17}{primary\_thread\_id}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00127}00127\ \ \ \ \ HANDLE\ \mbox{\hyperlink{structbroker_a2dde029a651cc6323af6ef5867173599}{secondary\_thread\_id}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00128}00128\ \ \ \ \ CRITICAL\_SECTION\ \mbox{\hyperlink{structbroker_aa48aadd8ea32becd8d747953259a93e4}{sem\_handle}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00129}00129\ \ \ \ \ udp\_obj\_t\ *\mbox{\hyperlink{structbroker_a85bdd77fa610168ef2682c8b03c85dff}{ext\_port}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00130}00130\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00131}\mbox{\hyperlink{structbroker_abcf633761d71f14fe6e61bdd2c5ffa17}{00131}}\ \ \ \ \ TaskHandle\_t\ \mbox{\hyperlink{structbroker_abcf633761d71f14fe6e61bdd2c5ffa17}{primary\_thread\_id}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00132}\mbox{\hyperlink{structbroker_a2dde029a651cc6323af6ef5867173599}{00132}}\ \ \ \ \ TaskHandle\_t\ \mbox{\hyperlink{structbroker_a2dde029a651cc6323af6ef5867173599}{secondary\_thread\_id}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00133}\mbox{\hyperlink{structbroker_aa48aadd8ea32becd8d747953259a93e4}{00133}}\ \ \ \ \ SemaphoreHandle\_t\ \mbox{\hyperlink{structbroker_aa48aadd8ea32becd8d747953259a93e4}{sem\_handle}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00134}\mbox{\hyperlink{structbroker_a85bdd77fa610168ef2682c8b03c85dff}{00134}}\ \ \ \ \ \mbox{\hyperlink{structcan__obj__t}{can\_obj\_t}}\ *\mbox{\hyperlink{structbroker_a85bdd77fa610168ef2682c8b03c85dff}{ext\_port}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00135}00135\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00136}\mbox{\hyperlink{structbroker_a03452fd707c528924b55c8bdaaa1471a}{00136}}\ \ \ \ \ \mbox{\hyperlink{struct_broker___queue__t}{Broker\_Queue\_t}}\ \mbox{\hyperlink{structbroker_a03452fd707c528924b55c8bdaaa1471a}{primary\_queue}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00137}\mbox{\hyperlink{structbroker_a0e8950055aead31bf67eb26882e04672}{00137}}\ \ \ \ \ \mbox{\hyperlink{struct_broker___queue__t}{Broker\_Queue\_t}}\ \mbox{\hyperlink{structbroker_a0e8950055aead31bf67eb26882e04672}{secondary\_queue}};\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00138}\mbox{\hyperlink{structbroker_abbce451b47c2bd96839df5a5a7dc024b}{00138}}\ \ \ \ \ \mbox{\hyperlink{structtopic__entry__t}{topic\_entry\_t}}\ \mbox{\hyperlink{structbroker_abbce451b47c2bd96839df5a5a7dc024b}{topics}}[\mbox{\hyperlink{broker_8h_a91bc2cac3c4615c062e7524ba2ea2278}{MAX\_TOPICS}}];\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00139}00139\ \};}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00140}00140\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00148}00148\ \mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\_t}}\ *\mbox{\hyperlink{broker_8h_ae84ea3f0fc46a3a0c35b9b673f35b966}{broker\_ctor}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00159}00159\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{broker_8h_ae7913925f99c2b3d7e48ea141543d6a4}{broker\_subscribe}}(\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\_t}}\ *\mbox{\hyperlink{structbroker}{broker}},\ \mbox{\hyperlink{structtopic__config__t}{topic\_config\_t}}\ *configs,\ uint16\_t\ length,\ \mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\_obj\_t}}\ *subscriber);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00160}00160\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00171}00171\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{broker_8h_aca5a06178a10e0080861f092e9cc5cb7}{broker\_publish}}(\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\_t}}\ *\mbox{\hyperlink{structbroker}{broker}},\ uint32\_t\ topic,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structmessage__frame__t}{message\_frame\_t}}\ frame);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00172}00172\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00182}00182\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{broker_8h_ac6c5918a794e9c28bda12384d078869b}{broker\_unsubscribe}}(\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\_t}}\ *\mbox{\hyperlink{structbroker}{broker}},\ \mbox{\hyperlink{structtopic__config__t}{topic\_config\_t}}\ *configs,\ uint16\_t\ length,\ \mbox{\hyperlink{active__object_8h_ae666e05601080a7e76aa12feef53d049}{base\_obj\_t}}\ *subscriber);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00183}00183\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00193}00193\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{broker_8h_a66cb0d857015d19942dd14dffa533965}{broker\_post}}(\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\_t}}\ *\mbox{\hyperlink{structbroker}{broker}},\ \mbox{\hyperlink{structmessage__frame__t}{message\_frame\_t}}\ frame,\ \textcolor{keywordtype}{int}\ primary);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00194}00194\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00203}00203\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{broker_8h_aedfa6e518ee5f8e36d1e32769541f3d3}{broker\_post\_simulink}}(uint8\_t*\ data,\ uint8\_t\ length);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00204}00204\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00205}00205\ \textcolor{preprocessor}{\#ifndef\ \_WIN32}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00215}00215\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{broker_8h_afa68ba3545281783006a71f7aa37e513}{broker\_post\_ISR}}(\mbox{\hyperlink{active__object_8h_acf503bbd3e9a97c6f2753e916c71b076}{broker\_t}}*\ \mbox{\hyperlink{structbroker}{broker}},\ \mbox{\hyperlink{structmessage__frame__t}{message\_frame\_t}}\ frame,\ \textcolor{keywordtype}{int}\ primary);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00216}00216\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00226}00226\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{broker_8h_a9f2434a3fb69252dd7b3eaf8ee7484dc}{broker\_set\_filter}}(uint32\_t\ msgId,\ uint32\_t\ mask,\ uint8\_t\ filter\_type);}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00227}00227\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00229}00229\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00230}00230\ \}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00231}00231\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00232}00232\ }
+\DoxyCodeLine{\Hypertarget{broker_8h_source_l00233}00233\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ BROKER\_H\_\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

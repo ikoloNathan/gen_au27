@@ -52,14 +52,10 @@ sw_info_t sw;
  */
 static void on_enter_initialisation(fsm_t *fsm) {
 	printf("sys_init\n");
-//    topic_config_t configs[SYSTEM_CONFIGS_MAX] = {
-//    				{.topic = AO_SIGNAL(SIG_STATE_ERROR,SIG_TYPE_DATABASE,0),.type = EXACT_MATCH}};
-//    	broker_subscribe(((base_obj_t*) fsm->super)->broker, configs,
-//    				1, ((base_obj_t*) fsm->super));
-
-//	broker_post(((base_obj_t*) fsm->super)->broker,
-//			SYSTEM_FRAME_STATUS(system_id.value, SIGNAL_POST_PASS),
-//			PRIMARY_QUEUE);
+	topic_config_t configs[] = {
+    				{.topic = SNMP_GET_TX(0),.type = EXACT_MATCH}};
+    broker_subscribe(((base_obj_t*) fsm->super)->broker, configs,
+    				1, ((base_obj_t*) fsm->super));
 }
 
 /**
@@ -284,17 +280,25 @@ struct state maintenance_state = { .handler = NULL, .on_entry =
  * @param frame Message frame received.
  */
 static void dispatch(base_obj_t *const me, const message_frame_t *frame) {
-		fsm_handler(&me->fsm, frame);
+	printf("system dispatch");
+	char* outstr = "{\"name\":\"unit1date\",\"mode\":\"GET\",\"value\":\"hello\"}";
+	message_frame_t msg = {
+			.signal = SNMP_GET_RX(0),
+			.length = strlen(outstr)
+	};
+	memcpy(msg.payload,outstr,strlen(outstr));
+	broker_post(me->broker,msg,PRIMARY_QUEUE);
+//	fsm_handler(&me->fsm, frame);
 }
 
 static void timer_callback_10ms(void *context) {
 	base_obj_t *me = (base_obj_t*)context;
-//	printf("timer callback 10ms called %d\n",me);
+//	printf("timer callback 10ms called %s 1\n",me->name);
 }
 
 static void timer_callback_100ms(void *context) {
 	base_obj_t *me = (base_obj_t*)context;
-//	printf("timer callback 100ms called %d\n",me);
+//	printf("timer callback 100ms called %s 2\n",me->name);
 }
 
 /**
@@ -319,9 +323,9 @@ void system_ctor(system_obj_t *const me, broker_t *broker, char *name) {
 	me->super.initialisation_state = &initialisation_state;
 	me->timer = timer_ctor();
 	timer_callback_entry_t *entry1 = me->timer->add_callback(TIMER_10ms,
-			timer_callback_10ms, me, 1,false);
+			timer_callback_10ms, me, 1);
 	timer_callback_entry_t *entry2 = me->timer->add_callback(TIMER_100ms,
-			timer_callback_100ms, me, 1,false);
+			timer_callback_100ms, me, 1);
 	me->timer->arm(entry1);
 	me->timer->arm(entry2);
 }
