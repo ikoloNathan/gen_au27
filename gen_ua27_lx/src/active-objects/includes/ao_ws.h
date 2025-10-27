@@ -93,9 +93,6 @@ void ws_ctor(ao_ws_t *me, broker_t *broker, char *name, uint16_t port);
 /* Optional: set/override document root (default: "./www") */
 void ws_set_docroot(ao_ws_t *me, const char *path);
 
-/* AO API */
-void ws_send_to(ao_ws_t *me, int client_idx, const char *text);
-void ws_broadcast(ao_ws_t *me, const char *text);
 
 #ifdef __cplusplus
 }

@@ -74,11 +74,6 @@ typedef enum {
 	MIB_ERR_NOT_FOUND /**< Requested entry was not found in the table. */
 } mib_status_t;
 
-enum SNMP_DST{
-	SNMP_SYSTEM_REQUEST = 1,
-	SNMP_MODULE_REQUEST
-};
-
 /**
  * @struct mib_entry
  * @brief Represents a single Management Information Base (MIB) entry.

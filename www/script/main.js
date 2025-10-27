@@ -572,6 +572,7 @@ class Body {
             case "server-message":
             case "message-main": {
                 // Forward messages to broker for routing to iframe/server/main
+                console.log(payload);
                 this.broker(payload);
                 break;
             }
@@ -604,6 +605,7 @@ class Body {
                     this.send_message({type:"broadcast",payload:payload});
                     break;
                 default: // send this message to server via worker port (if present)
+                    console.log(payload);
                     this.send_message({ type: "client-message", payload: payload });
                     break;
             }

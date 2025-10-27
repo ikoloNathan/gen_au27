@@ -48,7 +48,6 @@ static void ws_on_entry_initialisation(fsm_t *fsm);
 static void ws_on_entry_operational(fsm_t *fsm);
 static void ws_on_entry_error(fsm_t *fsm);
 static void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev);
-static void ws_parse_json(const char *json_str, message_frame_t *msg);
 
 static transition_t ws_initialisation_transitions[] = { { WS_CHANGE_STATE_OP,
 		&ws_operational_state, NULL }, { WS_CHANGE_STATE_ERR, &ws_error_state,
@@ -679,8 +678,7 @@ static void* ws_pump(void *arg) {
 				message_frame_t e = { 0 };
 				e.signal = WS_EVT_WS_MSG_RX;
 				e.length = (uint16_t) (sizeof(int) + t + 1);
-				memcpy(e.payload, &idx, sizeof(int));
-				memcpy(e.payload + sizeof(int), text, (size_t) t + 1);
+				memcpy(e.payload, text, (size_t) t + 1);
 				post((base_obj_t*) me, e);
 			}
 
@@ -751,101 +749,110 @@ static void ws_on_entry_error(fsm_t *fsm) {
 		}
 }
 
-void ws_parse_json(const char *json_str, message_frame_t *msg) {
-	cJSON *root = cJSON_Parse(json_str);
-	if (!root || !cJSON_IsArray(root)) {
-		fprintf(stderr, "invalid JSON\n");
-		return;
-	}
-	cJSON *signal = cJSON_GetObjectItem(root, "signal");
-	cJSON *payload = cJSON_GetObjectItem(root, "payload");
-	if (!cJSON_IsNumber(signal) || cJSON_IsString(payload)) {
-		return;
-	}
-	msg->signal = signal->valueint;
-	msg->length = strlen(payload->valuestring);
-	memcpy(msg->payload, payload->valuestring, msg->length);
-
-	cJSON_Delete(root);
-	cJSON_Delete(signal);
-	cJSON_Delete(payload);
-}
-
-char* ws_json_str(message_frame_t msg) {
-	cJSON *root = cJSON_CreateObject();
-
-	if (cJSON_IsNull(root))
-		return NULL;
-	cJSON_AddNumberToObject(root, "signal", msg.signal);
-	cJSON_AddStringToObject(root, "payload", msg.payload);
-	char *outstr = cJSON_Print(root);
-	cJSON_Delete(root);
-	return outstr;
-}
-
-
 void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 	ao_ws_t *me = (ao_ws_t*) fsm->super;
-	message_frame_t msg = { 0 };
+
 	switch (ev->signal) {
 	case WS_EVT_WS_OPEN : {
 		int idx = 0;
 		memcpy(&idx, ev->payload, sizeof(int));
-		char m[WS_TX_BUFSZ];
-		snprintf(m, sizeof(m), "{\"type\":\"ws-status\",\"id\":%llu,\"dest\":0,\"status\":\"connected\"}",
-				me->clients[idx].conn_id);
-		ws_send_to(me, idx, m);
+		cJSON *root = cJSON_CreateObject();
+		cJSON_AddStringToObject(root, "type", "init");
+		cJSON_AddNumberToObject(root, "id", idx);
+		char *txt = cJSON_Print(root);
+		message_frame_t msg = {
+				.signal = WS_QUERY_RX_CMD(0,0),
+				.length = strlen(txt)
+		};
+		memcpy(msg.payload, txt, msg.length);
+		free(txt);
+		cJSON_Delete(root);
+		post((base_obj_t*) me, msg);
 	}
 		break;
 
 	case WS_EVT_WS_MSG_RX : {
-		int idx = 0;
-//		memcpy(&idx, ev->payload, sizeof(int));
-		const char *text = (const char*) (ev->payload + sizeof(int));
-//		ws_parse_json(text, &msg);
-//		broker_post(me, msg, PRIMARY_QUEUE);
-		if (!strcmp(text, "who")) {
-			char m[WS_TX_BUFSZ];
-			int p = snprintf(m, sizeof(m), "{\"type\":\"who\",\"clients\":[");
-			int first = 1;
-			for (int j = 0; j < WS_MAX_CLIENTS; j++)
-				if (me->clients[j].st == WS_CL_WS) {
-					p += snprintf(m + p, sizeof(m) - p, first ? "%d" : ",%d",
-							j);
-					first = 0;
-				}
-			if (p < (int) sizeof(m) - 2) {
-				m[p++] = ']';
-				m[p++] = '}';
-				m[p] = '\0';
-			}
-			ws_send_to(me, idx, m);
-		} else if (!strncmp(text, "say:", 4)) {
-			char m[WS_TX_BUFSZ];
-			snprintf(m, sizeof(m),
-					"{\"type\":\"chat\",\"from\":%d,\"text\":\"%s\"}", idx,
-					text + 4);
-			ws_broadcast(me, m);
-		} else {
-			printf("%s\n",text);
-//			char m[WS_TX_BUFSZ];
-//			snprintf(m, sizeof(m), "{\"type\":\"echo\",\"text\":\"%s\"}", text);
-//			ws_send_to(me, idx, m);
+		cJSON *root = cJSON_Parse((char*) ev->payload);
+		if (!root)
+			return;
+		const cJSON *type = cJSON_GetObjectItemCaseSensitive(root, "type");
+		if (!cJSON_IsString(type) || !type->valuestring) {
+			cJSON_Delete(root);
+			return;
+		}
+		if (!strcmp(type->valuestring, "ping")) {
+			char *txt = cJSON_Print(root);
+			printf("ping request: %s\n", txt);
+			free(txt);
+			cJSON_Delete(root);
+			return;
+		}
+		const cJSON *addr = cJSON_GetObjectItemCaseSensitive(root, "addr");
+		if (!cJSON_IsNumber(addr) || !addr->valueint) {
+			cJSON_Delete(root);
+			return;
+		}
+		switch (addr->valueint) {
+		case 0: { // system wide message WS_QUERY_TX_CMD
+			char *txt = cJSON_Print(root);
+			if (!txt)
+				return;
+			message_frame_t msg = { .signal = WS_QUERY_TX_CMD(1, 1), .length =
+					strlen(txt) };
+			memcpy(msg.payload, txt, msg.length);
+			broker_post(me->super.broker, msg, PRIMARY_QUEUE);
+			free(txt);
+			cJSON_Delete(root);
+		}
+			break;
+		default: { // message to be forwarded to module via external interface
+			char *txt = cJSON_Print(root);
+			if (!txt)
+				return;
+			message_frame_t msg = { .signal = WS_QUERY_TX_CMD(1, 2), .length =
+					strlen(txt) };
+			memcpy(msg.payload, txt, msg.length);
+			broker_post(me->super.broker, msg, PRIMARY_QUEUE);
+			free(txt);
+			cJSON_Delete(root);
+		}
+			break;
 		}
 	}
 		break;
-	case WS_QUERY_RX_CMD(0,0) ... WS_QUERY_RX_CMD(0xFF, 0xFF):
-//	{
-//		int idx = (ev->signal >> 16) & 0x03F;
-//		char *text = ws_json_str(*ev);
-//		printf("%s\n",text);
-//		ws_send_to(me, idx, text);
-//		free(text);
-//	}
-//		break;
+	case WS_QUERY_RX_CMD(0,0) ... WS_QUERY_RX_CMD(0xFF, 0xFF): {
+		cJSON *root = cJSON_Parse((char*) ev->payload);
+		if (!root)
+			return;
+		const cJSON *id = cJSON_GetObjectItemCaseSensitive(root, "id");
+		if (!cJSON_IsNumber(id) || !id->valueint) {
+			cJSON_Delete(root);
+			return;
+		}
+		char *txt = cJSON_Print(root);
+		if(!txt)return;
+		pthread_mutex_lock(&me->cmd.mx);
+		int next = (me->cmd.tail + 1)
+				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
+		if (next != me->cmd.head) {
+			me->cmd.q[me->cmd.tail].target_idx = id->valueint;
+			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
+			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
+			me->cmd.tail = next;
+		}
+		pthread_mutex_unlock(&me->cmd.mx);
+		uint64_t one = 1;
+		write(me->notifyfd, &one, sizeof(one));
+		free(txt);
+		cJSON_Delete(root);
+	}
+		break;
 	case WS_CMD_BROADCAST : {
-
-		char *txt = ws_json_str(*ev);
+		cJSON *root = cJSON_Parse((char*) ev->payload);
+		if (!root)
+			return;
+		char *txt = cJSON_Print(root);
+		if(!txt)return;
 		pthread_mutex_lock(&me->cmd.mx);
 		int next = (me->cmd.tail + 1)
 				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
@@ -858,25 +865,8 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 		pthread_mutex_unlock(&me->cmd.mx);
 		uint64_t one = 1;
 		write(me->notifyfd, &one, sizeof(one));
-	}
-		break;
-
-	case WS_CMD_SEND_TO_ONE : {
-		int idx = 0;
-		memcpy(&idx, ev->payload, sizeof(int));
-		const char *txt = (const char*) (ev->payload + sizeof(int));
-		pthread_mutex_lock(&me->cmd.mx);
-		int next = (me->cmd.tail + 1)
-				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
-		if (next != me->cmd.head) {
-			me->cmd.q[me->cmd.tail].target_idx = idx;
-			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
-			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
-			me->cmd.tail = next;
-		}
-		pthread_mutex_unlock(&me->cmd.mx);
-		uint64_t one = 1;
-		write(me->notifyfd, &one, sizeof(one));
+		free(txt);
+		cJSON_Delete(root);
 	}
 		break;
 
@@ -887,7 +877,7 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 
 /* ==================== vtable dispatch hook ==================== */
 static void dispatch(base_obj_t *const me, const message_frame_t *frame) {
-	fsm_handler(&((base_obj_t*) me)->fsm, frame);
+	fsm_handler(&me->fsm, frame);
 }
 
 /* ========================= Constructor ========================= */
@@ -912,24 +902,3 @@ void ws_ctor(ao_ws_t *me, broker_t *broker, char *name, uint16_t port) {
 
 }
 
-/* =========================== AO API =========================== */
-void ws_send_to(ao_ws_t *me, int client_idx, const char *text) {
-	if (!me || !text)
-		return;
-	message_frame_t e = { 0 };
-	e.signal = WS_CMD_SEND_TO_ONE;
-	e.length = (uint16_t) (sizeof(int) + strlen(text) + 1);
-	memcpy(e.payload, &client_idx, sizeof(int));
-	strncpy((char*) e.payload + sizeof(int), text,
-			sizeof(e.payload) - sizeof(int) - 1);
-	post((base_obj_t*) me, e);
-}
-void ws_broadcast(ao_ws_t *me, const char *text) {
-	if (!me || !text)
-		return;
-	message_frame_t e = { 0 };
-	e.signal = WS_CMD_BROADCAST;
-	strncpy((char*) e.payload, text, sizeof(e.payload) - 1);
-	e.length = (uint16_t) (strlen((char*) e.payload) + 1);
-	post((base_obj_t*) me, e);
-}

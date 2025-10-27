@@ -1,4 +1,5 @@
 let socket;
+let id = 0;
 
 
 function wsURL() {
@@ -52,7 +53,7 @@ function startHeartbeat() {
   heartbeatTimer = setInterval(() => {
     try {
       if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.send(JSON.stringify({ type: "ping", t: Date.now() }));
+        websocket.send(JSON.stringify({ id: id, addr:0,type: "ping", t: Date.now() }));
       }
     } catch {}
   }, HEARTBEAT_INTERVAL_MS);
@@ -94,11 +95,20 @@ function connect() {
       if (typeof data === "string") {
         try {
           data = JSON.parse(data);
+          const {type} = data;
+          switch(type){
+            case 'init':{
+              id = data?.id;
+            }break;
+            default:
+              broadcast({ type: "server-message", payload: data });
+              break;
+          }
         } catch {
           // keep as string if not JSON
         }
       }
-      broadcast({ type: "server-message", payload: data });
+      
     });
 
     websocket.addEventListener("error", (err) => {
@@ -135,6 +145,7 @@ function sendToServer(payload) {
   } else if (typeof payload === "string") {
     websocket.send(payload);
   } else {
+    payload.id = id;
     websocket.send(JSON.stringify(payload));
   }
   return true;
