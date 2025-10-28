@@ -788,7 +788,7 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 			return;
 		}
 		const cJSON *addr = cJSON_GetObjectItemCaseSensitive(root, "addr");
-		if (!cJSON_IsNumber(addr) || !addr->valueint) {
+		if (!cJSON_IsNumber(addr)) {
 			cJSON_Delete(root);
 			return;
 		}
@@ -889,7 +889,7 @@ void ws_ctor(ao_ws_t *me, broker_t *broker, char *name, uint16_t port) {
 	me->super.initialisation_state = &ws_initialisation_state;
 
 	me->port = port ? port : 443;
-	strncpy(me->docroot, "./www", sizeof(me->docroot) - 1);
+	strncpy(me->docroot, "/var/www/", sizeof(me->docroot) - 1);
 
 	me->epfd = me->listenfd = me->notifyfd = -1;
 	me->pump_running = 0;

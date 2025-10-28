@@ -21,7 +21,7 @@
 
 int main(void) {
 	broker_t *broker = broker_ctor();
-//	static system_obj_t sys = {0};
+	static system_obj_t sys = {0};
 //	static db_obj_t db = {0};
 	static snmp_agent_ao_t snmp = {0};
 	udp_obj_t *udp = udp_ctor(broker,"udp_server");
@@ -33,7 +33,7 @@ int main(void) {
 //	register_active_object((base_obj_t*)&sys);
 //
 //	db_ctor(&db,broker,"Database");
-//	system_ctor(&sys,broker,"System");
+	system_ctor(&sys,broker,"System");
 	snmp_agent_ctor(&snmp,broker,"snmp_agent",NULL);
 
 	/* Start the AO like your others; the framework’s start() will
@@ -41,9 +41,8 @@ int main(void) {
 	ws.super.vptr->start((base_obj_t*)&ws);
 	udp->super.vptr->start((base_obj_t*)udp);
 	/* elsewhere in AO space, you can post to it or call: */
-	ws_broadcast(&ws, "hello from AO!");
 
-//	sys.super.vptr->start((base_obj_t*)&sys);
+	sys.super.vptr->start((base_obj_t*)&sys);
 //	db.super.vptr->start((base_obj_t*)&db);
 	snmp.super.vptr->start((base_obj_t*)&snmp);
 //	int i = 0;
@@ -51,7 +50,7 @@ int main(void) {
 //
 //		printf("%d: loading cpu\n",++i);
 //	}
-//	pthread_join(sys.super.thread_id,NULL);
+	pthread_join(sys.super.thread_id,NULL);
 	pthread_join(snmp.super.thread_id,NULL);
 	pthread_join(ws.super.thread_id,NULL);
 	pthread_join(udp->super.thread_id,NULL);

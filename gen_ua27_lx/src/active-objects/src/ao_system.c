@@ -51,11 +51,11 @@ sw_info_t sw;
  * @param fsm Pointer to the FSM instance.
  */
 static void on_enter_initialisation(fsm_t *fsm) {
-	printf("sys_init\n");
-	topic_config_t config[] = { { .topic = SNMP_GET_TX(2<<8), .start = SNMP_GET_TX(
-				2<<8), .type = MASK }, };
+	topic_config_t config[] = { { .topic = SNMP_GET_TX(1<<8), .start = SNMP_GET_TX(
+				1<<8), .type = MASK },{ .topic = WS_QUERY_TX_CMD(1, 1), .type = EXACT_MATCH }
+	};
     broker_subscribe(((base_obj_t*) fsm->super)->broker, config,
-    				1, ((base_obj_t*) fsm->super));
+    				2, ((base_obj_t*) fsm->super));
 }
 
 /**
@@ -280,14 +280,21 @@ struct state maintenance_state = { .handler = NULL, .on_entry =
  * @param frame Message frame received.
  */
 static void dispatch(base_obj_t *const me, const message_frame_t *frame) {
-	printf("system dispatch");
-	char* outstr = "{\"name\":\"pduoutputstate\",\"mode\":\"GET\",\"value\":\"hello\"}";
-	message_frame_t msg = {
-			.signal = SNMP_GET_RX(0),
-			.length = strlen(outstr)
-	};
-	memcpy(msg.payload,outstr,strlen(outstr));
-	broker_post(me->broker,msg,PRIMARY_QUEUE);
+	switch(frame->signal){
+		case SNMP_GET_TX(0) ... SNMP_GET_TX(0xFFFF):{
+			char* outstr = "{\"name\":\"unit1date\",\"mode\":\"GET\",\"value\":\"hello\"}";
+			message_frame_t msg = {
+					.signal = SNMP_GET_RX(0),
+					.length = strlen(outstr)
+			};
+			memcpy(msg.payload,outstr,strlen(outstr));
+			broker_post(me->broker,msg,PRIMARY_QUEUE);
+		}break;
+		case WS_QUERY_TX_CMD(1, 1):{
+			printf("%s\n",frame->payload);
+		}break;
+	}
+
 //	fsm_handler(&me->fsm, frame);
 }
 
@@ -314,12 +321,6 @@ static void timer_callback_100ms(void *context) {
 void system_ctor(system_obj_t *const me, broker_t *broker, char *name) {
 	INIT_BASE(me, broker, name, system_id, NULL);
 	MsgQueue_Init(&me->super.msgQueue);
-	topic_config_t configs[SYSTEM_CONFIGS_MAX] = {
-				{.topic = AO_SIGNAL(SIG_SEVERITY_ERROR,SIG_STATE_ERROR,SIG_TYPE_DATABASE,0),
-						.start = AO_SIGNAL(SIG_SEVERITY_ERROR,SIG_STATE_ERROR,SIG_TYPE_DATABASE,0)
-						,.type = MASK}};
-	broker_subscribe(broker, configs,
-				1, ((base_obj_t*) me));
 	me->super.initialisation_state = &initialisation_state;
 	me->timer = timer_ctor();
 	timer_callback_entry_t *entry1 = me->timer->add_callback(TIMER_10ms,
