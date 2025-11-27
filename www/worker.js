@@ -53,7 +53,7 @@ function startHeartbeat() {
   heartbeatTimer = setInterval(() => {
     try {
       if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.send(JSON.stringify({ id: id, addr:0,type: "ping", t: Date.now() }));
+        websocket.send(JSON.stringify({ id: id, addr:0,cmd: "ping", t: Date.now() }));
       }
     } catch {}
   }, HEARTBEAT_INTERVAL_MS);

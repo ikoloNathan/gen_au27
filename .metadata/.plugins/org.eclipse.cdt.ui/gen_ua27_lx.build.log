@@ -1,4 +1,4 @@
-22:47:16 **** Incremental Build of configuration Debug for project gen_ua27_lx ****
+19:32:50 **** Incremental Build of configuration Debug for project gen_ua27_lx ****
 make all 
 Wrapper for /opt/st/stm32cubeide_1.19.0/plugins/com.st.stm32cube.ide.mpu.linux.toolchain_2.2.0.202409171043/tools/bin/make
 FIP_DEPLOYDIR_ROOT: /home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/Debug/../../FIP_artifacts
@@ -6,5 +6,5 @@ FIP_DEPLOYDIR_ROOT: /home/nathan/STM32CubeIDE/workspace_1.19.0/gen_ua27_lx/Debug
 + exec make all
 make: Nothing to be done for 'all'.
 
-22:47:17 Build Finished. 0 errors, 0 warnings. (took 144ms)
+19:32:50 Build Finished. 0 errors, 0 warnings. (took 148ms)
 

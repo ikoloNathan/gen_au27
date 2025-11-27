@@ -42,6 +42,7 @@ static struct gpiod_chip *gpiod_chip_open_by_number(uint8_t chip_num){
 
 	char path[32] = {0};
 	int n = snprintf(path,sizeof(path),"/dev/gpiochip%u", (unsigned)chip_num);
+	printf("%s\n",path);
 	if(n < 0 || (size_t)n >= sizeof(path)){
 		errno = ENAMETOOLONG;
 		return NULL;

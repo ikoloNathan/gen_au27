@@ -17,6 +17,7 @@
 #include "ao_snmp.h"
 #include "ao_ws.h"
 #include "ao_udp.h"
+#include "hal_gpio.h"
 
 
 int main(void) {
@@ -28,7 +29,20 @@ int main(void) {
 	ao_ws_t ws;
 	ws_ctor(&ws, broker, "ao_ws", 80);
 
-
+	 io_ctrl_t io = {
+	     .name   = "my_consumer",
+	      .offset = 13,          // line offset within the chip
+	      .dir    = 1,           // 1 = output
+	      .state  = 0,           // initial level when output
+	      .has_fd = false,
+	  };
+	  int rc = io_register(&io, 0);     // open /dev/gpiochip0 and request line 13
+	  if (rc == 0) {
+	      io_set_output(&io, 1);
+	      uint8_t v;
+	      io_read_pin(&io, &v);
+	      io_unregister(&io);
+	  }
 //	register_active_object((base_obj_t*)&db);
 //	register_active_object((base_obj_t*)&sys);
 //

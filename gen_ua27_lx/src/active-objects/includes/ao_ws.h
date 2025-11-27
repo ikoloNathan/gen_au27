@@ -34,6 +34,18 @@ typedef enum {
 } ws_cl_state_t;
 
 typedef struct {
+	char msg_id[WS_MAX_CLIENTS];
+	int client_id[WS_MAX_CLIENTS];
+	bool valid;
+	uint8_t count;
+}ws_map_entry_t;
+
+typedef struct{
+	ws_map_entry_t entry[WS_MAX_CLIENTS];
+	uint8_t count;
+}ws_map_t;
+
+typedef struct {
 	int fd;
 	ws_cl_state_t st;
 	unsigned long long conn_id;
@@ -62,6 +74,7 @@ typedef struct ao_ws {
 	int epfd;
 	int listenfd;
 	int notifyfd; /* eventfd for AO->pump wake */
+	ws_map_t map;
 
 	/* Thread */
 	pthread_t pump_tid;
@@ -76,6 +89,7 @@ typedef struct ao_ws {
 		int head, tail;
 		struct {
 			int target_idx;
+			char msd_id[64];
 			char msg[WS_TX_BUFSZ];
 		} q[64];
 		pthread_mutex_t mx;

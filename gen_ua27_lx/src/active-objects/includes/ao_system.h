@@ -22,6 +22,7 @@ extern "C" {
 
 #include "active_object.h"
 #include <fsm.h>
+#include "fsm_hpa.h"
 #include <sys_timer.h>
 
 /**
@@ -35,6 +36,7 @@ extern "C" {
 typedef struct {
 	base_obj_t super; /**< Inherits from base active object. */
 	timers_t *timer; /**< Pointer to the system timer instance. */
+	fsm_hpa_t hpa_output;
 } system_obj_t;
 
 /**

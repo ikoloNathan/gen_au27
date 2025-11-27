@@ -21,6 +21,9 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
+/** @brief Macro to define a state transition. */
+#define TRANSIT(signal, next, action) { signal, &next, action }
+
 /** @brief Maximum payload size in a message. */
 #define MAX_PAYLOAD_SIZE 120
 
@@ -47,7 +50,8 @@ typedef enum {
 	SIG_TYPE_MEMORY,
 	SIG_TYPE_DATABASE,
 	SIG_TYPE_GPIO,
-	SIG_TYPE_FS
+	SIG_TYPE_FS,
+	SIG_TYPE_SYS
 } sig_type_t;
 
 typedef enum {
@@ -106,7 +110,7 @@ typedef enum {
 #define SNMP_GET_TX(dest)					AO_SIGNAL(SIG_SEVERITY_INFO,	SIG_STATE_OPERATIONAL,			SIG_TYPE_SNMP,			SNMP_MGS_ID(SNMP_GET_SENT,dest))
 #define SNMP_SET_VALUE(dest)				AO_SIGNAL(SIG_SEVERITY_INFO,	SIG_STATE_OPERATIONAL,			SIG_TYPE_SNMP,			SNMP_MGS_ID(SNMP_SET_VAR,dest))
 
-#define WS_MGS_ID(action,fd,oid)			(action & 0x3) << 20 | fd << 15 | (oid)
+#define WS_MGS_ID(action,fd,oid)			(action & 0x3) << 20 | ((fd & 0xF) << 15)  | ((oid) & 0x7FFF)
 /* --- Signals for the WebServer AO (reuse your SIG_TYPE_HTTP bucket) --- */
 #define WS_CHANGE_STATE_INIT  				AO_SIGNAL(SIG_SEVERITY_INFO,  	SIG_STATE_INITIALISATION, 		SIG_TYPE_HTTP, 1)
 #define WS_CHANGE_STATE_OP    				AO_SIGNAL(SIG_SEVERITY_INFO,  	SIG_STATE_OPERATIONAL,    		SIG_TYPE_HTTP, 2)
@@ -123,7 +127,12 @@ typedef enum {
 
 #define WS_QUERY_TX_CMD(fd,dest)      		AO_SIGNAL(SIG_SEVERITY_INFO,  	SIG_STATE_OPERATIONAL,    		SIG_TYPE_HTTP, 		WS_MGS_ID(WS_QUERY_TX,fd,dest))
 #define WS_QUERY_RX_CMD(fd,dest)      		AO_SIGNAL(SIG_SEVERITY_INFO,  	SIG_STATE_OPERATIONAL,    		SIG_TYPE_HTTP, 		WS_MGS_ID(WS_QUERY_RX,fd,dest))
-#define WS_SET_CMD(fd,dest)		      		AO_SIGNAL(SIG_SEVERITY_INFO,  	SIG_STATE_OPERATIONAL,    		SIG_TYPE_HTTP, 		WS_MGS_ID(WS_COMMAND,fd,dest))
+#define WS_RECV_CMD(fd,dest)		      		AO_SIGNAL(SIG_SEVERITY_INFO,  	SIG_STATE_OPERATIONAL,    		SIG_TYPE_HTTP, 		WS_MGS_ID(WS_COMMAND,fd,dest))
+
+
+#define SYS_CHANGE_STATE_INIT				AO_SIGNAL(SIG_SEVERITY_INFO,	SIG_STATE_INITIALISATION,		SIG_TYPE_SYS,1)
+#define SYS_CHANGE_STATE_OP					AO_SIGNAL(SIG_SEVERITY_INFO,	SIG_STATE_OPERATIONAL,		SIG_TYPE_SYS,1)
+#define SYS_CHANGE_STATE_ERR				AO_SIGNAL(SIG_SEVERITY_INFO,	SIG_STATE_ERROR,		SIG_TYPE_SYS,1)
 
 /**
  * @struct message_frame_t

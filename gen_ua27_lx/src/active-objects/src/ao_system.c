@@ -18,6 +18,8 @@ extern "C" {
 #endif
 
 #include <string.h>
+#include <stdio.h>
+#include <cjson/cJSON.h>
 #include "ao_system.h"
 #include <broker.h>
 #include <sys_defns.h>
@@ -26,11 +28,14 @@ extern "C" {
 #include "stdio.h"
 #endif
 
+#define INFO_PATH	"/usr/bin/myapp/info.json"
 /** @brief Maximum number of system configuration topics to subscribe to. */
 #define SYSTEM_CONFIGS_MAX  1
+#define SYSTEM_GET_SNMP			SNMP_GET_TX(1<<8)
+#define SYSTEM_SET_SNMP			SNMP_SET_VALUE(1<<8)
 
-/** @brief Macro to define a state transition. */
-#define TRANSIT(signal, state, action) { signal, &state, action }
+#define SNMP_GET_RANGE			SNMP_GET_TX(0) ... SNMP_GET_TX(0xFFFF)
+#define SNMP_SET_RANGE			SNMP_SET_VALUE(0) ... SNMP_SET_VALUE(0xFFFF)
 
 /** @brief System-wide information structure. */
 sys_info_t sys_info;
@@ -40,6 +45,76 @@ hw_info_t hw;
 
 /** @brief Software version information structure. */
 sw_info_t sw;
+
+
+static void sys_operation_handler(fsm_t *fsm,const message_frame_t *event);
+static void sys_error_handler(fsm_t *fsm,const message_frame_t *event);
+
+void goto_err(fsm_t *fsm){
+	topic_config_t config[] = {{ .topic = SYS_CHANGE_STATE_ERR, .type = EXACT_MATCH },
+							{ .topic = SYS_CHANGE_STATE_INIT, .type = EXACT_MATCH }
+	};
+	message_frame_t msg = {
+			.signal = SYS_CHANGE_STATE_ERR
+	};
+	broker_subscribe(((base_obj_t*) fsm->super)->broker, config,
+			sizeof(config) / sizeof(config[0]), ((base_obj_t*) fsm->super));
+
+	post((base_obj_t*)fsm->super,msg);
+}
+
+bool read_info(){
+
+	 FILE *fp = fopen(INFO_PATH, "r");
+	    if (fp == NULL) {
+	        perror("Error opening file");
+	        return false;
+	    }
+
+	    char buffer[256] = {0};
+	    char buff[1024] = {0};
+	    int i = 0;
+	    while (fgets(buffer, sizeof(buffer), fp)) {
+	    	memcpy(buff + i,buffer,strlen(buffer));
+	    	i = i + strlen(buffer);
+	    }
+	    fclose(fp);
+	    cJSON *root = cJSON_Parse(buff);
+	    if(!root)
+	    	return false;
+	    const cJSON *hw_id = cJSON_GetObjectItemCaseSensitive(root, "hw_id");
+	    if (!cJSON_IsString(hw_id) || !hw_id->valuestring) {
+			cJSON_Delete(root);
+			return false;
+		}
+	    const cJSON *hw_rev = cJSON_GetObjectItemCaseSensitive(root, "hw_rev");
+	    if (!cJSON_IsString(hw_rev) || !hw_rev->valuestring) {
+			cJSON_Delete(root);
+			return false;
+		}
+	    const cJSON *sw_id = cJSON_GetObjectItemCaseSensitive(root, "sw_id");
+		if (!cJSON_IsString(sw_id) || !sw_id->valuestring) {
+			cJSON_Delete(root);
+			return false;
+		}
+	    const cJSON *sw_version = cJSON_GetObjectItemCaseSensitive(root, "sw_version");
+		if (!cJSON_IsString(sw_version) || !sw_version->valuestring) {
+			cJSON_Delete(root);
+			return false;
+		}
+	    const cJSON *sw_date = cJSON_GetObjectItemCaseSensitive(root, "sw_date");
+		if (!cJSON_IsString(sw_date) || !sw_date->valuestring) {
+			cJSON_Delete(root);
+			return false;
+		}
+		strcpy(hw.id,hw_id->valuestring);
+		strcpy(hw.revision,hw_rev->valuestring);
+		strcpy(sw.id,sw_id->valuestring);
+		strcpy(sw.version,sw_version->valuestring);
+		strcpy(sw.date,sw_date->valuestring);
+		return true;
+
+}
 
 /* --- ACTION FUNCTIONS --- */
 
@@ -51,11 +126,27 @@ sw_info_t sw;
  * @param fsm Pointer to the FSM instance.
  */
 static void on_enter_initialisation(fsm_t *fsm) {
-	topic_config_t config[] = { { .topic = SNMP_GET_TX(1<<8), .start = SNMP_GET_TX(
-				1<<8), .type = MASK },{ .topic = WS_QUERY_TX_CMD(1, 1), .type = EXACT_MATCH }
+//	if(!read_info()){
+//		//system error missing system info
+//		goto_err(fsm);
+//		perror("Missing system info");
+//		return;
+//	}
+	topic_config_t config[] = {
+			{ .topic = SYSTEM_GET_SNMP, .start = SYSTEM_GET_SNMP, .type = MASK },		// subscrib to all system GET snmp requests
+			{ .topic = SYSTEM_SET_SNMP, .start = SYSTEM_SET_SNMP, .type = MASK}, 		// subscrib to all system SET snmp requests
+			{ .topic = WS_QUERY_TX_CMD(1, 1), .type = EXACT_MATCH }, 					// subscrib to all websocket tx commands
+			{ .topic = WS_EVT_WS_OPEN, .type = EXACT_MATCH},							// subscrib to webscoket open event
+			{ .topic = SYS_CHANGE_STATE_INIT, .type = EXACT_MATCH},						// subscrib to system change state to move into initialisation
 	};
     broker_subscribe(((base_obj_t*) fsm->super)->broker, config,
-    				2, ((base_obj_t*) fsm->super));
+    		sizeof(config) / sizeof(config[0]), ((base_obj_t*) fsm->super));
+
+    message_frame_t msg = {
+			.signal = SYS_CHANGE_STATE_OP
+	};
+
+	post((base_obj_t*)fsm->super,msg); // move to operational
 }
 
 /**
@@ -203,6 +294,31 @@ void transition_maintenance(fsm_t *fsm) {
 #endif
 }
 
+void sys_error_handler(fsm_t *fsm,const message_frame_t *event){
+
+}
+
+void sys_operation_handler(fsm_t *fsm,const message_frame_t *event){
+	system_obj_t *me = (system_obj_t*) fsm->super;
+	switch(event->signal){
+		case SNMP_GET_RANGE:{
+			char* outstr = "{\"name\":\"unit1date\",\"mode\":\"GET\",\"value\":\"hello\"}";
+			message_frame_t msg = {
+					.signal = SNMP_GET_RX(0),
+					.length = strlen(outstr)
+			};
+			memcpy(msg.payload,outstr,strlen(outstr));
+			broker_post(me->super.broker,msg,PRIMARY_QUEUE);
+		}break;
+		case SNMP_SET_RANGE:
+			break;
+		case WS_QUERY_TX_CMD(1, 1):
+			fsm_handler((fsm_t*)&me->hpa_output, event);
+		break;
+	}
+
+}
+
 /* --- TRANSITION TABLES --- */
 /**
  * @brief Transition table for Initialization State.
@@ -210,8 +326,8 @@ void transition_maintenance(fsm_t *fsm) {
  * Defines possible transitions from Initialization to other states.
  */
 transition_t initialisation_transitions[] = {
-TRANSIT(0, operational_state, transition_operational),
-TRANSIT(1, error_state, transition_error) };
+TRANSIT(SYS_CHANGE_STATE_OP, operational_state, transition_operational),
+TRANSIT(SYS_CHANGE_STATE_ERR, error_state, transition_error) };
 
 /**
  * @brief Transition table for Operational State.
@@ -257,11 +373,11 @@ struct state initialisation_state = { .handler = NULL, .on_entry =
 		on_enter_initialisation, .on_exit = on_exit_initialisation,
 		.transitions = initialisation_transitions, .transition_count = 2 };
 
-struct state operational_state = { .handler = NULL, .on_entry =
+struct state operational_state = { .handler = sys_operation_handler, .on_entry =
 		on_enter_operational, .on_exit = on_exit_operational, .transitions =
 		operational_transitions, .transition_count = 2 };
 
-struct state error_state = { .handler = NULL, .on_entry = on_enter_error,
+struct state error_state = { .handler = sys_error_handler, .on_entry = on_enter_error,
 		.on_exit = on_exit_error, .transitions = error_transitions,
 		.transition_count = 3 };
 
@@ -280,22 +396,7 @@ struct state maintenance_state = { .handler = NULL, .on_entry =
  * @param frame Message frame received.
  */
 static void dispatch(base_obj_t *const me, const message_frame_t *frame) {
-	switch(frame->signal){
-		case SNMP_GET_TX(0) ... SNMP_GET_TX(0xFFFF):{
-			char* outstr = "{\"name\":\"unit1date\",\"mode\":\"GET\",\"value\":\"hello\"}";
-			message_frame_t msg = {
-					.signal = SNMP_GET_RX(0),
-					.length = strlen(outstr)
-			};
-			memcpy(msg.payload,outstr,strlen(outstr));
-			broker_post(me->broker,msg,PRIMARY_QUEUE);
-		}break;
-		case WS_QUERY_TX_CMD(1, 1):{
-			printf("%s\n",frame->payload);
-		}break;
-	}
-
-//	fsm_handler(&me->fsm, frame);
+	fsm_handler(&me->fsm, frame);
 }
 
 static void timer_callback_10ms(void *context) {
@@ -322,6 +423,7 @@ void system_ctor(system_obj_t *const me, broker_t *broker, char *name) {
 	INIT_BASE(me, broker, name, system_id, NULL);
 	MsgQueue_Init(&me->super.msgQueue);
 	me->super.initialisation_state = &initialisation_state;
+	fsm_hpa_ctor(&me->hpa_output,(base_obj_t*)me,"hpa_states");
 	me->timer = timer_ctor();
 	timer_callback_entry_t *entry1 = me->timer->add_callback(TIMER_10ms,
 			timer_callback_10ms, me, 1);

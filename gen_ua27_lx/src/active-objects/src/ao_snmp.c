@@ -848,7 +848,7 @@ int snmp_scalar_handler(netsnmp_mib_handler *handler,
 		break;
 	case MODE_SET_ACTION:{
 		mib_entry_t *entry = find_mib_entry_by_name(handler->handler_name);
-		evt.signal = SNMP_GET_TX(entry->msg_id[7] << 8 | (entry->msg_id[8] &0xFF));
+		evt.signal = SNMP_SET_VALUE(entry->msg_id[7] << 8 | (entry->msg_id[8] &0xFF));
 		char* payload = snmp_json_str(handler->handler_name,0,(char*)requests->requestvb->val.string);
 		if(payload){
 			memcpy(evt.payload,payload,strlen(payload));

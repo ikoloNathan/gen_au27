@@ -25,26 +25,11 @@
  */
 typedef enum {
     SYSTEM_STATE_INIT,        /**< System is initializing. */
-    SYSTEM_STATE_OPERATIONAL, /**< System is in normal operational mode. */
-    SYSTEM_STATE_ERROR,       /**< System has encountered an error. */
+    SYSTEM_STATE_OK, /**< System is in normal operational mode. */
+    SYSTEM_STATE_ALARM,       /**< System has encountered an alaram. */
     SYSTEM_STATE_LOADER,      /**< System is in loader mode (firmware update). */
-    SYSTEM_STATE_MAINTENANCE  /**< System is in maintenance mode. */
+    SYSTEM_STATE_ERROR  /**< System is in maintenance mode. */
 } sys_state_t;
-
-/**
- * @struct sys_info_t
- * @brief Encapsulates system state, status information, and error handling.
- *
- * This structure contains details about the system's current operational state,
- * uptime, and error codes.
- */
-typedef struct {
-    sys_state_t current_state;   /**< Current system state */
-    uint8_t status;              /**< Status byte (e.g., error codes, flags) */
-    uint32_t up_time;             /**< System uptime in seconds */
-    uint32_t error_code;          /**< Error code (if any) */
-    uint8_t reserved[4];         /**< Reserved for future use */
-} sys_info_t;
 
 /**
  * @struct hw_info_t
@@ -54,9 +39,8 @@ typedef struct {
  * unique identifiers, versioning, and checksum validation.
  */
 typedef struct {
-    uint16_t id;   /**< Unique hardware identifier. */
-    uint8_t v_int; /**< Hardware major version number. */
-    uint8_t v_frac; /**< Hardware minor version number. */
+	char id[64];   /**< Unique hardware identifier. */
+	char revision[6]; /**< Hardware major version number. */
     uint16_t crc;  /**< CRC checksum for integrity verification. */
 } hw_info_t;
 
@@ -68,15 +52,30 @@ typedef struct {
  * software size for tracking and validation.
  */
 typedef struct {
-    uint16_t id;   /**< Unique software identifier. */
-    uint8_t v_int; /**< Software major version number. */
-    uint8_t v_frac; /**< Software minor version number. */
-    uint8_t day;   /**< Software build day. */
-    uint8_t mon;   /**< Software build month. */
-    uint8_t year;  /**< Software build year. */
-    uint32_t size; /**< Size of the software in bytes. */
+    char id[64];   /**< Unique software identifier. */
+    char version[6]; /**< Software version number. */
+    char date[64];   /**< Software build date. */
     uint16_t crc;  /**< CRC checksum for integrity verification. */
 } sw_info_t;
+
+/**
+ * @struct sys_info_t
+ * @brief Encapsulates system state, status information, and error handling.
+ *
+ * This structure contains details about the system's current operational state,
+ * uptime, and error codes.
+ */
+typedef struct {
+    sys_state_t current_state;   /**< Current system state */
+    uint8_t status;              /**< Status byte (e.g., error codes, flags) */
+    double up_time;             /**< System uptime in seconds */
+    sw_info_t *sw;
+    hw_info_t *hw;
+    uint32_t error_code;          /**< Error code (if any) */
+    uint8_t reserved[4];         /**< Reserved for future use */
+} sys_info_t;
+
+
 
 
 #endif /* SYSDEFNS_H_ */

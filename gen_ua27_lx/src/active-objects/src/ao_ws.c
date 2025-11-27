@@ -42,6 +42,10 @@ static void ep_del(int ep, int fd) {
 	epoll_ctl(ep, EPOLL_CTL_DEL, fd, NULL);
 }
 
+
+static void ws_add_map_entry(ao_ws_t *me,ws_map_entry_t *entry);
+static bool ws_find_map_entry_by_name(ao_ws_t *me,ws_map_entry_t * entry,const char *name);
+
 /* ========================= FSM wiring ========================= */
 static void dispatch(base_obj_t *const me, const message_frame_t *frame);
 static void ws_on_entry_initialisation(fsm_t *fsm);
@@ -313,7 +317,7 @@ static int alloc_client(ws_client_t *cs) {
 			cs[i].fd = -1;
 			cs[i].st = WS_CL_HTTP;
 			cs[i].out_head = cs[i].out_tail = 0;
-			cs[i].conn_id = 0;
+			cs[i].conn_id = i;
 			cs[i].http_tx = NULL;
 			cs[i].http_len = cs[i].http_off = 0;
 			return i;
@@ -442,10 +446,12 @@ static void pump_handle_notify(ao_ws_t *me) {
 	}
 	for (;;) {
 		int ok = 0, target = -2;
-		char msg[WS_TX_BUFSZ];
+		char msg_id[64] = {0};
+		char msg[WS_TX_BUFSZ] = {0};
 		pthread_mutex_lock(&me->cmd.mx);
 		if (me->cmd.head != me->cmd.tail) {
 			target = me->cmd.q[me->cmd.head].target_idx;
+			strcpy(msg_id, me->cmd.q[me->cmd.head].msd_id);
 			strcpy(msg, me->cmd.q[me->cmd.head].msg);
 			me->cmd.head = (me->cmd.head + 1)
 					% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
@@ -458,15 +464,17 @@ static void pump_handle_notify(ao_ws_t *me) {
 		if (target < 0) {
 			for (int i = 0; i < WS_MAX_CLIENTS; i++)
 				if (me->clients[i].st == WS_CL_WS) {
-					if (outq_push(&me->clients[i], msg) == 0)
+					if (outq_push(&me->clients[i], msg) == 0){
 						ep_mod(me->epfd, me->clients[i].fd,
 						EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLOUT);
+					}
 				}
 		} else {
 			if (target < WS_MAX_CLIENTS && me->clients[target].st == WS_CL_WS) {
-				if (outq_push(&me->clients[target], msg) == 0)
+				if (outq_push(&me->clients[target], msg) == 0){
 					ep_mod(me->epfd, me->clients[target].fd,
 					EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLOUT);
+				}
 			}
 		}
 	}
@@ -602,6 +610,7 @@ static void* ws_pump(void *arg) {
 						continue;
 					}
 					c->st = WS_CL_WS;
+					c->conn_id = idx;
 					message_frame_t e = { 0 };
 					e.signal = WS_EVT_WS_OPEN;
 					e.length = sizeof(int);
@@ -676,7 +685,7 @@ static void* ws_pump(void *arg) {
 				}
 				/* t > 0: deliver text to AO layer */
 				message_frame_t e = { 0 };
-				e.signal = WS_EVT_WS_MSG_RX;
+				e.signal = WS_RECV_CMD(c->conn_id,0);
 				e.length = (uint16_t) (sizeof(int) + t + 1);
 				memcpy(e.payload, text, (size_t) t + 1);
 				post((base_obj_t*) me, e);
@@ -749,6 +758,34 @@ static void ws_on_entry_error(fsm_t *fsm) {
 		}
 }
 
+void ws_add_map_entry(ao_ws_t *me,ws_map_entry_t *entry){
+	for(uint8_t i = 0; i < WS_MAX_CLIENTS;i++){
+		if((me->map.entry[i].valid)&& (strcmp(me->map.entry[i].msg_id,entry->msg_id) == 0)){
+			me->map.entry[i].client_id[me->map.entry[i].count++] = entry->client_id[0];
+			return;
+		}else{
+			memcpy(&me->map.entry[i],entry,sizeof(ws_map_entry_t));
+			me->map.entry[i].valid = true;
+			me->map.count++;
+			return;
+		}
+	}
+}
+
+bool ws_find_map_entry_by_name(ao_ws_t *me,ws_map_entry_t * entry,const char *name){
+	for(uint8_t i = 0; i < WS_MAX_CLIENTS;i++){
+		if((me->map.entry[i].valid) && (strcmp(me->map.entry[i].msg_id,name) == 0)){
+			me->map.count--;
+			memcpy(entry,&me->map.entry[i],sizeof(ws_map_entry_t));
+			me->map.entry[i].valid = false;
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 	ao_ws_t *me = (ao_ws_t*) fsm->super;
 
@@ -757,9 +794,17 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 		int idx = 0;
 		memcpy(&idx, ev->payload, sizeof(int));
 		cJSON *root = cJSON_CreateObject();
-		cJSON_AddStringToObject(root, "type", "init");
+		if(!root)return;
+		cJSON_AddStringToObject(root, "cmd", "init");
 		cJSON_AddNumberToObject(root, "id", idx);
 		char *txt = cJSON_Print(root);
+		ws_map_entry_t s = {
+			.msg_id = "init",
+			.count = 1,
+			.valid = true
+		};
+		s.client_id[0] = idx;
+		ws_add_map_entry(me,&s);
 		message_frame_t msg = {
 				.signal = WS_QUERY_RX_CMD(0,0),
 				.length = strlen(txt)
@@ -768,19 +813,17 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 		free(txt);
 		cJSON_Delete(root);
 		post((base_obj_t*) me, msg);
-	}
-		break;
-
-	case WS_EVT_WS_MSG_RX : {
+	}break;
+	case WS_RECV_CMD(0,0) ... WS_RECV_CMD(0xF,0xFFFF) : {
 		cJSON *root = cJSON_Parse((char*) ev->payload);
 		if (!root)
 			return;
-		const cJSON *type = cJSON_GetObjectItemCaseSensitive(root, "type");
-		if (!cJSON_IsString(type) || !type->valuestring) {
+		const cJSON *cmd = cJSON_GetObjectItemCaseSensitive(root, "cmd");
+		if (!cJSON_IsString(cmd) || !cmd->valuestring) {
 			cJSON_Delete(root);
 			return;
 		}
-		if (!strcmp(type->valuestring, "ping")) {
+		if (!strcmp(cmd->valuestring, "ping")) {
 			char *txt = cJSON_Print(root);
 			printf("ping request: %s\n", txt);
 			free(txt);
@@ -793,83 +836,73 @@ void ws_operational_handler(fsm_t *fsm, const message_frame_t *ev) {
 			return;
 		}
 		switch (addr->valueint) {
-		case 0: { // system wide message WS_QUERY_TX_CMD
-			char *txt = cJSON_Print(root);
-			if (!txt)
-				return;
-			message_frame_t msg = { .signal = WS_QUERY_TX_CMD(1, 1), .length =
-					strlen(txt) };
-			memcpy(msg.payload, txt, msg.length);
-			broker_post(me->super.broker, msg, PRIMARY_QUEUE);
-			free(txt);
-			cJSON_Delete(root);
+			case 0: { // system wide message WS_QUERY_TX_CMD
+				ws_map_entry_t s = {0};
+				strcpy(s.msg_id,cmd->valuestring);
+				s.client_id[0] = (ev->signal >> 15) & 0xF;
+				s.count = 1;
+				ws_add_map_entry(me,&s);
+				message_frame_t msg = { .signal = WS_QUERY_TX_CMD(1, 1), .length =
+						strlen((char*)ev->payload) };
+				memcpy(msg.payload, ev->payload, msg.length);
+				broker_post(me->super.broker, msg, PRIMARY_QUEUE);
+			}break;
+			default: { // message to be forwarded to module via external interface
+				ws_map_entry_t s = {0};
+				strcpy(s.msg_id,cmd->valuestring);
+				s.client_id[0] = (ev->signal >> 15) & 0xF;
+				s.count = 1;
+				ws_add_map_entry(me,&s);
+				message_frame_t msg = { .signal = WS_QUERY_TX_CMD(1, 2), .length =
+						strlen((char*)ev->payload) };
+				memcpy(msg.payload, ev->payload, msg.length);
+				broker_post(me->super.broker, msg, PRIMARY_QUEUE);
+		}break;
 		}
-			break;
-		default: { // message to be forwarded to module via external interface
-			char *txt = cJSON_Print(root);
-			if (!txt)
-				return;
-			message_frame_t msg = { .signal = WS_QUERY_TX_CMD(1, 2), .length =
-					strlen(txt) };
-			memcpy(msg.payload, txt, msg.length);
-			broker_post(me->super.broker, msg, PRIMARY_QUEUE);
-			free(txt);
-			cJSON_Delete(root);
-		}
-			break;
-		}
-	}
-		break;
+		cJSON_Delete(root);
+	}break;
 	case WS_QUERY_RX_CMD(0,0) ... WS_QUERY_RX_CMD(0xFF, 0xFF): {
 		cJSON *root = cJSON_Parse((char*) ev->payload);
 		if (!root)
 			return;
-		const cJSON *id = cJSON_GetObjectItemCaseSensitive(root, "id");
-		if (!cJSON_IsNumber(id) || !id->valueint) {
+		const cJSON *cmd = cJSON_GetObjectItemCaseSensitive(root, "cmd");
+		if (!cJSON_IsString(cmd) || !cmd->valuestring) {
 			cJSON_Delete(root);
 			return;
 		}
-		char *txt = cJSON_Print(root);
-		if(!txt)return;
-		pthread_mutex_lock(&me->cmd.mx);
-		int next = (me->cmd.tail + 1)
-				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
-		if (next != me->cmd.head) {
-			me->cmd.q[me->cmd.tail].target_idx = id->valueint;
-			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
-			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
-			me->cmd.tail = next;
+		ws_map_entry_t s = {0};
+		if(ws_find_map_entry_by_name(me,&s,cmd->valuestring)){
+			for(int i = 0; i< s.count; i++){
+				pthread_mutex_lock(&me->cmd.mx);
+				int next = (me->cmd.tail + 1)
+						% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
+				if (next != me->cmd.head) {
+					me->cmd.q[me->cmd.tail].target_idx = s.client_id[i];
+					strncpy(me->cmd.q[me->cmd.tail].msg, (char*)ev->payload, WS_TX_BUFSZ - 1);
+					me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
+					me->cmd.tail = next;
+				}
+				pthread_mutex_unlock(&me->cmd.mx);
+			}
+			uint64_t one = 1;
+			write(me->notifyfd, &one, sizeof(one));
 		}
-		pthread_mutex_unlock(&me->cmd.mx);
-		uint64_t one = 1;
-		write(me->notifyfd, &one, sizeof(one));
-		free(txt);
-		cJSON_Delete(root);
-	}
-		break;
+			cJSON_Delete(root);
+		}break;
 	case WS_CMD_BROADCAST : {
-		cJSON *root = cJSON_Parse((char*) ev->payload);
-		if (!root)
-			return;
-		char *txt = cJSON_Print(root);
-		if(!txt)return;
 		pthread_mutex_lock(&me->cmd.mx);
 		int next = (me->cmd.tail + 1)
 				% (int) (sizeof(me->cmd.q) / sizeof(me->cmd.q[0]));
 		if (next != me->cmd.head) {
 			me->cmd.q[me->cmd.tail].target_idx = -1;
-			strncpy(me->cmd.q[me->cmd.tail].msg, txt, WS_TX_BUFSZ - 1);
+			strncpy(me->cmd.q[me->cmd.tail].msg, (char*)ev->payload, WS_TX_BUFSZ - 1);
 			me->cmd.q[me->cmd.tail].msg[WS_TX_BUFSZ - 1] = '\0';
 			me->cmd.tail = next;
 		}
 		pthread_mutex_unlock(&me->cmd.mx);
 		uint64_t one = 1;
 		write(me->notifyfd, &one, sizeof(one));
-		free(txt);
-		cJSON_Delete(root);
-	}
-		break;
-
+	}break;
 	default:
 		break;
 	}
@@ -894,6 +927,8 @@ void ws_ctor(ao_ws_t *me, broker_t *broker, char *name, uint16_t port) {
 	me->epfd = me->listenfd = me->notifyfd = -1;
 	me->pump_running = 0;
 	me->id_seq = 0;
+	memset(&me->map,0, sizeof(ws_map_t)); // initialise map on ctor
+	memset(&me->clients,0, sizeof(me->clients));
 	for (int i = 0; i < WS_MAX_CLIENTS; i++)
 		me->clients[i].st = WS_CL_FREE;
 
